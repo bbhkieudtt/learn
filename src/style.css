@@ -11,3 +11,9 @@
     height: 100%;
     background: url(/waves-bg.svg) no-repeat center bottom;
 }
+.gradient-custom-forgot {
+  background: 
+  linear-gradient(0deg, #ffffff, #ffc66425), /* Lớp gradient đầu tiên */
+  linear-gradient(90deg, rgba(0, 0, 0, 0.2), rgba(255, 255, 255, 0)), /* Lớp gradient thứ hai */
+  url('@/assets/imgs/background.avif') no-repeat center / cover; /* Lớp hình ảnh */
+}

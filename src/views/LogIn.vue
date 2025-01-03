@@ -20,14 +20,17 @@
               alt=""
             />
             <h1 class="text-2xl font-semibold text-black">
-              Đăng nhập Merchant
+              {{
+                !status_login ? "Đăng nhập Merchant" : "Đăng nhập thành công"
+              }}
             </h1>
           </div>
           <!--  -->
           <form>
-            <div class="px-0 py-8">
+            <div class="px-0 py-8" v-if="!status_login">
               <div class="group relative z-0 mb-6 w-full">
                 <input
+                  v-model="account_login.username"
                   type="email"
                   class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
                   placeholder=" "
@@ -39,6 +42,7 @@
               </div>
               <div class="group relative z-0 mb-6 w-full">
                 <input
+                  v-model="account_login.password"
                   type="password"
                   class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
                   placeholder=" "
@@ -49,6 +53,7 @@
                 >
               </div>
               <button
+                @click="login"
                 type="submit"
                 class="mt-5 w-full text-sm h-11 rounded-full bg-slate-800 py-3 font-medium text-white hover:bg-black"
               >
@@ -62,6 +67,14 @@
                 </p>
               </div>
             </div>
+            <!--  -->
+            <!-- icoon -->
+            <dotlottie-vue
+              v-else
+              src="https://lottie.host/15eb8737-4bdb-4de2-947f-911a7bb8c299/wwc62eFWV3.lottie"
+              autoplay
+              loop
+            ></dotlottie-vue>
           </form>
         </div>
         <!--  -->
@@ -82,14 +95,20 @@
                   />Giới thiệu</a
                 >
               </li>
-              <li v-for="item in list_menu" class="hover:cursor-pointer hover:underline">
-                <a :href="item.link_menu" target="_blank"
-                  >{{ item.name_menu }}</a
-                >
+              <li
+                v-for="item in list_menu"
+                class="hover:cursor-pointer hover:underline"
+              >
+                <a :href="item.link_menu" target="_blank">{{
+                  item.name_menu
+                }}</a>
               </li>
-             
             </ul>
-            <div class="bottom-4 text-slate-600 text-center fixed text-xs left-6"> Phiên bản 1.3.31</div>
+            <div
+              class="bottom-4 text-slate-600 text-center fixed text-xs left-6"
+            >
+              Phiên bản 1.3.31
+            </div>
           </div>
         </div>
       </div>
@@ -97,27 +116,44 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
-/***Biến danh sách*/ 
- const list_menu = ref([
-     {
-        name_menu:'Miễn phí',
-        link_menu:'https://home.merchant.vn/pricing'
-     },
-     {
-        name_menu:'Tính năng',
-        link_menu:'https://home.merchant.vn/feature'
-     },
-     {
-        name_menu:'Chính sách',
-        link_menu:'https://home.merchant.vn/privacy'
-     },
-     {
-        name_menu:'Liên hệ',
-        link_menu:'https://home.merchant.vn/contact'
-     },
-     
- ])
+import { onMounted, ref, watch } from "vue";
+import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
+import { tr } from "date-fns/locale";
+const status_login = ref(false);
+
+/***Biến danh sách*/
+const list_menu = ref([
+  {
+    name_menu: "Miễn phí",
+    link_menu: "https://home.merchant.vn/pricing",
+  },
+  {
+    name_menu: "Tính năng",
+    link_menu: "https://home.merchant.vn/feature",
+  },
+  {
+    name_menu: "Chính sách",
+    link_menu: "https://home.merchant.vn/privacy",
+  },
+  {
+    name_menu: "Liên hệ",
+    link_menu: "https://home.merchant.vn/contact",
+  },
+]);
+//
+const account_login = ref({
+  username: "",
+  password: "",
+});
+//
+function login() {
+  if (
+    account_login.value.username === "123" &&
+    account_login.value.password === "123"
+  ) {
+    status_login.value = true
+  }
+}
 </script>
 
 <style scoped lang="scss"></style>
