@@ -5,23 +5,23 @@
     >
       <div class="flex z-50 px-20 justify-between">
         <div>
-          <h1 class="flex text-4xl font-bold text-slate-900">Merchant</h1>
+          <h1 class="flex text-4xl font-bold text-slate-900">Picklaball</h1>
           <!--  -->
           <p class="flex text-xl text-slate-900">
-            Chuyển đổi số miễn phí cho Doanh nghiệp SME tại Việt Nam
+            Sân Pickleball của bạn, niềm vui của chúng tôi!
           </p>
         </div>
         <!--  -->
         <div class="sm:w-96 bg-white drop-shadow-2xl rounded-3xl p-12">
           <div class="text-center flex flex-col gap-4">
             <img
-              src="@/assets/imgs/login.png"
-              class="h-16 w-16 mx-auto"
+              src="@/assets/imgs/logoPick.png"
+              class="h-[100px] w-[100px] mx-auto"
               alt=""
             />
             <h1 class="text-2xl font-semibold text-black">
               {{
-                !status_login ? "Đăng nhập Merchant" : "Đăng nhập thành công"
+                !status_login ? "Đăng nhập Picklaball" : "Đăng nhập thành công"
               }}
             </h1>
           </div>
@@ -37,7 +37,7 @@
                 /><label
                   for="floating_email"
                   class="bg-red absolute top-0.5 left-0 -z-10 origin-[0] -translate-y-3 scale-75 transform pt-3 pl-6 text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-orange-600"
-                  >Merchant ID</label
+                  >Tên tài khoản</label
                 >
               </div>
               <div class="group relative z-0 mb-6 w-full">
@@ -63,7 +63,7 @@
                 <p
                   class="line-clamp-1 cursor-pointer hover:underline text-primary"
                 >
-                  <span>Lấy lại mật khẩu </span>
+                  <span>Đăng ký </span>
                 </p>
               </div>
             </div>
@@ -88,11 +88,7 @@
                   class="flex items-center gap-2"
                   href="https://home.merchant.vn"
                   target="_blank"
-                  ><img
-                    class="mx-auto h-6 w-6"
-                    src="@/assets/imgs/login.png"
-                    alt="logo"
-                  />Giới thiệu</a
+                  >Giới thiệu</a
                 >
               </li>
               <li
@@ -104,11 +100,7 @@
                 }}</a>
               </li>
             </ul>
-            <div
-              class="bottom-4 text-slate-600 text-center fixed text-xs left-6"
-            >
-              Phiên bản 1.3.31
-            </div>
+          
           </div>
         </div>
       </div>
