@@ -15,6 +15,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@hbilal_9/vue3-star-ratings": "^0.0.8",
     "@lottiefiles/dotlottie-vue": "^0.5.4",
     "async": "^3.2.4",
     "autoprefixer": "^10.4.13",

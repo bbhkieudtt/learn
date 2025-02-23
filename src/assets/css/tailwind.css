@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.custom-style {
+    color: red !important;
+    font-size: 5rem !important;
+    font-family: 'system-ui', 'Courier New', Courier, monospace;
+}
