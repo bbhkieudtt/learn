@@ -11,14 +11,14 @@ import {
 import "@/assets/css/tailwind.css";
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 import type { CbError } from "@/service/interface";
-import StarRatings from '@hbilal_9/vue3-star-ratings'
-  import '@hbilal_9/vue3-star-ratings/dist/style.css'
+import vue3StarRatings from "vue3-star-ratings";
+
   
 // * Import css
 import "./style.css";
 const APP = createApp(App);
 APP.component("dotlottie-vue", DotLottieVue);
-APP.use(StarRatings)
+APP.component("vue3-star-ratings", vue3StarRatings);
 waterfall(
   [
     (cb: CbError) => loadEnv(cb),

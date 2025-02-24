@@ -2,8 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-.custom-style {
-    color: red !important;
-    font-size: 5rem !important;
-    font-family: 'system-ui', 'Courier New', Courier, monospace;
+.vue3-star-ratings__icon{
+    width: 12px !important;
+    height: 12px !important;
 }
