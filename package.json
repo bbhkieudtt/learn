@@ -15,6 +15,12 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@fullcalendar/core": "^6.1.15",
+    "@fullcalendar/daygrid": "^6.1.15",
+    "@fullcalendar/interaction": "^6.1.15",
+    "@fullcalendar/timegrid": "^6.1.15",
+    "@fullcalendar/vue": "^6.1.15",
+    "@fullcalendar/vue3": "^6.1.15",
     "@hbilal_9/vue3-star-ratings": "^0.0.8",
     "@lottiefiles/dotlottie-vue": "^0.5.4",
     "async": "^3.2.4",

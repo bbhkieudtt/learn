@@ -13,7 +13,7 @@
       <div
       v-for="yard in list_yard"
       :key="yard.key" 
-        class="px-2 py-2 flex items-center flex-col gap-2 bg-white rounded-xl"
+        class="px-2 py-2 flex items-center cursor-pointer flex-col gap-2 bg-white rounded-xl"
       >
         <img class="w-50 rounded-lg h-40" :src="yard.img" alt="ảnh sân" />
         <div class="flex flex-col g-1">
