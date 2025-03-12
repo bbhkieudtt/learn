@@ -12,6 +12,7 @@ import "@/assets/css/tailwind.css";
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 import type { CbError } from "@/service/interface";
 import vue3StarRatings from "vue3-star-ratings";
+import { DayPilotScheduler } from 'daypilot-pro-vue'
 
   
 // * Import css

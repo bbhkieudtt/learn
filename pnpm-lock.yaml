@@ -41,6 +41,9 @@ importers:
       date-fns:
         specifier: 2.30.0
         version: 2.30.0
+      daypilot-pro-vue:
+        specifier: https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz
+        version: https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz(typescript@4.7.4)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -687,6 +690,10 @@ packages:
   date-fns@2.30.0:
     resolution: {integrity: sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==}
     engines: {node: '>=0.11'}
+
+  daypilot-pro-vue@https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz:
+    resolution: {tarball: https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz}
+    version: 2024.4.6243
 
   de-indent@1.0.2:
     resolution: {integrity: sha512-e/1zu3xH5MQryN2zdVaF0OrdNLUbvWxzMbi+iNA6Bky7l1RoP8a2fIbRocyHclXt/arDrrR6lL3TqFD9pMQTsg==}
@@ -2140,6 +2147,12 @@ snapshots:
   date-fns@2.30.0:
     dependencies:
       '@babel/runtime': 7.26.0
+
+  daypilot-pro-vue@https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz(typescript@4.7.4):
+    dependencies:
+      vue: 3.5.13(typescript@4.7.4)
+    transitivePeerDependencies:
+      - typescript
 
   de-indent@1.0.2: {}
 

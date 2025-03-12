@@ -26,6 +26,7 @@
     "async": "^3.2.4",
     "autoprefixer": "^10.4.13",
     "date-fns": "2.30.0",
+    "daypilot-pro-vue": "https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz",
     "lodash": "^4.17.21",
     "pinia": "^2.0.28",
     "postcss": "^8.4.19",
