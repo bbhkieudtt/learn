@@ -1,9 +1,7 @@
 <template>
-    <div class="h-screen w-screen img-bg flex ">
-        <Narbar></Narbar>
+    <div class="h-screen w-screen overflow-hidden img-bg flex flex-col ">
         <Body></Body>
-        
-
+        <Narbar></Narbar>
     </div>
 </template>
 

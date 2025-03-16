@@ -13,6 +13,8 @@ import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 import type { CbError } from "@/service/interface";
 import vue3StarRatings from "vue3-star-ratings";
 import { DayPilotScheduler } from 'daypilot-pro-vue'
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
   
 // * Import css
@@ -20,6 +22,7 @@ import "./style.css";
 const APP = createApp(App);
 APP.component("dotlottie-vue", DotLottieVue);
 APP.component("vue3-star-ratings", vue3StarRatings);
+APP.component('VueDatePicker', VueDatePicker);
 waterfall(
   [
     (cb: CbError) => loadEnv(cb),

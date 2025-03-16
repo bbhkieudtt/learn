@@ -13,7 +13,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-   
 
 }
 
@@ -38,3 +37,27 @@ div .fc-view-harness .fc-view-harness-active{
 .fc-scrollgrid tbody{
     overflow-y: auto !important;
 }
+
+/* Thu nhỏ chiều rộng/thickness của thanh scroll */
+::-webkit-scrollbar {
+    width: 0px;  /* Độ rộng của thanh dọc */
+    height: 6px; /* Độ cao của thanh ngang */
+}
+
+/* Tạo viền bo tròn và màu nền */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+/* Màu và bo tròn cho phần thanh kéo (thumb) */
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+/* Đổi màu khi hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+

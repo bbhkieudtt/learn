@@ -1,16 +1,10 @@
 <template>
-  <div class="w-96 h-full flex flex-col gap-8 backdrop-blur-lg px-6 py-5">
-    <div class="flex justify-center items-center gap-10 rounded-xl py-1 w-full border  border-white ">
-      <img src="@/assets/imgs/logoNo.png" class="w-[70px] h-[50px]" alt="" />
-      <!--  -->
-      <h2 class="text-2xl font-semibold text-white">Picklaball</h2>
-    </div>
-    <!--  -->
-    <ul class="flex flex-col gap-8 ">
-        <li v-for="item in list_menu" class="flex items-center gap-3 border bg-white border-white p-2 rounded-[20px]">
-            <img :src="item.icon_menu" class="h-[55px] w-[55px]" :alt="item.name_menu">
+  <div class="w-full bg-green flex flex-shrink-0  gap-8 backdrop-blur-lg px-20  ">
+    <ul class="w-full justify-between flex  ">
+        <li v-for="item in list_menu" class="flex cursor-pointer flex-col  items-center gap-1  p-1 rounded-[20px]">
+            <img :src="item.icon_menu" class="h-[45px] w-[45px]" :alt="item.name_menu">
             <!--  -->
-            <p class="text-xl text-slate-900 font-medium">{{ item.name_menu }}</p>
+            <p class="text-xl text-white font-medium">{{ item.name_menu }}</p>
         </li>
     </ul>
   </div>
@@ -29,7 +23,7 @@ import { ref } from 'vue'
 const list_menu = ref([
     {
         id: 1,
-        name_menu: "Danh sách sân Picklaball",
+        name_menu: "Đặt sân ",
         icon_menu: listsan,
         active_menu: false,
     },

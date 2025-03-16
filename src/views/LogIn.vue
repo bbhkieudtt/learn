@@ -93,6 +93,7 @@
               </li>
               <li
                 v-for="item in list_menu"
+                
                 class="hover:cursor-pointer hover:underline"
               >
                 <a :href="item.link_menu" target="_blank">{{

@@ -19,17 +19,17 @@
           <IconClock></IconClock>
         </div>
         <div class="flex gap-2 button rounded-md  ">
-          <p>Khách thuê</p>
+          <p>Giá thuê</p>
           <IconUser></IconUser>
         </div>
         <div class="flex gap-2 button rounded-md  ">
           <p>
-            Số điện thoại
+            Thông tin sân 
           </p>
           <IconPhone></IconPhone>
         </div>
         <div class="flex gap-2 button rounded-md  ">
-          <p>27/2/2025</p>
+          <p>Các lịch đặt sân </p>
         </div>
       </div>
       <!--  -->
@@ -50,7 +50,9 @@
     </header>
     <main class="flex-1 py-2 h-full main overflow-hidden">
       <!-- <FullCalendar></FullCalendar> -->
-      <DayPilotScheduler :config="config" ref="scheduler" />
+      <!-- <DayPilotScheduler :config="config" ref="scheduler" /> -->
+
+
     </main>
   </div>
 </template>
@@ -65,6 +67,7 @@ import FullCalendar from "./layout/FullCalendar.vue";
 import IconBack from "@/components/Icons/IconBack.vue";
 import IconSearch from "@/components/Icons/IconSearch.vue";
 import IconFilter from "@/components/Icons/IconFilter.vue";
+
 /**icon menu*/
 import IconClock from "@/components/Icons/IconClock.vue";
 import IconUser from "@/components/Icons/IconUse.vue";

@@ -9,6 +9,13 @@ module.exports = {
       spacing:{
         '96':'384px',
         50:'180px',
+        15:'60px',
+        100:'400px',
+        25:'100px',
+        30:'130px',
+
+
+
       },
       fontSize: {
         "xs+": "13px", 
