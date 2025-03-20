@@ -105,7 +105,7 @@
 import { ref, computed } from "vue";
 
 /**Thư viện*/
-import vue3starRatings from "vue3-star-ratings";
+
 
 /**icon*/
 import IconBack from "@/components/Icons/IconBack.vue";

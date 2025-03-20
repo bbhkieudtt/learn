@@ -14,7 +14,7 @@
       <!--  -->
       <div class="grid grid-cols-4 gap-3 ">
         <div class="flex gap-2 button rounded-md  ">
-  
+
           <p class="text-sm ">Lịch thuê</p>
           <IconClock></IconClock>
         </div>
@@ -24,7 +24,7 @@
         </div>
         <div class="flex gap-2 button rounded-md  ">
           <p>
-            Thông tin sân 
+            Thông tin sân
           </p>
           <IconPhone></IconPhone>
         </div>
@@ -36,11 +36,11 @@
       <div class="flex items-center justify-center gap-5">
         <div v-for="item in list_statistical" class="flex gap-2 items-center">
           <span :class="{
-                    'bg-green-500': item.key === 2,
-                    'bg-white': item.key === 1,
-                    'bg-slate-400': item.key === 4,
-                    'bg-orange-400': item.key === 3,
-                }" class="w-7 h-7 rounded-md shadow-sm ">
+            'bg-green-500': item.key === 2,
+            'bg-white': item.key === 1,
+            'bg-slate-400': item.key === 4,
+            'bg-orange-400': item.key === 3,
+          }" class="w-7 h-7 rounded-md shadow-sm ">
           </span>
           <p class="text-sm font-medium text-slate-200">
             {{ item.status }}
@@ -48,17 +48,18 @@
         </div>
       </div>
     </header>
+    <!--  -->
     <main class="flex-1 py-2 h-full main overflow-hidden">
       <!-- <FullCalendar></FullCalendar> -->
-      <!-- <DayPilotScheduler :config="config" ref="scheduler" /> -->
-
-
+      <DayPilotScheduler :config="config" ref="scheduler" />
     </main>
+    
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref,onMounted } from "vue";
+import { ref, onMounted } from "vue";
+
 
 /**component*/
 import FullCalendar from "./layout/FullCalendar.vue";
@@ -72,8 +73,6 @@ import IconFilter from "@/components/Icons/IconFilter.vue";
 import IconClock from "@/components/Icons/IconClock.vue";
 import IconUser from "@/components/Icons/IconUse.vue";
 import IconPhone from "@/components/Icons/IconPhone.vue";
-
-
 
 
 import { DayPilot, DayPilotScheduler } from 'daypilot-pro-vue';

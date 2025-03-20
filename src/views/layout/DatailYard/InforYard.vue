@@ -10,6 +10,7 @@
             <h3 class="text-white text-xl font-semibold ml-30 mt-3">
                 Thiên Lý Ơi
             </h3>
+
             <div class="grid grid-cols-4 mt-10">
                 <div v-for="(item, index) in list_items" :key="index" :class="{
                     'border-white , border-b': yarf_select === item.key
@@ -20,7 +21,8 @@
             </div>
             <!--Thông tin sân   -->
             <div v-if="yarf_select === 1" class="flex flex-col w-full">
-                <div class="flex gap-2 py-5 px-2  w-full border-b border-slate-400 items-center">
+                <div @click="showMap(infor_yard.Address)"
+                    class="flex gap-2 py-5 px-2 cursor-pointer  w-full border-b border-slate-400 items-center">
                     <IconLocation class="w-5 h-5 text-white"></IconLocation>
                     <p class="text-sm text-white">
                         {{ infor_yard.Address }}
@@ -96,27 +98,39 @@
                             <!--  -->
                             <vue3-star-ratings v-model="item.Star" />
                         </div>
-                        <p class="text-xs text-white">{{item.content  }}</p>
+                        <p class="text-xs text-white">{{ item.content }}</p>
                     </div>
                 </div>
             </div>
-
-
-
         </main>
     </div>
+    <!-- Modal -->
+    <Modal v-if="show_modal" :close="showModal">
+        <template #content>
+            <main class="flex-1 py-2 h-full main overflow-hidden">
+                <!-- Phần hiển thị bản đồ -->
+                <div id="map"></div>
+            </main>
+        </template>
+    </Modal>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 /**Thư viện*/
 import vue3starRatings from "vue3-star-ratings";
+import L from 'leaflet';
+
+
 
 /**icon*/
 import Iconphones from '@/components/Icons/Iconphones.vue'
 import IconClock from '@/components/Icons/IconClock.vue'
 import IconLocation from '@/components/Icons/IconLocation.vue'
 import IconEdit from '@/components/Icons/IconEdit.vue'
+
+/**modal*/
+import Modal from '@/components/Modal/Modal.vue';
 
 /*ảnh sân **/
 import ImgYard from '@/assets/imgs/bg2.jpg'
@@ -126,6 +140,9 @@ import Img1 from '@/assets/imgs/bg_san.jpg'
 import Img2 from '@/assets/imgs/bg_san2.jpg'
 import ImgUser from '@/assets/imgs/avatarUser.png'
 
+/**Biến thư viện hiển thị bản đồ */
+const mapPosition = ref<{ lat: number; lon: number } | null>(null);
+let mapInstance: L.Map | null = null;
 
 /**biến kiểm tra xem thông tin gì của sân*/
 const yarf_select = ref(1)
@@ -134,7 +151,7 @@ const yarf_select = ref(1)
 const infor_yard = ref({
     name_yard: 'Hoa Thiên Lý',
     img: ImgYard,
-    Address: "96 Định Công, Hoàng Mai, Hà Nội",
+    Address: "19 Tố Hữu, Nam Từ Liêm, Hà Nội",
     phone: '098765432',
     time_opent: '5:00 - 23:00',
     price_yard: [{
@@ -182,6 +199,9 @@ const infor_yard = ref({
 
 })
 
+/**Biến mở modal map*/
+const show_modal = ref(false);
+
 /**danh sách mục tiêu đánh giá*/
 const list_items = ref([
     {
@@ -200,6 +220,77 @@ const list_items = ref([
         name_items: 'Đánh giá',
     }
 ])
+
+const getCoordinates = async (address: string) => {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data && data[0]) {
+            const lat = parseFloat(data[0].lat);
+            const lon = parseFloat(data[0].lon);
+            return { lat, lon };
+        } else {
+            alert('Không tìm thấy địa chỉ này trên bản đồ.');
+            return null;
+        }
+    } catch (err) {
+        console.error('Lỗi khi tìm kiếm địa chỉ:', err);
+        alert('Có lỗi xảy ra khi tìm kiếm địa chỉ.');
+        return null;
+    }
+};
+
+/**Hàm mở bản đồ*/
+/**Hàm mở bản đồ*/
+const showMap = async (address: string) => {
+    show_modal.value = true; // Hiển thị modal
+
+    nextTick(async () => { // Đảm bảo DOM đã được cập nhật
+        const coordinates = await getCoordinates(address);
+        if (coordinates) {
+            mapPosition.value = coordinates;
+            
+            // Khởi tạo bản đồ chỉ khi modal được mở
+            if (!mapInstance) {
+                mapInstance = L.map('map').setView([coordinates.lat, coordinates.lon], 13); // Đặt tọa độ
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 25, // Mức zoom tối đa
+                    tileSize: 256, // Kích thước tile
+                    zoomOffset: 0, // Đặt lại offset zoom
+                }).addTo(mapInstance);
+            } else {
+                mapInstance.setView([coordinates.lat, coordinates.lon], 13); // Cập nhật vị trí nếu bản đồ đã được khởi tạo
+            }
+
+            L.marker([coordinates.lat, coordinates.lon])
+                .addTo(mapInstance)
+                .bindPopup(address)
+                .openPopup();
+
+            mapInstance.invalidateSize(); // Đảm bảo bản đồ được vẽ lại đúng sau khi thay đổi
+        }
+    });
+};
+
+
+
+
+window.addEventListener('resize', () => {
+    if (mapInstance) {
+        mapInstance.invalidateSize(); // Cập nhật lại bản đồ khi kích thước cửa sổ thay đổi
+    }
+});
+
+
+
+/**hàm đóng modal*/
+function showModal() {
+    show_modal.value = false;
+}
+
 
 
 </script>

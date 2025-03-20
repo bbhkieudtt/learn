@@ -11,7 +11,7 @@
   <!-- Modal content -->
   <div
     :class="$props.modal_class"
-    class="fixed z-30 bg-white rounded-lg w-[40%] h-fit   md:my-0 flex items-center justify-center top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+    class="fixed z-30 bg-white rounded-lg w-[50%] h-[60%]   md:my-0 flex items-center justify-center top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
   >
     <slot name="content"></slot>
   </div>

@@ -16,6 +16,8 @@ import { DayPilotScheduler } from 'daypilot-pro-vue'
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 
+import 'leaflet/dist/leaflet.css';
+
   
 // * Import css
 import "./style.css";
