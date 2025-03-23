@@ -1,35 +1,37 @@
 <template>
   <div>
-    <FullCalendar class="demo-app-calendar" :options="calendarOptions">
-    </FullCalendar>
+    <FullCalendar class="demo-app-calendar" ref="calendarRef" :options="calendarOptions" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineComponent } from "vue";
-import type {
-  CalendarOptions,
-  EventApi,
-  DateSelectArg,
-  EventClickArg,
-} from "@fullcalendar/core";
+import { ref, watchEffect } from "vue";
+import { useAppStore } from '@/stores/appStore'
+
+/**Biến thư viện */
+import type { CalendarOptions, DateSelectArg, CalendarApi } from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { INITIAL_EVENTS, createEventId } from "@/event-utils";
-
-
 import viLocale from "@fullcalendar/core/locales/vi";
 
 
+/**biến store*/
+const store = useAppStore()
 
+// Tạo tham chiếu đến Calendar
+const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null);
+
+// Xử lý khi chọn ngày để thêm sự kiện
+const handleDateSelect = (selectInfo: DateSelectArg) => {
+  store.add_boking = false
+  store.selectInfo = selectInfo
+};
+
+// Cấu hình FullCalendar
 const calendarOptions: CalendarOptions = {
-  plugins: [
-    dayGridPlugin,
-    timeGridPlugin,
-    interactionPlugin, // needed for dateClick
-  ],
+  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   locale: viLocale,
   headerToolbar: {
     left: "prev,next today",
@@ -37,13 +39,38 @@ const calendarOptions: CalendarOptions = {
     right: "dayGridMonth,timeGridWeek,timeGridDay",
   },
   initialView: "dayGridMonth",
-  initialEvents: INITIAL_EVENTS, // alternatively, use the `events` setting to fetch from a feed
   editable: true,
-  selectable: true,
+  selectable: true, // Cho phép chọn ngày
   selectMirror: true,
   dayMaxEvents: true,
   weekends: true,
+  select: handleDateSelect, // Bắt sự kiện khi chọn ngày
 };
+
+/**Theo dõi sự thay đổi của biến store.add_boking*/
+
+watchEffect(() => {
+  console.log("watchEffect phát hiện thay đổi:", store.add_boking);
+  if (store.add_boking) {
+    if (store.info_client && calendarRef.value) {
+      console.log('store.info_client',store.info_client);
+      
+      const calendarApi = calendarRef.value.getApi();
+      calendarApi.addEvent({
+        id: String(Date.now()),
+        title: `${store.info_client?.name_client ?? "Không có tên"} - ${store.info_client?.phone_client ?? "Không có số"}`,
+        start: store.selectInfo?.startStr,
+        end: store.selectInfo?.endStr,
+        allDay: store.selectInfo?.allDay,
+      });
+      calendarApi.unselect();
+    }
+    
+  }
+});
+
+
+
 </script>
 
-<style lang="scss" scoped></style>
+
