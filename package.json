@@ -29,6 +29,7 @@
     "@vueuse/core": "^13.0.0",
     "async": "^3.2.4",
     "autoprefixer": "^10.4.13",
+    "axios": "^1.8.4",
     "date-fns": "2.30.0",
     "daypilot-pro-vue": "https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz",
     "leaflet": "1.7.1",
@@ -39,6 +40,7 @@
     "sass": "^1.56.2",
     "sweetalert2": "^11.7.12",
     "tailwindcss": "^3.2.4",
+    "uuid": "^11.1.0",
     "vue": "^3.5.13",
     "vue-i18n": "9.13.1",
     "vue-rate-it": "^2.1.0",
@@ -46,6 +48,7 @@
     "vue-star-rating": "^1.7.0",
     "vue3-leaflet": "^1.0.50",
     "vue3-star-ratings": "^3.0.5",
+    "vue3-toastify": "^0.2.8",
     "vuex": "^4.1.0"
   },
   "devDependencies": {

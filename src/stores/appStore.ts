@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 
 /**kiểu dữ liệu*/
-import type {ClientBoking,} from '@/interface'
+import type {ClientBoking, event_booking } from '@/interface'
 import type {  DateSelectArg } from "@fullcalendar/core";
 /***/ 
 export const useAppStore = defineStore("app", () => {
@@ -15,12 +15,15 @@ export const useAppStore = defineStore("app", () => {
     const info_client = ref<ClientBoking>() 
     /**Lưu thông tin thời gian để tạo lịch*/
     const selectInfo = ref<DateSelectArg>()
+    /**Mảng sự kiện*/
+    const list_event =ref<event_booking>([])
     
     return {
         filter_time,
         add_boking,
         info_client,
-        selectInfo
+        selectInfo,
+        list_event
     }
 
 });

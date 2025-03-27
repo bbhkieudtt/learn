@@ -45,6 +45,7 @@ const calendarOptions: CalendarOptions = {
   dayMaxEvents: true,
   weekends: true,
   select: handleDateSelect, // Bắt sự kiện khi chọn ngày
+  events:store.list_event
 };
 
 /**Theo dõi sự thay đổi của biến store.add_boking*/
@@ -56,14 +57,17 @@ watchEffect(() => {
       console.log('store.info_client',store.info_client);
       
       const calendarApi = calendarRef.value.getApi();
-      calendarApi.addEvent({
+      calendarApi.unselect();
+      const newEvent = {
         id: String(Date.now()),
         title: `${store.info_client?.name_client ?? "Không có tên"} - ${store.info_client?.phone_client ?? "Không có số"}`,
         start: store.selectInfo?.startStr,
         end: store.selectInfo?.endStr,
         allDay: store.selectInfo?.allDay,
-      });
-      calendarApi.unselect();
+      };
+      store.list_event.push(newEvent);
+      calendarApi.addEvent(newEvent);
+    
     }
     
   }
