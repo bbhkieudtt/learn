@@ -8,8 +8,8 @@ interface InputRequestApi {
 }
 
 /** Đường dẫn host của merchant */
-const HOST: { [index: string]: string } =
-  api_host[import.meta.env.VITE_APP_ENV || "development"];
+const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
+
 
 // /** Lấy token business từ store */
 // function getBusinessToken() {
@@ -18,39 +18,36 @@ const HOST: { [index: string]: string } =
 // }
 
 /** Request api của merchant */
-async function apiMerchantRequest({
-  end_point,
-  body,
-}: InputRequestApi) {
+async function apiMerchantRequest({ end_point, body }: InputRequestApi) {
   try {
-    // * Hiện loading
-    const data = await requestAxios({
+    // ❌ KHÔNG cần stringify body ở đây
+    let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
       method: "POST",
-      headers: {
-        "Content-Type": "application/json", 
-      },
-      body,
+      headers: { "Content-Type": "application/json" },
+      body, // ✅ Truyền object trực tiếp
     });
-    // * Trả về dữ liệu
-    return data;
+    return response;
   } catch (e) {
     throw e;
   }
 }
 
+
 /**lấy danh sách danh mục*/
-export const apiCreateUser = async (payload: User) => {
+export const apiCreateUser = async (payload: any) => {
    try {
      return await apiMerchantRequest({
        // endpoint API
-       end_point: "/User/create",
+       end_point: "User/create",
        // payload được truyền từ giao diện
        body: payload,
      });
    } catch (e) {
      // Log lỗi nếu có
-     console.error("Error:", e);
+    //  console.error("Error:", e);
+    console.log(e);
+    
      throw e;
    }
  };

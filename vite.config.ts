@@ -9,7 +9,7 @@ export default defineConfig({
   base: '/',
   plugins: [
     vue(), 
-    basicSsl()
+    // basicSsl()
   ],
   resolve: {
     alias: {
@@ -20,6 +20,6 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 8000,
-    https: true
+    // https: true
   }
 })

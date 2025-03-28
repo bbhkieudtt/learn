@@ -8,31 +8,20 @@ import { th } from "date-fns/locale";
  * Request axios
  * @param{ uri, method, body = {}, headers = {} }
  */
-export const requestAxios = async (
-    { uri, method, body = {}, headers = {} }: InputRequestAxios
-) => {
+export const requestAxios = async ({ uri, method, body = {}, headers = {} }: InputRequestAxios) => {
     try {
-        let nonReactiveBody = JSON.parse(JSON.stringify(body));
-        
-        /** Lấy ra kết quả request */
-        let result = await axios(uri, { method, headers, data: nonReactiveBody })
+        // ✅ Đảm bảo body là object, không cần JSON.stringify()
+        let result = await axios(uri, { method, headers, data: body });
 
-        console.log('result',result);
-        
+        console.log("API Response:", result);
 
-        // kiểm tra nếu trả về có lỗi thì throw ra lỗi 
-        if(result?.data?.error) throw result?.data?.context_error?.message
+        if (result?.data?.error) throw result?.data?.context_error?.message;
 
-        /** Trả về kết quả */
-        return result?.data?.data || result?.data || result
-
-
-
+        return result?.data?.data || result?.data || result;
     } catch (e) {
-        throw get(e, 'response.data.context_error.message') ||
-        get(e, 'response.data.message') ||
-        get(e, 'response.data') ||
-        get(e, 'message') ||
-        e
+        throw get(e, "response.data.context_error.message") ||
+              get(e, "response.data.message") ||
+              get(e, "response.data") ||
+              get(e, "message") || e;
     }
-}
+};

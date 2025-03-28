@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <main class="bg-login fixed z-0 top-0 left-0 w-full h-screen gradient-custom-forgot pt-20">
+    <main class="bg-login gradient-custom-forgot fixed z-0 top-0 left-0 w-full h-screen  pt-10">
       <div class="flex z-50 px-20 justify-between">
         <div>
           <h1 class="flex text-4xl font-bold text-slate-900">Pickleball</h1>
@@ -11,14 +11,14 @@
         </div>
         <!--  -->
         <div class="sm:w-96 bg-white drop-shadow-2xl rounded-3xl p-5 ">
-          <div class="text-center flex flex-col gap-4">
+          <div class="text-center flex flex-col gap-2">
             <img src="@/assets/imgs/logoPick.png" class="h-[100px] w-[100px] mx-auto" alt="" />
             <h1 class="text-2xl font-semibold text-black">
               Đăng kí tài khoản
             </h1>
           </div>
           <!--  -->
-          <form>
+          <div>
             <div class="px-0 py-8" v-if="!status_login">
               <div class="group relative z-0 mb-6 w-full">
                 <input v-model="account_login.username" type="text"
@@ -53,7 +53,7 @@
                   class="bg-red absolute top-0.5 left-0 -z-10 origin-[0] -translate-y-3 scale-75 transform pt-3 pl-6 text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-orange-600">Nhập email</label>
               </div>
               <!--  -->
-              <button @click="login" type="submit"
+              <button @click="login"
                 class="mt-5 w-full text-sm h-11 rounded-full bg-slate-800 py-3 font-medium text-white hover:bg-black">
                 Tạo tài khoản
               </button>
@@ -67,7 +67,7 @@
             <!-- icoon -->
             <dotlottie-vue v-else src="https://lottie.host/15eb8737-4bdb-4de2-947f-911a7bb8c299/wwc62eFWV3.lottie"
               autoplay loop></dotlottie-vue>
-          </form>
+          </div>
         </div>
         <!--  -->
       </div>
@@ -121,22 +121,62 @@ const defaultAccount = {
   address: "",
   role: 0
 };
-//
-async function login() {
-  if(password_confirm.value !== account_login.value.password ){
-    toast("Mật khẩu xác nhận chưa đúng !", {
-        autoClose: 5000,
-      }); // ToastOptions
-  }
-  else{
-    const finalAccount = { ...defaultAccount, ...account_login };
-    console.log('finalAccount',finalAccount);
-    
-    await apiCreateUser(finalAccount)
-  }
 
-  
+async function login() {
+  if (password_confirm.value !== account_login.value.password) {
+    toast("Mật khẩu xác nhận chưa đúng !", { autoClose: 5000 });
+  } else {
+    const finalAccount = { ...defaultAccount, ...account_login.value };
+    console.log("finalAccount gửi đi:", finalAccount);
+
+    try {
+      const response = await apiCreateUser(finalAccount);
+      console.log("API Response:", response);
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+  }
 }
+
+
+//
+// async function login() {
+//   if(password_confirm.value !== account_login.value.password ){
+//     toast("Mật khẩu xác nhận chưa đúng !", {
+//         autoClose: 5000,
+//       }); // ToastOptions
+//   }
+//   else{
+//     const finalAccount = { ...defaultAccount, ...account_login.value };
+//     console.log('finalAccount',finalAccount);
+    
+    
+//     // await apiCreateUser(finalAccount)
+
+//     fetch('http://pickleyard.somee.com/api/User/create', {
+//   method: 'POST', // HTTP method (GET, POST, PUT, DELETE, etc.)
+//   headers: {
+//     'Content-Type': 'application/json', // Set content-type header for JSON
+//   },
+//   body: JSON.stringify(finalAccount),
+// })
+//   .then(response => {
+//     if (!response.ok) {
+//       throw new Error('Network response was not ok');
+//     }
+//     return response.json(); // Parse JSON response
+//   })
+//   .then(data => {
+//     console.log('Success:', data); // Handle the data from the response
+//   })
+//   .catch(error => {
+//     console.error('There was a problem with the fetch operation:', error); // Handle errors
+//   });
+
+//   }
+// }
+
+
 </script>
 
 <style scoped lang="scss"></style>
