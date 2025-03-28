@@ -34,7 +34,7 @@ async function apiMerchantRequest({ end_point, body }: InputRequestApi) {
 }
 
 
-/**lấy danh sách danh mục*/
+/**api tạo tài khoản*/
 export const apiCreateUser = async (payload: any) => {
    try {
      return await apiMerchantRequest({
@@ -51,5 +51,26 @@ export const apiCreateUser = async (payload: any) => {
      throw e;
    }
  };
+
+ /**api tạo tài khoản*/
+export const login = async (payload: {
+   "username": "string",
+  "password": "string"
+}) => {
+  try {
+    return await apiMerchantRequest({
+      // endpoint API
+      end_point: "User/login",
+      // payload được truyền từ giao diện
+      body: payload,
+    });
+  } catch (e) {
+    // Log lỗi nếu có
+   //  console.error("Error:", e);
+   console.log(e);
+   
+    throw e;
+  }
+};
 
 

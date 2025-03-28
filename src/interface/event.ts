@@ -1,4 +1,4 @@
-/** Thông tin cá nhân khách đặt sân */
+
 export interface event_booking {
     id: string; // Unique identifier for the event
     groupId?: string; // Optional group ID for grouped events

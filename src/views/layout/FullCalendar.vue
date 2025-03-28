@@ -25,6 +25,8 @@ const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null);
 
 // Xử lý khi chọn ngày để thêm sự kiện
 const handleDateSelect = (selectInfo: DateSelectArg) => {
+  console.log('selectInfo',selectInfo);
+  
   store.add_boking = false
   store.selectInfo = selectInfo
 };

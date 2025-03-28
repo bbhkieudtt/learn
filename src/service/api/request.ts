@@ -17,7 +17,7 @@ export const requestAxios = async ({ uri, method, body = {}, headers = {} }: Inp
 
         if (result?.data?.error) throw result?.data?.context_error?.message;
 
-        return result?.data?.data || result?.data || result;
+        return  result;
     } catch (e) {
         throw get(e, "response.data.context_error.message") ||
               get(e, "response.data.message") ||

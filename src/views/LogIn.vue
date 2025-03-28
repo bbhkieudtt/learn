@@ -53,17 +53,24 @@
                 >
               </div>
               <button
-                @click="login"
+                @click="loginUse"
                 type="submit"
                 class="mt-5 w-full text-sm h-11 rounded-full bg-slate-800 py-3 font-medium text-white hover:bg-black"
               >
                 Tiếp tục
               </button>
-              <div class="mt-4 text-center text-xs+">
+              <div class="mt-4 text-center flex justify-center gap-10 text-xs+">
                 <p
+                @click="goToForgot"
                   class="line-clamp-1 cursor-pointer hover:underline text-primary"
                 >
                   <span>Đăng ký </span>
+                </p>
+                <!--  -->
+                <p
+                  class="line-clamp-1 cursor-pointer hover:underline text-primary"
+                >
+                  <span>Quên mật khẩu </span>
                 </p>
               </div>
             </div>
@@ -110,8 +117,22 @@
 </template>
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
+import { useRouter } from 'vue-router'
+
+/**thư viện hiển thị icon*/ 
 import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
 import { tr } from "date-fns/locale";
+
+/**api*/ 
+import { login } from "@/service/api/api";
+
+/**toast*/
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css'; 
+
+/**Biến router */
+const router = useRouter()
+
 const status_login = ref(false);
 
 /***Biến danh sách*/
@@ -139,13 +160,40 @@ const account_login = ref({
   password: "",
 });
 //
-function login() {
+async function loginUse() {
   if (
-    account_login.value.username === "123" &&
-    account_login.value.password === "123"
+    account_login.value.username.trim() === "" &&
+    account_login.value.password.trim() === ""
   ) {
-    status_login.value = true
+    toast("Xin hãy nhập đầy đủ thông tin!", { autoClose: 5000 });
+
+    return;
   }
+  // 
+  else{
+    try {
+      const response = await login(account_login.value);
+      console.log("API Response:", response);
+      // Kiểm tra nếu API trả về thành công
+    if (response && response.status === 200) {
+      status_login.value = true
+
+      setTimeout(() => {
+        router.push('/main');
+      }, 5000); // Delay 100ms để đảm bảo watch chạy trước
+
+    } else {
+      toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+    }
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+  }
+}
+
+// 
+function goToForgot(){
+  router.push('/forgot');
 }
 </script>
 
