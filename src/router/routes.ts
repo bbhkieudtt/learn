@@ -4,6 +4,7 @@ import Main from '@/views/Main.vue'
 import Detail from '@/views/DetailYard.vue'
 import Info from '@/views/layout/DatailYard/InforYard.vue'
 import Boking from '@/views/CreateBoking.vue'
+import ListYard from '@/views/layout/YourYard/ListYard.vue'
 
 
 
@@ -15,6 +16,6 @@ export const routes = [
   { path: '/detail', component: Detail },
   { path: '/Info', component: Info },
   { path: '/Boking', component: Boking },
-
+  { path: '/YourYard', component: ListYard },
 
 ]

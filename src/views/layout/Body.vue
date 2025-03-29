@@ -58,7 +58,7 @@
   <!--  -->
   <Modal v-if="show_modal" :close="showModal">
     <template #content>
-      <div class="w-full px-5 py-4 gap-4 flex flex-col">
+      <div class="w-[800px] px-5 py-4 gap-4 flex flex-col">
         <header class="flex justify-between items-center  py-0.5">
           <p class="text-xl font-semibold ">
             Tìm kiếm sân
