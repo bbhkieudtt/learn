@@ -5,6 +5,8 @@ import Detail from '@/views/DetailYard.vue'
 import Info from '@/views/layout/DatailYard/InforYard.vue'
 import Boking from '@/views/CreateBoking.vue'
 import ListYard from '@/views/layout/YourYard/ListYard.vue'
+import ListBoking from '@/views/layout/YourBoking/ListBoking.vue'
+import Revenue from '@/views/layout/Revenue/Revenue.vue'
 
 
 
@@ -17,5 +19,9 @@ export const routes = [
   { path: '/Info', component: Info },
   { path: '/Boking', component: Boking },
   { path: '/YourYard', component: ListYard },
+  { path: '/yourboking', component: ListBoking },
+  { path: '/revenue', component: Revenue },
+
+
 
 ]

@@ -22,6 +22,8 @@ export const useAppStore = defineStore("app", () => {
     /**Ngày muốn xem lịch*/ 
      /**biến ngày chọn ở lịch*/
     const date = ref(new Date());
+    /**Biến mở modal chọn kiểu lọc*/ 
+    const show_modal = ref(false)
 
     
     return {
@@ -31,7 +33,8 @@ export const useAppStore = defineStore("app", () => {
         selectInfo,
         list_event,
         filter_yard,
-        date
+        date,
+        show_modal
     }
 
 });

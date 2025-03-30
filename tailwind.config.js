@@ -21,7 +21,8 @@ module.exports = {
         "xs+": "13px", 
         "xs-": "11.2px",
         "xxl":"30px",
-        "ss":"8px"
+        "ss":"8px",
+        "lg-":"16px"
       },
       colors: {
         primary: "#52525b",

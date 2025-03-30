@@ -42,7 +42,7 @@ const list_menu = ref([
     },
     {
         id: 3,
-        name_menu: "Lịch thuê sân",
+        name_menu: "Lịch thuê của bạn",
         icon_menu: lichthue,
         active_menu: false,
     },
@@ -73,11 +73,11 @@ function goItem(id:number){
     }
     // 
     if(id===3){
-        router.push('/main');
+        router.push('/yourboking');
     }
     // 
     if(id===4){
-        router.push('/main');
+        router.push('/revenue');
     }
     // 
     if(id===5){

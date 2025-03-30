@@ -13,15 +13,18 @@
         <!--  -->
         <template #box>
             <div v-show ="store.filter_time" class="px-2 py-1 bg-[#faf2ac] absolute  top-2 z-50  rounded-xl w-full">
-                <ul class="flex flex-col gap-1 py-2 ">
-                    <li class="py-1.5 text-center text-lg font-medium text-green-900 border-b border-[#9d8d58]">
+                <ul class="flex flex-col gap-1 text-sm  ">
+                    <li @click="openModal" class="py-1.5 text-center  font-medium text-green-900 border-b border-[#9d8d58]">
                         Chọn Ngày
                     </li>
-                    <li class="py-1.5 text-center text-lg font-medium text-green-900 border-b border-[#9d8d58]">
-                        Chọn Tuần
+                    <li class="py-1.5 text-center  font-medium text-green-900 border-b border-[#9d8d58]">
+                        Chọn khoảng thời gian
                     </li>
-                    <li class="py-1.5 text-center text-lg font-medium text-green-900 ">
+                    <li class="py-1.5 text-center  font-medium text-green-900 border-b border-[#9d8d58]">
                         Chọn Tháng
+                    </li>
+                    <li class="py-1.5 text-center  font-medium text-green-900 ">
+                        Chọn Năm
                     </li>
                 </ul>
             </div>
@@ -52,6 +55,11 @@ const time_selected = ref(
 function openListSelected(){
     console.log('store.filter_time',store.filter_time);
     store.filter_time = !store.filter_time
+} 
+
+/**Mở modal*/
+function openModal(){
+    store.show_modal = true
 } 
 
 </script>
