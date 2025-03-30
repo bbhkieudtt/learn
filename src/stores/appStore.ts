@@ -17,13 +17,21 @@ export const useAppStore = defineStore("app", () => {
     const selectInfo = ref<DateSelectArg>()
     /**Mảng sự kiện*/
     const list_event =ref<event_booking>([])
+    /**Biển mở DropBox chọn sân con*/
+    const filter_yard =  ref(false)
+    /**Ngày muốn xem lịch*/ 
+     /**biến ngày chọn ở lịch*/
+    const date = ref(new Date());
+
     
     return {
         filter_time,
         add_boking,
         info_client,
         selectInfo,
-        list_event
+        list_event,
+        filter_yard,
+        date
     }
 
 });

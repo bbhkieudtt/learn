@@ -32,6 +32,7 @@
     "axios": "^1.8.4",
     "date-fns": "2.30.0",
     "daypilot-pro-vue": "https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz",
+    "element-plus": "^2.9.7",
     "leaflet": "1.7.1",
     "lodash": "^4.17.21",
     "pinia": "^3.0.1",

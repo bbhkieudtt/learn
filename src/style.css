@@ -44,4 +44,14 @@
   backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)
 }
 
+.dp__outer_menu_wrap {
+  width: 350px !important;
+  height: 400px !important;
+  .dp__menu .dp__relative .dp__theme_light > div {
+    --dp-menu-width: 350px !important;
+    height: 400px !important;
+  }
+}
+
+
 

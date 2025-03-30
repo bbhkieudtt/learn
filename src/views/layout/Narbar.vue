@@ -1,7 +1,7 @@
 <template>
   <div class="w-full bg-green flex flex-shrink-0  gap-8 backdrop-blur-lg px-20  ">
     <ul class="w-full justify-between flex  ">
-        <li v-for="item in list_menu" class="flex cursor-pointer flex-col  items-center gap-1  p-1 rounded-[20px]">
+        <li @click="goItem(item.id)" v-for="item in list_menu" class="flex cursor-pointer flex-col  items-center gap-1  p-1 rounded-[20px]">
             <img :src="item.icon_menu" class="h-[45px] w-[45px]" :alt="item.name_menu">
             <!--  -->
             <p class="text-xl text-white font-medium">{{ item.name_menu }}</p>
@@ -11,13 +11,20 @@
 </template>
 
 <script setup lang="ts">
+
+import{ref} from 'vue'
+import { useRouter } from 'vue-router'
+
 /**img icon*/ 
 import ban from '@/assets/imgs/icon/ban.png'
 import doanhthu from '@/assets/imgs/icon/doanhthu.png'
 import lichthue from '@/assets/imgs/icon/lichthue.png'
 import listsan from '@/assets/imgs/icon/listsan.png'
 import sancuaban from '@/assets/imgs/icon/sancuaban.png'
-import { ref } from 'vue'
+
+
+/**Biến router */
+const router = useRouter()
 
 /**biến*/
 const list_menu = ref([
@@ -54,6 +61,30 @@ const list_menu = ref([
         
     }
 ])
+
+/**Hàm chuyển hướng đến các trang*/
+function goItem(id:number){
+    if(id===1){
+        router.push('/main');
+    }
+    // 
+    if(id===2){
+        router.push('/YourYard');
+    }
+    // 
+    if(id===3){
+        router.push('/main');
+    }
+    // 
+    if(id===4){
+        router.push('/main');
+    }
+    // 
+    if(id===5){
+        router.push('/main');
+    }
+
+} 
 
 
 </script>

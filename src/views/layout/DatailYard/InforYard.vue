@@ -2,6 +2,7 @@
     <div class="flex h-dvh flex-col  ">
         <header class="h-40 w-full">
             <img class="w-full h-full" :src="ImgYard" alt="">
+            <ArrowLeftIcon @click="goToDetail"  class="w-7 absolute top-4 left-4 cursor-pointer h-7 text-white"></ArrowLeftIcon>
         </header>
         <main class="h-full relative bg-green w-full">
             <div class="flex absolute top-[-40px] left-5 items-center gap-2">
@@ -107,7 +108,7 @@
     <!-- Modal -->
     <Modal v-if="show_modal" :close="showModal">
         <template #content>
-            <main class="flex-1 py-2 h-full main overflow-hidden">
+            <main class="flex-1 w-[700px] h-[480px] py-2  main overflow-hidden">
                 <!-- Phần hiển thị bản đồ -->
                 <div id="map"></div>
             </main>
@@ -116,7 +117,10 @@
 </template>
 
 <script setup lang="ts">
+
 import { ref, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+
 /**Thư viện*/
 import vue3starRatings from "vue3-star-ratings";
 import L from 'leaflet';
@@ -128,6 +132,7 @@ import Iconphones from '@/components/Icons/Iconphones.vue'
 import IconClock from '@/components/Icons/IconClock.vue'
 import IconLocation from '@/components/Icons/IconLocation.vue'
 import IconEdit from '@/components/Icons/IconEdit.vue'
+import { ArrowLeftIcon } from "@heroicons/vue/24/solid";
 
 /**modal*/
 import Modal from '@/components/Modal/Modal.vue';
@@ -140,6 +145,9 @@ import Img1 from '@/assets/imgs/bg_san.jpg'
 import Img2 from '@/assets/imgs/bg_san2.jpg'
 import ImgUser from '@/assets/imgs/avatarUser.png'
 
+/**Biến router */
+const router = useRouter()
+
 /**Biến thư viện hiển thị bản đồ */
 const mapPosition = ref<{ lat: number; lon: number } | null>(null);
 let mapInstance: L.Map | null = null;
@@ -151,7 +159,7 @@ const yarf_select = ref(1)
 const infor_yard = ref({
     name_yard: 'Hoa Thiên Lý',
     img: ImgYard,
-    Address: "19 Tố Hữu, Nam Từ Liêm, Hà Nội",
+    Address: "96 Định Công, Hoàng Mai, Hà Nội",
     phone: '098765432',
     time_opent: '5:00 - 23:00',
     price_yard: [{
@@ -243,37 +251,40 @@ const getCoordinates = async (address: string) => {
     }
 };
 
-/**Hàm mở bản đồ*/
+
 /**Hàm mở bản đồ*/
 const showMap = async (address: string) => {
     show_modal.value = true; // Hiển thị modal
+    console.log('Địa chỉ đang tìm:', address);
 
-    nextTick(async () => { // Đảm bảo DOM đã được cập nhật
+    nextTick(async () => {
         const coordinates = await getCoordinates(address);
-        if (coordinates) {
-            mapPosition.value = coordinates;
-            
-            // Khởi tạo bản đồ chỉ khi modal được mở
-            if (!mapInstance) {
-                mapInstance = L.map('map').setView([coordinates.lat, coordinates.lon], 13); // Đặt tọa độ
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 25, // Mức zoom tối đa
-                    tileSize: 256, // Kích thước tile
-                    zoomOffset: 0, // Đặt lại offset zoom
-                }).addTo(mapInstance);
-            } else {
-                mapInstance.setView([coordinates.lat, coordinates.lon], 13); // Cập nhật vị trí nếu bản đồ đã được khởi tạo
+        if (!coordinates) return;
+
+        mapPosition.value = coordinates;
+
+        setTimeout(() => { // Đợi modal hiển thị hoàn toàn
+            if (mapInstance) {
+                mapInstance.remove(); // Xóa bản đồ cũ nếu có
             }
+
+            mapInstance = L.map('map').setView([coordinates.lat, coordinates.lon], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                tileSize: 256,
+                zoomOffset: 0,
+            }).addTo(mapInstance);
 
             L.marker([coordinates.lat, coordinates.lon])
                 .addTo(mapInstance)
                 .bindPopup(address)
                 .openPopup();
 
-            mapInstance.invalidateSize(); // Đảm bảo bản đồ được vẽ lại đúng sau khi thay đổi
-        }
+            mapInstance.invalidateSize();
+        }, 500); // Đợi 500ms để modal hiển thị hoàn toàn
     });
 };
+
 
 
 
@@ -291,6 +302,9 @@ function showModal() {
     show_modal.value = false;
 }
 
-
+/**Hàm chở về trang */
+function goToDetail(){
+    router.push('/detail')
+} 
 
 </script>

@@ -1,4 +1,5 @@
 <template>
+
   <main class="flex flex-col flex-1 overflow-hidden">
     <header class="flex flex-shrink-0 px-3 justify-between">
       <div class="p-2">
@@ -29,7 +30,7 @@
       <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 py-2">
         <div class="grid h-full overflow-y-auto grid-cols-4  gap-15">
           <!-- sân -->
-          <div v-for="yard in list_yard" :key="yard.key"
+          <div @click="goToDetail" v-for="yard in list_yard" :key="yard.key"
             class="flex items-center h-full border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
             <img class="w-60 rounded-t-lg  h-50" :src="yard.img" alt="ảnh sân" />
             <div class="flex w-full  flex-shrink-0 flex-col  gap-0.5 p-1">
@@ -53,6 +54,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </main>
   <!--  -->
@@ -99,10 +101,13 @@
       </div>
     </template>
   </Modal>
+
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+
+import { useRouter } from 'vue-router'
 
 /**Thư viện*/
 
@@ -121,6 +126,9 @@ import Modal from "@/components/Modal/Modal.vue"
 import anh1 from "@/assets/imgs/bg_san.jpg";
 import anh2 from "@/assets/imgs/bg_san1.jpg";
 import anh3 from "@/assets/imgs/bg_san2.jpg";
+
+/**Biến router */
+const router = useRouter()
 
 /**biến*/
 const date = ref();
@@ -300,6 +308,11 @@ const setActive = (field) => {
 const removeActive = () => {
   activeInput.value = null;
 };
+
+/**Khi xem một sân*/
+function goToDetail(){
+  router.push('/detail');
+} 
 
 
 

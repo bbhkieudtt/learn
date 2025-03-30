@@ -1,7 +1,7 @@
 <template>
     <div class="h-dvh w-dvw bg-green flex flex-col overflow-hidden pt-5 px-5 pb-2 ">
         <header>
-            <ArrowLeftIcon class=" flex-shrink-0 w-6 h-6 cursor-pointer text-white"></ArrowLeftIcon>
+            <ArrowLeftIcon @click="goHome" class=" flex-shrink-0 w-6 h-6 cursor-pointer text-white"></ArrowLeftIcon>
             <div class="flex-shrink-0 w-full grid grid-cols-3">
                 <div @click="clickMenu(menu.key)" v-for="menu in menu_list" :key="menu.key"
                     :class="{ 'text-yellow-400 border-b-2': menu.active, 'text-white ': !menu.active }"
@@ -66,35 +66,133 @@
                     <p class="text-green-800 text-xl font-semibold">
                         Tạo sân
                     </p>
-                    <XMarkIcon class="h-5 w-5 hover:bg-slate-300 rounded-lg "></XMarkIcon>
+                    <XMarkIcon @click="showModal" class="h-5 w-5 hover:bg-slate-300 rounded-lg "></XMarkIcon>
                 </header>
                 <!--  -->
 
-                <body class="w-full grid py-2 grid-cols-2">
-                    <div class="flex-col col-span-1 flex">
-                        <!-- Ô nhập địa chỉ sân -->
-                        <div class="flex flex-col gap-2 border-b border-slate-200 pb-5" :class="{
-                            'opacity-50': activeInput !== 'address' && !Address_value
+                <body class="w-full grid py-2 gap-4 grid-cols-2">
+                    <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
+                        <!-- Nhập tên sân -->
+                        <div class="flex flex-col gap-2  pb-5" :class="{
+                            'opacity-50': activeInput !== 'addresss' && !Address_value
                         }">
-                            <label class="font-semibold text-green-900" for="">Địa chỉ sân</label>
-                            <input v-model="infor_yard.nam_yard" placeholder="Nhập địa chỉ sân "
+                            <label class="font-semibold text-green-900" for="">Tên sân</label>
+                            <input v-model="infor_yard.courtName" placeholder="Nhập tên sân  "
                                 class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
-                                @focus="setActive('address')" @blur="removeActive" />
+                                @focus="setActive('addresss')" @blur="removeActive" />
                         </div>
+                        <!-- Địa chỉ chi tiết -->
+                        <el-form label-position="top" class="grid grid-cols-2 gap-2 w-full">
+                            <el-form-item label="Chọn Quận/Huyện">
+                                <el-select v-model="selectedDistrict" placeholder="Chọn quận/huyện" @change="getWards"
+                                    size="large">
+                                    <el-option v-for="district in districts" :key="district.code" :label="district.name"
+                                        :value="district.code" />
+                                </el-select>
+                            </el-form-item>
+
+                            <!-- Chọn Phường/Xã -->
+                            <el-form-item label="Chọn Phường/Xã">
+                                <el-select v-model="selectedWard" placeholder="Chọn phường/xã"
+                                    :disabled="wards.length === 0" @change="getStreets" size="large">
+                                    <el-option v-for="ward in wards" :key="ward.code" :label="ward.name"
+                                        :value="ward.code" />
+                                </el-select>
+                            </el-form-item>
+
+                            <!-- Chọn Đường -->
+                            <el-form-item label="Nhập Đường" class="col-span-2" size="large">
+                                <el-input v-model="infor_yard.street" placeholder="Nhập tên đường" />
+                            </el-form-item>
+                        </el-form>
+                        <!-- Hiển thị kết quả đã chọn -->
+                        <div class="h-10 ">
+                            <p v-if="infor_yard.street && infor_yard.ward && infor_yard.district">
+                                <strong>Địa chỉ:</strong> {{ infor_yard.street }}, {{ infor_yard.ward }}, {{
+                                    infor_yard.district }}, Hà Nội
+                            </p>
+                        </div>
+                        <!-- Giá tiền -->
+                        <el-form label-position="top" class="w-full grid py-2 grid-cols-2 gap-2">
+                            <!-- Nhập giá tối thiểu -->
+                            <el-form-item label="Giá thuê sân từ (VNĐ/giờ)">
+                                <el-input v-model.number="infor_yard.minPrice" placeholder="Nhập giá tối thiểu"
+                                    :formatter="formatCurrency" :parser="parseCurrency" size="large" />
+                            </el-form-item>
+
+                            <!-- Nhập giá tối đa -->
+                            <el-form-item label="Giá thuê sân đến (VNĐ/giờ)">
+                                <el-input v-model.number="infor_yard.maxPrice" placeholder="Nhập giá tối đa"
+                                    :formatter="formatCurrency" :parser="parseCurrency" size="large" />
+                            </el-form-item>
+                        </el-form>
                         <!-- Giờ mở cửa -->
-                        <div class="w-full flex justify-between items-center">
-                            <Datepicker class=" w-[50%]" v-model="timeRange" range time-picker :minute-increment="60" />
-                            <p>Thời gian đã chọn: {{ formattedTime }}</p>
+                        <div class="w-full flex flex-col gap-1.5 ">
+                            <label class="text-sm font-medium text-slate-700" for="">Thời gian mở cửa</label>
+
+                            <div class="w-full flex justify-between items-center">
+                                <Datepicker class=" w-[50%]" v-model="timeRange" range time-picker
+                                    :minute-increment="60" />
+                                <p>Thời gian đã chọn: {{ formattedTime }}</p>
+                            </div>
                         </div>
+                        <!--Mô tả  -->
+                        <div class="w-full flex flex-col mt-5 gap-1.5">
+                            <label class="text-sm font-medium text-slate-700" for="">Mô tả sân</label>
+                            <textarea name="" v-model="infor_yard.courtDescription"
+                                class="p-2 rounded-lg border border-slate-300" id=""></textarea>
+
+                        </div>
+
 
                     </div>
                     <!--  -->
-                    <div class="flex col-span-1 flex-col">
+                    <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
+                        <!-- Nhập tên sân -->
+                        <div class="flex flex-col gap-2  pb-5" :class="{
+                            'opacity-50': activeInput !== 'address' && !Address_value
+                        }">
+                            <label class="font-semibold text-green-900" for="">Tên sân</label>
+                            <input v-model="infor_yard.infor_yard" placeholder="Nhập tên sân  "
+                                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
+                                @focus="setActive('address')" @blur="removeActive" />
+                        </div>
+
+                        <!-- Nhập số điện thoại -->
+                        <div class="flex flex-col gap-2 pb-5" :class="{
+                            'opacity-50': activeInput !== 'addressss' && !Address_value
+                        }">
+                            <label class="font-semibold text-green-900" for="phone">Số điện thoại chủ sân</label>
+                            <input v-model="infor_yard.contactPhone" placeholder="Nhập số điện thoại"
+                                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="tel"
+                                inputmode="numeric" pattern="\d*" @input="validatePhoneNumber"
+                                @focus="setActive('addressss')" @blur="removeActive" />
+                        </div>
+                        <!--Ảnh sân -->
+                        <div class="w-full flex flex-col mt-5 gap-1.5">
+                            <button class="flex gap-2 w-fit rounded-lg bg-yellow-500 py-2 px-2">
+                                <p class="text-sm text-white font-medium">Tải ảnh sân</p>
+                                <CloudArrowUpIcon class=" h-5 w-5 text-white"></CloudArrowUpIcon>
+
+                            </button>
+                        </div>
+                        <div class="w-full mt-4 grid grid-cols-4 gap-3">
+                            <img :src="anh1" class="rounded-xl  h-[100px]" alt="">
+                            <img :src="anh2" class="rounded-xl h-[100px]" alt="">
+                            <img :src="anh3" class="rounded-xl h-[100px]" alt="">
+                        </div>
+
 
                     </div>
 
 
                 </body>
+                <!--  -->
+                <footer class="w-full flex justify-end py-2 px-3 border-t border-slate-300">
+                    <button class="px-3 py-2 bg-yellow-500 text-sm font-semibold text-white rounded-lg w-fit">
+                        Tạo mới sân
+                    </button>
+                </footer>
             </div>
         </template>
     </Modal>
@@ -102,7 +200,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref,computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from "axios";
 
 /**Modal*/
 import Modal from "@/components/Modal/Modal.vue"
@@ -111,7 +211,7 @@ import Modal from "@/components/Modal/Modal.vue"
 import image9 from '@/assets/imgs/image9.png'
 
 /**icon*/
-import { PlusIcon, ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import { PlusIcon, ArrowLeftIcon, XMarkIcon, CloudArrowUpIcon } from "@heroicons/vue/24/solid";
 import IconComment from '@/components/Icons/IconComment.vue'
 
 /**ảnh sân*/
@@ -121,24 +221,91 @@ import anh3 from "@/assets/imgs/bg_san2.jpg";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
+/**Biến router */
+const router = useRouter()
+
 const timeRange = ref([
-  { hours: 8, minutes: 0, seconds: 0 },
-  { hours: 17, minutes: 0, seconds: 0 },
+    { hours: 8, minutes: 0, seconds: 0 },
+    { hours: 17, minutes: 0, seconds: 0 },
 ]);
 
 const formattedTime = computed(() => {
-  return timeRange.value.map(t => `${String(t.hours).padStart(2, "0")}:00`).join(" - ");
+    return timeRange.value.map(t => `${String(t.hours).padStart(2, "0")}:00`).join(" - ");
 });
 
 /**Biến thông tin sân tạo mới*/
 
 const infor_yard = ref({
-    nam_yard: ''
-})
-const hours = ref([...Array(19)].map((_, i) => i + 5)); // Tạo danh sách từ 5h - 23h
-const startTime = ref(5);
-const endTime = ref(23);
+    courtName: '',
+    street: '',
+    ward: '',
+    district: '',
+    courtDescription: '',
+    minPrice: 0,
+    maxPrice: 0,
+    contactPerson: '',
+    contactPhone: ''
 
+})
+
+// Định dạng số thành tiền VND
+const formatCurrency = (value) => {
+    if (value === null || value === undefined || value === "") return ""; // Cho phép xóa hết số
+    return new Intl.NumberFormat("vi-VN").format(value);
+};
+
+// Chuyển chuỗi tiền tệ về số khi nhập
+const parseCurrency = (value) => {
+    const cleanedValue = value.replace(/[^\d]/g, ""); // Xóa tất cả ký tự không phải số
+    return cleanedValue ? Number(cleanedValue) : null; // Nếu xóa hết, trả về null
+};
+
+
+const selectedDistrict = ref("");      // Mã quận/huyện
+const selectedWard = ref("");          // Mã phường/xã
+const selectedStreet = ref("");        // Tên đường
+
+const districts = ref([]);
+const wards = ref([]);
+
+onMounted(() => {
+    getDistricts();
+});
+
+// Lấy danh sách quận/huyện Hà Nội
+const getDistricts = async () => {
+    try {
+        const response = await axios.get("https://provinces.open-api.vn/api/d/");
+        districts.value = response.data.filter(d => d.province_code === 1); // 1 là mã của Hà Nội
+    } catch (error) {
+        console.error("Lỗi khi lấy quận/huyện:", error);
+    }
+};
+
+// Khi chọn quận/huyện
+const getWards = async () => {
+    const district = districts.value.find(d => d.code === selectedDistrict.value);
+    infor_yard.value.district = district ? district.name : ""; // Lưu tên quận/huyện
+
+
+    selectedStreet.value = "";
+
+    try {
+        console.log("Lấy phường/xã cho quận/huyện:", selectedDistrict.value);
+        const response = await axios.get("https://provinces.open-api.vn/api/w/");
+
+        // Lọc danh sách phường/xã theo quận/huyện đã chọn
+        wards.value = response.data.filter(ward => ward.district_code === selectedDistrict.value);
+    } catch (error) {
+        console.error("Lỗi khi lấy phường/xã:", error);
+    }
+};
+
+// Khi chọn phường/xã
+const getStreets = () => {
+    const ward = wards.value.find(w => w.code === selectedWard.value);
+    infor_yard.value.ward = ward ? ward.name : ""; // Lưu tên phường/xã
+};
 
 /**biến mở modal tìm kiếm sân theo địa chỉ*/
 const show_modal = ref(false);
@@ -320,6 +487,18 @@ function showModal() {
 function addYard() {
     show_modal.value = true;
 }
+
+/**check kiểu số điện thoại*/ 
+const validatePhoneNumber = (event) => {
+    event.target.value = event.target.value.replace(/\D/g, ""); // Loại bỏ tất cả ký tự không phải số
+    infor_yard.value.contactPhone = event.target.value; // Cập nhật giá trị đã lọc vào biến v-model
+};
+
+/**Hàm trở về trang chủ*/
+function goHome(){
+    router.push('/main');
+}
+
 
 
 </script>

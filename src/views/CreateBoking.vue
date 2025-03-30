@@ -1,7 +1,7 @@
 <template>
     <div class="h-dvh w-dvw flex flex-col gap-3 px-3 py-2 bg-green ">
         <header class="flex justify-between items-center py-2">
-            <ArrowLeftIcon class="w-7 h-7 text-white"></ArrowLeftIcon>
+            <ArrowLeftIcon @click='goToDetail' class="w-7 h-7 cursor-pointer text-white"></ArrowLeftIcon>
             <!--  -->
             <p class=" text-2xl font-semibold text-white">
                 Đặt lịch ngay
@@ -157,6 +157,10 @@ async function addBoking(){
   setTimeout(() => {
     router.push('/detail');
   }, 100); // Delay 100ms để đảm bảo watch chạy trước
+}
+
+function goToDetail(){
+    router.push('/detail')
 }
 
 

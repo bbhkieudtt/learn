@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, watchEffect,watch } from "vue";
 import { useAppStore } from '@/stores/appStore'
 
 /**Biến thư viện */
@@ -49,6 +49,17 @@ const calendarOptions: CalendarOptions = {
   select: handleDateSelect, // Bắt sự kiện khi chọn ngày
   events:store.list_event
 };
+
+watch(
+      () => store.date,
+      (newDate) => {
+        if (newDate) {
+          const calendarApi = calendarRef.value.getApi();
+          calendarApi.gotoDate(newDate); // Điều hướng FullCalendar tới ngày mới
+          calendarApi.changeView('timeGridDay'); // Chuyển FullCalendar sang chế độ "Ngày với giờ"
+        }
+      }
+    );
 
 /**Theo dõi sự thay đổi của biến store.add_boking*/
 

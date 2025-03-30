@@ -9,9 +9,8 @@
 .button {
     background-color: #50b473; /* Màu xanh lá nhạt */
     color: rgb(239, 235, 235); /* Màu chữ trắng */
-    padding: 6px 5px ;
+    padding: 5px 20px ;
     display: flex;
-    justify-content: center;
     align-items: center;
 
 }
@@ -60,6 +59,7 @@ div .fc-view-harness .fc-view-harness-active{
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
 
 
 
