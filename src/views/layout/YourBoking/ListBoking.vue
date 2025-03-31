@@ -27,14 +27,31 @@
                     <div v-for="(boking, index) in list_boking" :key="boking.id"
                         :class="{ 'border-b border-yellow-500': index !== list_boking.length - 1 }" class="flex w-full text-lg px-3 border-b border-slate-400 text-white py-3 flex-col items-start gap-1 
                         transition duration-200 hover:brightness-90 hover:rounded-lg hover:bg-green-800">
-                        <p class="font-medium">{{ boking.status }}</p>
+                        <div class="flex items-center space-x-0">
+                            <!-- Đơn ngày -->
+                            <span class="bg-green-500 text-white px-6 py-1 text-sm relative">
+                               {{ boking.status }}
+                                
+                            </span>
+
+                            <!-- Mũi tên -->
+                            <span class="bg-red-500 text-white pl-2 pr-7 py-1  text-sm relative">
+                                Đã thanh toán
+                                <div
+                                    class="absolute left-[-14px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[15px] border-t-transparent border-r-[15px] border-r-red-500 border-b-[15px] border-b-transparent">
+                                </div>
+                            </span>
+                            
+                        </div>
+
 
                         <div class="flex justify-between w-full items-center">
                             <p class="font-medium text-yellow-200">
                                 {{ boking.name_court }}
                             </p>
                             <!--  -->
-                            <button class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
+                            <button
+                                class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
                                 Hủy lịch
                                 <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>
                             </button>
