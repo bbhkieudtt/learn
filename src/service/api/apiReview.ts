@@ -1,6 +1,6 @@
 import { api_host } from "./env";
 import { requestAxios } from "./request";
-import type { User } from '@/interface'
+import type {User } from '@/interface'
 
 interface InputRequestApi {
   end_point?: string;
@@ -8,7 +8,7 @@ interface InputRequestApi {
   method?: string
 }
 
-/** Đường dẫn host */
+/** Đường dẫn host  */
 const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
 
 
@@ -18,7 +18,7 @@ const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
 //   return $store.business_token;
 // }
 
-/** Request api */
+/** Request api  */
 async function apiRequest({ end_point, body,method }: InputRequestApi) {
   try {
     let response = await requestAxios({
@@ -33,9 +33,8 @@ async function apiRequest({ end_point, body,method }: InputRequestApi) {
   }
 }
 
-
-/**api tạo tài khoản*/
-export const apiCreateUser = async (payload: User) => {
+/**api tạo bình luận*/
+export const apiCreateReview = async (payload: any) => {
    try {
      return await apiRequest({
        // Phương thức
@@ -52,29 +51,5 @@ export const apiCreateUser = async (payload: User) => {
     
      throw e;
    }
- };
-
- /**api tạo tài khoản*/
-export const login = async (payload: {
-   "username": "string",
-  "password": "string"
-}) => {
-  try {
-    return await apiRequest({
-       // Phương thức
-       method: "POST",
-      // endpoint API
-      end_point: "User/login",
-      // payload được truyền từ giao diện
-      body: payload,
-    });
-  } catch (e) {
-    // Log lỗi nếu có
-   //  console.error("Error:", e);
-   console.log(e);
-   
-    throw e;
-  }
-};
-
+ }; 
 

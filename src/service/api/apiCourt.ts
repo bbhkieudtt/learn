@@ -1,6 +1,6 @@
 import { api_host } from "./env";
 import { requestAxios } from "./request";
-import type { User } from '@/interface'
+import type {User } from '@/interface'
 
 interface InputRequestApi {
   end_point?: string;
@@ -8,7 +8,7 @@ interface InputRequestApi {
   method?: string
 }
 
-/** Đường dẫn host */
+/** Đường dẫn host  */
 const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
 
 
@@ -19,7 +19,7 @@ const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
 // }
 
 /** Request api */
-async function apiRequest({ end_point, body,method }: InputRequestApi) {
+async function apiRequest({ end_point, body, method }: InputRequestApi) {
   try {
     let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
@@ -33,15 +33,14 @@ async function apiRequest({ end_point, body,method }: InputRequestApi) {
   }
 }
 
-
-/**api tạo tài khoản*/
-export const apiCreateUser = async (payload: User) => {
+/**api tạo sân */
+export const apiCreateCourt = async (payload: any) => {
    try {
      return await apiRequest({
-       // Phương thức
-       method: "POST",
+      // Phương thức
+      method: "POST",
        // endpoint API
-       end_point: "User/create",
+       end_point: "Court/create",
        // payload được truyền từ giao diện
        body: payload,
      });
@@ -52,19 +51,16 @@ export const apiCreateUser = async (payload: User) => {
     
      throw e;
    }
- };
+ }; 
 
- /**api tạo tài khoản*/
-export const login = async (payload: {
-   "username": "string",
-  "password": "string"
-}) => {
+ /**api lấy danh sách sân  */
+export const apiGetCourt = async (payload: any) => {
   try {
     return await apiRequest({
-       // Phương thức
-       method: "POST",
+      // Phương thức
+      method: "GET",
       // endpoint API
-      end_point: "User/login",
+      end_point: "User/create",
       // payload được truyền từ giao diện
       body: payload,
     });
@@ -75,6 +71,4 @@ export const login = async (payload: {
    
     throw e;
   }
-};
-
-
+}; 

@@ -7,4 +7,19 @@ export interface User {
     address: string;      // Địa chỉ của người dùng
     role: number;         // Vai trò của người dùng (0 hoặc giá trị khác)
   }
+
+ export interface UserInfo {
+    id: number;
+    username: string;
+    fullname: string;
+    phoneNumber: string;
+    email: string;
+    address: string;
+    role: number;
+    roleName: string;
+    createDate: string;
+    lastLogin: string;
+    token: string;
+  }
+  
   

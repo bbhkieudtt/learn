@@ -15,6 +15,8 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@cloudinary/url-gen": "^1.21.0",
+    "@cloudinary/vue": "^1.13.1",
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
@@ -33,6 +35,7 @@
     "date-fns": "2.30.0",
     "daypilot-pro-vue": "https://npm.daypilot.org/daypilot-pro-vue/trial/2024.4.6243.tar.gz",
     "element-plus": "^2.9.7",
+    "firebase": "^11.6.0",
     "leaflet": "1.7.1",
     "lodash": "^4.17.21",
     "pinia": "^3.0.1",

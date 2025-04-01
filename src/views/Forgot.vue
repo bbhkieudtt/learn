@@ -141,8 +141,16 @@ const defaultAccount = {
 
 /**Hàm đăng kí*/
 async function createUse() {
+
   if (password_confirm.value !== account_login.value.password) {
     toast("Mật khẩu xác nhận chưa đúng!", { autoClose: 5000 });
+    return;
+  }
+
+   // Kiểm tra username: chữ thường, không dấu, không có khoảng trắng
+  const usernameRegex = /^[a-z0-9]+$/;
+  if (!usernameRegex.test(account_login.value.username)) {
+    toast("Tên đăng nhập phải là chữ thường, không dấu và không có khoảng trắng!", { autoClose: 5000 });
     return;
   }
 
