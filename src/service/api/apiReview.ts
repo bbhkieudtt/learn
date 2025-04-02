@@ -23,7 +23,7 @@ async function apiRequest({ end_point, body,method }: InputRequestApi) {
   try {
     let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
-      method: method,
+      method: method || "POST",
       headers: { "Content-Type": "application/json" },
       body,
     });

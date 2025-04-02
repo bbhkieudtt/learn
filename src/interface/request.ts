@@ -21,7 +21,7 @@ export interface InputRequestAxios {
     /** Url api */
     uri: string
     /** Phương thức request */
-    method: 'POST' | 'GET'
+    method: string
     /** Dữ liệu gửi đi */
     body?: any
     /** Headers */

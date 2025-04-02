@@ -5,7 +5,7 @@ import type {User } from '@/interface'
 interface InputRequestApi {
   end_point?: string;
   body?: any;
-  method?: string
+  method?:string 
 }
 
 /** Đường dẫn host */
@@ -23,7 +23,7 @@ async function apiRequest({ end_point, body, method }: InputRequestApi) {
   try {
     let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
-      method: method,
+      method: 'POST',
       headers: { "Content-Type": "application/json" },
       body,
     });

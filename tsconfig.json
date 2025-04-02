@@ -18,7 +18,8 @@
     },
     "preserveValueImports": false,
     "importsNotUsedAsValues": "remove",
-    "verbatimModuleSyntax": true
+    "verbatimModuleSyntax": true,
+    "lib": ["es2017", "dom"]
   },
   "references": [
     {

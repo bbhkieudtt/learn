@@ -20,7 +20,7 @@
             </h1>
           </div>
           <!--  -->
-          <form>
+          <div>
             <div class="px-0 py-8" v-if="!status_login">
               <div class="group relative z-0 mb-6 w-full">
                 <input v-model="account_login.username" type="email"
@@ -54,7 +54,7 @@
             <!-- icoon -->
             <dotlottie-vue v-else src="https://lottie.host/15eb8737-4bdb-4de2-947f-911a7bb8c299/wwc62eFWV3.lottie"
               autoplay loop></dotlottie-vue>
-          </form>
+          </div>
         </div>
         <!--  -->
         <div class="fixed bottom-4 text-sm right-10 z-10">
@@ -120,10 +120,11 @@ const list_menu = ref([
   },
 ]);
 //
-const account_login = ref({
-  username: "",
-  password: "",
+const account_login = ref<{ username: string; password: string }>({
+  username: '',
+  password: ''
 });
+
 //
 async function loginUse() {
   if (

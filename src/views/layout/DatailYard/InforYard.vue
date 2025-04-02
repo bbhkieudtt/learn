@@ -2,7 +2,8 @@
     <div class="flex h-dvh flex-col  ">
         <header class="h-40 w-full">
             <img class="w-full h-full" :src="ImgYard" alt="">
-            <ArrowLeftIcon @click="goToDetail"  class="w-7 absolute top-4 left-4 cursor-pointer h-7 text-white"></ArrowLeftIcon>
+            <ArrowLeftIcon @click="goToDetail" class="w-7 absolute top-4 left-4 cursor-pointer h-7 text-white">
+            </ArrowLeftIcon>
         </header>
         <main class="h-full relative bg-green w-full">
             <div class="flex absolute top-[-40px] left-5 items-center gap-2">
@@ -97,20 +98,74 @@
                         <div class="flex gap-1 items-center">
                             <p class="text-sm text-yellow-500">{{ item.Star }}</p>
                             <!--  -->
-                            <vue3-star-ratings v-model="item.Star" />
+                            <vue3-star-ratings :interactive="false"  v-model="item.Star" />
                         </div>
                         <p class="text-xs text-white">{{ item.content }}</p>
                     </div>
                 </div>
+                <button
+                @click="openComment"
+                    class="flex px-3 absolute bottom-4 right-5 py-2 rounded-lg text-sm text-white gap-1 bg-yellow-500">
+                    <IconEdit class="w-5 h-5 text-white"></IconEdit>
+                    <p class="font-medium">
+                        Đánh giá sân
+                    </p>
+                </button>
+
             </div>
         </main>
     </div>
     <!-- Modal -->
     <Modal v-if="show_modal" :close="showModal">
         <template #content>
-            <main class="flex-1 w-[700px] h-[480px] py-2  main overflow-hidden">
+            <main v-if="!is_comment" class="flex-1 w-[700px] h-[480px] py-2  main overflow-hidden">
                 <!-- Phần hiển thị bản đồ -->
                 <div id="map"></div>
+            </main>
+            <main v-else class="flex w-[500px] h-[380px] px-2  flex-col">
+                <header class="flex items-center border-b border-slate-300 py-2  justify-between">
+                    <p class="text-green-800 text-xl font-semibold">
+                        Tạo đánh giá
+                    </p>
+                    <XMarkIcon @click="showModal" class="h-5 w-5 hover:bg-slate-300 rounded-lg "></XMarkIcon>
+                </header>
+                <!--  -->
+
+                <body class="w-full h-full flex-1 py-2 ">
+                    <div class="flex-col w-full col-span-1 flex text-sm font-medium text-green-700">
+                        <!-- Nhập tên sân -->
+                        <div class="flex flex-col gap-2  pb-5">
+                            <label class="font-semibold text-green-900" for="">Chất lượng sân </label>
+                            <div class="flex gap-1 items-center">
+                              
+                                <!--  -->
+                                <vue3-star-ratings v-model="comment.ratingStar" />
+                                <p class="text-sm text-yellow-500"></p>
+                            </div>
+
+                        </div>
+
+                        <!-- Nhập tên sân -->
+                        <div class="flex flex-col gap-2 w-full pb-5" :class="{
+                            'opacity-50': activeInput !== 'addresss' && !comment.content
+                        }">
+                            <label class="font-semibold text-green-900" for="">Viết đánh giá </label>
+                            <input v-model="comment.content" placeholder="Hãy chia sẻ nhận xét cho sân này bạn nhé !"
+                                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
+                                @focus="setActive('addresss')" @blur="removeActive" />
+                        </div>
+                    </div>
+                </body>
+                <footer class="flex-shrink-0 py-2">
+                    <button
+                @click="openComment"
+                    class="flex px-3  w-full py-2 text-center rounded-lg text-sm text-white gap-1 bg-yellow-500">
+                   
+                    <p class="font-medium">
+                        Tạo đánh giá
+                    </p>
+                </button>
+                </footer>
             </main>
         </template>
     </Modal>
@@ -121,10 +176,10 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 
+
 /**Thư viện*/
 import vue3starRatings from "vue3-star-ratings";
 import L from 'leaflet';
-
 
 
 /**icon*/
@@ -132,7 +187,7 @@ import Iconphones from '@/components/Icons/Iconphones.vue'
 import IconClock from '@/components/Icons/IconClock.vue'
 import IconLocation from '@/components/Icons/IconLocation.vue'
 import IconEdit from '@/components/Icons/IconEdit.vue'
-import { ArrowLeftIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
 
 /**modal*/
 import Modal from '@/components/Modal/Modal.vue';
@@ -148,12 +203,18 @@ import ImgUser from '@/assets/imgs/avatarUser.png'
 /**Biến router */
 const router = useRouter()
 
+/**Biến kiểm tra xem mở modal nào*/
+const is_comment = ref(false)
+
 /**Biến thư viện hiển thị bản đồ */
 const mapPosition = ref<{ lat: number; lon: number } | null>(null);
 let mapInstance: L.Map | null = null;
 
 /**biến kiểm tra xem thông tin gì của sân*/
 const yarf_select = ref(1)
+
+/**Lưu ô input nào đang được focus*/
+const activeInput = ref('');
 
 /*Thông tin sân **/
 const infor_yard = ref({
@@ -210,6 +271,13 @@ const infor_yard = ref({
 /**Biến mở modal map*/
 const show_modal = ref(false);
 
+const comment = ref({
+    userId: 0,
+    courtId: 0,
+    content: '',
+    ratingStar: 5
+})
+
 /**danh sách mục tiêu đánh giá*/
 const list_items = ref([
     {
@@ -251,9 +319,15 @@ const getCoordinates = async (address: string) => {
     }
 };
 
+/***/
+const setActive = (field: string) => {
+    activeInput.value = field;
+};
+
 
 /**Hàm mở bản đồ*/
 const showMap = async (address: string) => {
+    is_comment.value = false
     show_modal.value = true; // Hiển thị modal
     console.log('Địa chỉ đang tìm:', address);
 
@@ -303,8 +377,19 @@ function showModal() {
 }
 
 /**Hàm chở về trang */
-function goToDetail(){
+function goToDetail() {
     router.push('/detail')
-} 
+}
 
+/***/
+const removeActive = () => {
+    activeInput.value = '';
+};
+
+
+/***/
+function openComment(){
+    is_comment.value = true;
+    show_modal.value = true; 
+} 
 </script>

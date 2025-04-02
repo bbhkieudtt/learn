@@ -133,7 +133,11 @@ const end_boking = computed(() => {
 });
 
 /**Biến lưu thông tin khách đặt lịch*/
-const info_client = ref<ClientBoking>({})
+const info_client = ref<ClientBoking>({
+  name_client: '',      // Add an empty string or default value
+  phone_client: '',     // Add an empty string or default value
+  note_boking: '',      // Add an empty string or default value
+});
 
 
 /**Hàm kiểm tra chỉ cho nhập số không nhập chữ*/ 

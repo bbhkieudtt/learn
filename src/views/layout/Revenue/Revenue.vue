@@ -63,8 +63,10 @@
     <Modal v-if="store.show_modal" :close="showModal">
         <template #content>
             <div class="w-[300px] h-[300px]">
-                <VueDatePicker class="w-full h-full" @update:model-value="handleDate" v-model="store.date"
-                    :inline="true" auto-apply locale="vi" :day-names="customDayNames">
+                <!-- @update:model-value="handleDate" -->
+                 <!-- :day-names="customDayNames" -->
+                <VueDatePicker class="w-full h-full"  v-model="store.date"
+                    :inline="true" auto-apply locale="vi" >
                 </VueDatePicker>
             </div>
         </template>

@@ -23,7 +23,7 @@ async function apiRequest({ end_point, body,method }: InputRequestApi) {
   try {
     let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
-      method: method,
+      method: method || 'GET',
       headers: { "Content-Type": "application/json" },
       body,
     });
@@ -56,8 +56,8 @@ export const apiCreateUser = async (payload: User) => {
 
  /**api tạo tài khoản*/
 export const login = async (payload: {
-   "username": "string",
-  "password": "string"
+   "username": string,
+  "password": string
 }) => {
   try {
     return await apiRequest({

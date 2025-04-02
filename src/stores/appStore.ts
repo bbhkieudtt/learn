@@ -16,7 +16,7 @@ export const useAppStore = defineStore("app", () => {
     /**Lưu thông tin thời gian để tạo lịch*/
     const selectInfo = ref<DateSelectArg>()
     /**Mảng sự kiện*/
-    const list_event =ref<event_booking>([])
+    const list_event =ref<event_booking>()
     /**Biển mở DropBox chọn sân con*/
     const filter_yard =  ref(false)
     /**Ngày muốn xem lịch*/ 

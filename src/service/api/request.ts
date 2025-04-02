@@ -1,7 +1,7 @@
 import axios from "axios";
 import { get } from "lodash";
 
-import type {  InputRequestAxios } from "@/interfaces";
+import type {  InputRequestAxios } from "@/interface/index";
 import { th } from "date-fns/locale";
 
 /**

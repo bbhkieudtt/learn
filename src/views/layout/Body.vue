@@ -1,5 +1,4 @@
 <template>
-
   <main class="flex flex-col flex-1 overflow-hidden">
     <header class="flex flex-shrink-0 px-3 justify-between">
       <div class="p-2">
@@ -105,17 +104,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
 
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from 'vue-router'
 
-/**Thư viện*/
+/**api*/
+import { apiGetCourt } from "@/service/api/apiCourt";
 
 
 /**icon*/
-import IconBack from "@/components/Icons/IconBack.vue";
 import IconSearch from "@/components/Icons/IconSearch.vue";
-import IconFilter from "@/components/Icons/IconFilter.vue";
 import IconClose from '@/components/Icons/IconClose.vue';
 import IconComment from '@/components/Icons/IconComment.vue'
 
@@ -281,7 +279,7 @@ const list_yard = ref([
 ]);
 
 /**Lưu ô input nào đang được focus*/
-const activeInput = ref(null);
+const activeInput = ref('');
 
 /**giá trị tìm kiếm theo địa chỉ*/
 const Address_value = ref('')
@@ -294,25 +292,40 @@ const isSearchDisabled = computed(() => {
   return !Address_value.value.trim() && !name_value.value.trim();
 });
 
+onMounted(() => {
+  getListCourt()
+});
+
 /**hàm đóng modal*/
 function showModal() {
   show_modal.value = false;
 }
 
 /***/
-const setActive = (field) => {
+const setActive = (field: string) => {
   activeInput.value = field;
 };
 
 /***/
 const removeActive = () => {
-  activeInput.value = null;
+  activeInput.value = '';
 };
 
 /**Khi xem một sân*/
-function goToDetail(){
+function goToDetail() {
   router.push('/detail');
-} 
+}
+
+/**Hàm lấy danh sách sân*/ 
+ async function getListCourt(){
+  try {
+      // const response = await apiGetCourt();
+      // console.log("API Response:", response);
+    
+    } catch (error) {
+      console.error("API Error:", error);
+    }
+}
 
 
 

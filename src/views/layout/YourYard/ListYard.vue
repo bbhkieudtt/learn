@@ -74,7 +74,7 @@
                     <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
                         <!-- Nhập tên sân -->
                         <div class="flex flex-col gap-2  pb-5" :class="{
-                            'opacity-50': activeInput !== 'addresss' && !Address_value
+                            'opacity-50': activeInput !== 'addresss' && !infor_yard.courtName
                         }">
                             <label class="font-semibold text-green-900" for="">Tên sân</label>
                             <input v-model="infor_yard.courtName" placeholder="Nhập tên sân  "
@@ -150,17 +150,17 @@
                     <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
                         <!-- Nhập tên sân -->
                         <div class="flex flex-col gap-2  pb-5" :class="{
-                            'opacity-50': activeInput !== 'address' && !Address_value
+                            'opacity-50': activeInput !== 'address' && !infor_yard.contactPerson
                         }">
                             <label class="font-semibold text-green-900" for="">Tên sân</label>
-                            <input v-model="infor_yard.infor_yard" placeholder="Nhập tên sân  "
+                            <input v-model="infor_yard.contactPerson" placeholder="Nhập tên sân  "
                                 class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
                                 @focus="setActive('address')" @blur="removeActive" />
                         </div>
 
                         <!-- Nhập số điện thoại -->
                         <div class="flex flex-col gap-2 pb-5" :class="{
-                            'opacity-50': activeInput !== 'addressss' && !Address_value
+                            'opacity-50': activeInput !== 'addressss' && !infor_yard.contactPhone
                         }">
                             <label class="font-semibold text-green-900" for="phone">Số điện thoại chủ sân</label>
                             <input v-model="infor_yard.contactPhone" placeholder="Nhập số điện thoại"
@@ -194,7 +194,8 @@
                 </body>
                 <!--  -->
                 <footer class="w-full flex justify-end py-2 px-3 border-t border-slate-300">
-                    <button @click="createCourt" class="px-3 py-2 bg-yellow-500 text-sm font-semibold text-white rounded-lg w-fit">
+                    <button @click="createCourt"
+                        class="px-3 py-2 bg-yellow-500 text-sm font-semibold text-white rounded-lg w-fit">
                         Tạo mới sân
                     </button>
                 </footer>
@@ -235,6 +236,9 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
+/**kiểu dữ liệu*/
+import type { Division, Location } from '@/interface'
+
 /**Biến router */
 const router = useRouter()
 
@@ -250,10 +254,11 @@ const formattedTime = computed(() => {
     return timeRange.value.map(t => `${String(t.hours).padStart(2, "0")}:00`).join(" - ");
 });
 
+
 /**Biến thông tin sân tạo mới*/
 
 const infor_yard = ref({
-    userId :0,
+    userId: 0,
     courtName: '',
     courtDescription: '',
     district: '',
@@ -261,19 +266,19 @@ const infor_yard = ref({
     street: '',
     minPrice: 0,
     maxPrice: 0,
-    images: [],
+    images: []  as string[],
     contactPerson: '',
     contactPhone: '',
 })
 
 // Định dạng số thành tiền VND
-const formatCurrency = (value) => {
+const formatCurrency = (value: any) => {
     if (value === null || value === undefined || value === "") return ""; // Cho phép xóa hết số
     return new Intl.NumberFormat("vi-VN").format(value);
 };
 
 // Chuyển chuỗi tiền tệ về số khi nhập
-const parseCurrency = (value) => {
+const parseCurrency = (value: any) => {
     const cleanedValue = value.replace(/[^\d]/g, ""); // Xóa tất cả ký tự không phải số
     return cleanedValue ? Number(cleanedValue) : null; // Nếu xóa hết, trả về null
 };
@@ -283,10 +288,10 @@ const selectedDistrict = ref("");      // Mã quận/huyện
 const selectedWard = ref("");          // Mã phường/xã
 const selectedStreet = ref("");        // Tên đường
 
-const districts = ref([]);
-const wards = ref([]);
+const districts = ref<Division[]>([]);
+const wards = ref<Location[]>([]);
 
-const fileInput = ref(null); // Dùng ref để tham chiếu đến input file
+const fileInput = ref<HTMLInputElement | null>(null);
 const imageUrl = ref(""); // Dùng ref để lưu trữ URL của ảnh đã tải lên
 
 
@@ -298,7 +303,7 @@ onMounted(() => {
 const getDistricts = async () => {
     try {
         const response = await axios.get("https://provinces.open-api.vn/api/d/");
-        districts.value = response.data.filter(d => d.province_code === 1); // 1 là mã của Hà Nội
+        districts.value = response.data.filter((d:any) => d.province_code === 1); // 1 là mã của Hà Nội
     } catch (error) {
         console.error("Lỗi khi lấy quận/huyện:", error);
     }
@@ -313,11 +318,12 @@ const getWards = async () => {
     selectedStreet.value = "";
 
     try {
-        console.log("Lấy phường/xã cho quận/huyện:", selectedDistrict.value);
+
         const response = await axios.get("https://provinces.open-api.vn/api/w/");
+        console.log("Lấy phường/xã cho quận/huyện:", response);
 
         // Lọc danh sách phường/xã theo quận/huyện đã chọn
-        wards.value = response.data.filter(ward => ward.district_code === selectedDistrict.value);
+        wards.value = response.data.filter((ward: any) => { ward.district_code === selectedDistrict.value });
     } catch (error) {
         console.error("Lỗi khi lấy phường/xã:", error);
     }
@@ -325,7 +331,7 @@ const getWards = async () => {
 
 // Khi chọn phường/xã
 const getStreets = () => {
-    const ward = wards.value.find(w => w.code === selectedWard.value);
+    const ward = wards.value.find( (w: any) => {w.code === selectedWard.value});
     infor_yard.value.ward = ward ? ward.name : ""; // Lưu tên phường/xã
 };
 
@@ -477,16 +483,16 @@ const list_yard = ref([
 ]);
 
 /**Lưu ô input nào đang được focus*/
-const activeInput = ref(null);
+const activeInput = ref('');
 
 /***/
-const setActive = (field) => {
+const setActive = (field: string) => {
     activeInput.value = field;
 };
 
 /***/
 const removeActive = () => {
-    activeInput.value = null;
+    activeInput.value = '';
 };
 
 
@@ -511,7 +517,7 @@ function addYard() {
 }
 
 /**check kiểu số điện thoại*/
-const validatePhoneNumber = (event) => {
+const validatePhoneNumber = (event :any) => {
     event.target.value = event.target.value.replace(/\D/g, ""); // Loại bỏ tất cả ký tự không phải số
     infor_yard.value.contactPhone = event.target.value; // Cập nhật giá trị đã lọc vào biến v-model
 };
@@ -525,10 +531,10 @@ function goHome() {
 
 // Hàm để mở file input khi người dùng nhấn vào nút
 const triggerFileInput = () => {
-    fileInput.value.click();
+    fileInput.value!.click(); // Dùng ! để nói với TypeScript rằng giá trị không phải null
 };
 
-const uploadImage = async (event) => {
+const uploadImage = async (event :any) => {
     const file = event.target.files[0]; // Lấy file ảnh từ input
     if (!file) return;
 
@@ -548,19 +554,19 @@ const uploadImage = async (event) => {
         console.error("Error uploading image:", error);
     }
 };
-async function createCourt(){
-    infor_yard.value.userId =  store.UserInfo?.id || 0
+async function createCourt() {
+    infor_yard.value.userId = store.UserInfo?.id || 0
     try {
-      const response = await apiCreateCourt(infor_yard.value);
-      console.log("API Response:", response);
-      // Kiểm tra nếu API trả về thành công
-      if (response && response.status === 200) {
-        toast("Tạo sân thành công!", { autoClose: 5000 });
-      } else {
-        toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
-      }
+        const response = await apiCreateCourt(infor_yard.value);
+        console.log("API Response:", response);
+        // Kiểm tra nếu API trả về thành công
+        if (response && response.status === 200) {
+            toast("Tạo sân thành công!", { autoClose: 5000 });
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+        }
     } catch (error) {
-      console.error("API Error:", error);
+        console.error("API Error:", error);
     }
 
 

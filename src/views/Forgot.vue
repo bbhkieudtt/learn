@@ -60,7 +60,7 @@
                 class="mt-5 w-full text-sm h-11 rounded-full bg-slate-800 py-3 font-medium text-white hover:bg-black">
                 Tạo tài khoản
               </button>
-              <div class="mt-4 text-center text-xs+">
+              <div @click="goToLogin" class="mt-4 text-center text-xs+">
                 <p class="line-clamp-1 cursor-pointer hover:underline text-primary">
                   <span>Có tài khoản? <span class=" text-primary cusor-pointer">Đăng nhập</span> </span>
                 </p>
@@ -123,7 +123,7 @@ const list_menu = ref([
 ]);
 
 /**Biến lưu thông tin người đăng nhập*/
-const account_login = ref<User>({})
+const account_login = ref<Partial<User>>({});
 
 /**Biến xác nhận lại mật khẩu*/
 const password_confirm = ref('')
@@ -149,7 +149,7 @@ async function createUse() {
 
    // Kiểm tra username: chữ thường, không dấu, không có khoảng trắng
   const usernameRegex = /^[a-z0-9]+$/;
-  if (!usernameRegex.test(account_login.value.username)) {
+  if (!usernameRegex.test(account_login.value.username || '')) {
     toast("Tên đăng nhập phải là chữ thường, không dấu và không có khoảng trắng!", { autoClose: 5000 });
     return;
   }
@@ -174,6 +174,10 @@ async function createUse() {
   } catch (error) {
     toast(error, { autoClose: 5000 });
   }
+}
+
+function goToLogin(){
+  router.push('/login')
 }
 
 
