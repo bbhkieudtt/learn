@@ -29,19 +29,19 @@
       <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 py-2">
         <div class="grid h-full overflow-y-auto grid-cols-4  gap-15">
           <!-- sân -->
-          <div @click="goToDetail" v-for="yard in list_yard" :key="yard.key"
-            class="flex items-center h-full border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
-            <img class="w-60 rounded-t-lg  h-50" :src="yard.img" alt="ảnh sân" />
-            <div class="flex w-full  flex-shrink-0 flex-col  gap-0.5 p-1">
+          <div @click="goToDetail" v-for="yard in list_court" :key="yard.id"
+            class="flex items-center h-fit w-60 border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
+            <img class="w-60 rounded-t-lg  h-50"  :src="isValidImage(yard.images[0]) ? yard.images[0] : anh1" alt="ảnh sân" />
+            <div class="flex w-full  flex-shrink-0 flex-col  gap-0.5 p-1 py-2">
               <h3 class="text-sm font-medium text-back truncate">
-                {{ yard.name_yard }}
+                {{ yard.courtName }}
               </h3>
-              <p class="text-sm flex-shrink-0 text-slate-500 truncate">{{ yard.add_yard }}</p>
+              <p class="text-sm flex-shrink-0 text-slate-500 truncate">{{ yard.street + ', ' + yard.ward + ', ' + yard.district }}</p>
               <div class="flex items-center gap-2"> <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                <p class="text-xs ">{{ yard.time }}</p>
+                <p class="text-xs ">{{ yard.contactPhone }}</p>
               </div>
               <div class="flex items-center justify-between">
-                <vue3-star-ratings v-model="yard.evaluate" />
+                <vue3-star-ratings v-model="start" />
                 <div class="flex items-center gap-1">
                   <IconComment class="w-4 h-4 text-slate-500"></IconComment>
                   <p class="text-xs text-slate-400">
@@ -70,15 +70,29 @@
         </header>
 
         <body class="w-full flex flex-col gap-2">
-          <!-- Ô nhập địa chỉ sân -->
-          <div class="flex flex-col gap-2 border-b border-slate-200 pb-5" :class="{
-            'opacity-50': activeInput !== 'address' && !Address_value
-          }">
-            <label class="font-semibold text-green-900" for="">Địa chỉ sân</label>
-            <input v-model="Address_value" placeholder="Nhập địa chỉ sân muốn tìm kiếm"
-              class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
-              @focus="setActive('address')" @blur="removeActive" />
-          </div>
+          <!-- Địa chỉ chi tiết -->
+          <el-form label-position="top" class="grid grid-cols-2 gap-2 w-full">
+            <el-form-item label="Tìm kiếm theo Quận/Huyện">
+              <el-select v-model="selectedDistrict" placeholder="Chọn quận/huyện cần tìm" @change="getWards"
+                size="large">
+                <el-option v-for="district in districts" :key="district.code" :label="district.name"
+                  :value="district.code" />
+              </el-select>
+            </el-form-item>
+
+            <!-- Chọn Phường/Xã -->
+            <el-form-item label="Tìm kiếm theo Phường/Xã">
+              <el-select v-model="selectedWard" placeholder="Chọn phường/xã cần tìm" :disabled="wards.length === 0"
+                @change="getStreets" size="large">
+                <el-option v-for="ward in wards" :key="ward.code" :label="ward.name" :value="ward.code" />
+              </el-select>
+            </el-form-item>
+
+            <!-- Chọn Đường -->
+            <el-form-item label="Tìm kiếm theo Đường" class="col-span-2" size="large">
+              <el-input v-model="infor_yard.street" placeholder="Nhập tên đường cần tìm" />
+            </el-form-item>
+          </el-form>
 
           <!-- Ô nhập tên sân -->
           <div class="flex flex-col gap-2 mb-7" :class="{
@@ -107,9 +121,13 @@
 
 import { ref, computed, onMounted } from "vue";
 import { useRouter } from 'vue-router'
+import axios from "axios";
 
 /**api*/
 import { apiGetCourt } from "@/service/api/apiCourt";
+
+/**Kho lưu trữ*/
+import { useAppStoreCourt } from '@/stores/appStoreCourt'
 
 
 /**icon*/
@@ -125,11 +143,46 @@ import anh1 from "@/assets/imgs/bg_san.jpg";
 import anh2 from "@/assets/imgs/bg_san1.jpg";
 import anh3 from "@/assets/imgs/bg_san2.jpg";
 
+/**kiểu dữ liệu*/
+import type { Court, Division, Location } from '@/interface'
+
 /**Biến router */
 const router = useRouter()
 
+const start =5
+
+/**biến store*/
+const store_court = useAppStoreCourt()
+
 /**biến*/
 const date = ref();
+
+const selectedDistrict = ref("");      // Mã quận/huyện
+const selectedWard = ref("");          // Mã phường/xã
+const selectedStreet = ref("");        // Tên đường
+
+const districts = ref<Division[]>([]);
+const wards = ref<Location[]>([]);
+
+/**Danh sách sân đã được lọc*/ 
+const list_court = computed(() => {
+    // Lấy danh sách các sân từ store_court
+    const courts = store_court.list_court;
+    
+    // Truy cập vào giá trị thực tế của infor_yard
+    const yard = infor_yard.value;
+
+    // Lọc danh sách sân theo các giá trị trong infor_yard
+    return courts.filter(court => {
+        const matchDistrict = yard.district ? court.district === yard.district : true;
+        const matchWard = yard.ward ? court.ward === yard.ward : true;
+        const matchStreet = yard.street ? court.street === yard.street : true;
+        const matchCourtName = yard.courtName ? court.courtName === yard.courtName : true;
+        
+        // Trả về kết quả nếu tất cả các điều kiện đều thỏa mãn
+        return matchDistrict && matchWard && matchStreet && matchCourtName;
+    });
+});
 
 /**biến mở modal tìm kiếm sân theo địa chỉ*/
 const show_modal = ref(false);
@@ -278,6 +331,13 @@ const list_yard = ref([
   },
 ]);
 
+const infor_yard = ref({
+  courtName: '',
+  district: '',
+  ward: '',
+  street: '',
+})
+
 /**Lưu ô input nào đang được focus*/
 const activeInput = ref('');
 
@@ -293,8 +353,51 @@ const isSearchDisabled = computed(() => {
 });
 
 onMounted(() => {
-  getListCourt()
+  // *Lấy danh sách sân 
+  getListCourt(),
+    // *Lấy quận huyện
+    getDistricts();
+
+   
+    
 });
+
+// Lấy danh sách quận/huyện Hà Nội
+const getDistricts = async () => {
+  try {
+    const response = await axios.get("https://provinces.open-api.vn/api/d/");
+    districts.value = response.data.filter((d: any) => d.province_code === 1); // 1 là mã của Hà Nội
+  } catch (error) {
+    console.error("Lỗi khi lấy quận/huyện:", error);
+  }
+};
+
+// Khi chọn quận/huyện
+const getWards = async () => {
+  const district = districts.value.find(d => d.code === selectedDistrict.value);
+  infor_yard.value.district = district ? district.name : ""; // Lưu tên quận/huyện
+
+
+  selectedStreet.value = "";
+
+  try {
+
+    const response = await axios.get("https://provinces.open-api.vn/api/w/");
+    console.log("Lấy phường/xã cho quận/huyện:", response);
+
+    // Lọc danh sách phường/xã theo quận/huyện đã chọn
+    wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
+
+  } catch (error) {
+    console.error("Lỗi khi lấy phường/xã:", error);
+  }
+};
+
+// Khi chọn phường/xã
+const getStreets = () => {
+  const ward = wards.value.find((w: any) => w.code === selectedWard.value);
+  infor_yard.value.ward = ward ? ward.name : ""; // Lưu tên phường/xã
+};
 
 /**hàm đóng modal*/
 function showModal() {
@@ -316,16 +419,32 @@ function goToDetail() {
   router.push('/detail');
 }
 
-/**Hàm lấy danh sách sân*/ 
- async function getListCourt(){
+/**Hàm lấy danh sách sân*/
+async function getListCourt() {
   try {
-      // const response = await apiGetCourt();
-      // console.log("API Response:", response);
-    
-    } catch (error) {
-      console.error("API Error:", error);
-    }
+    const response = await apiGetCourt();
+    console.log("API Response:", response);
+
+    store_court.list_court = response.data.filter((court: Court) =>
+      court.courtName.trim() !== "" &&
+      court.street.trim() !== "" &&
+      court.ward.trim() !== "" &&
+      court.district.trim() !== "" &&
+      court.images.length > 0
+    );
+    console.log('store_court.list_court', store_court.list_court);
+
+
+  } catch (error) {
+    console.error("API Error:", error);
+  }
 }
+
+function isValidImage(image :string) {
+        // Kiểm tra xem image có phải là một URL hợp lệ hay không (bắt đầu với http:// hoặc https://)
+        const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|bmp|webp))$/i;
+        return urlPattern.test(image);
+    }
 
 
 

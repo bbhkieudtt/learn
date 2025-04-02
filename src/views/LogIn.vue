@@ -145,6 +145,8 @@ async function loginUse() {
         // Lưu token vào localStorage 
         localStorage.setItem("token", response.data.token);
         // localStorage.setItem("userInfo", JSON.stringify(response.data.infor));
+        // Lưu thông tin người dùng vào localStorage
+        localStorage.setItem("userInfo", JSON.stringify(response.data.infor));
         store.UserInfo = response.data.infor
 
         status_login.value = true

@@ -54,15 +54,15 @@ export const apiCreateCourt = async (payload: any) => {
  }; 
 
  /**api lấy danh sách sân  */
-export const apiGetCourt = async (payload: any) => {
+export const apiGetCourt = async () => {
   try {
     return await apiRequest({
       // Phương thức
       method: "GET",
       // endpoint API
-      end_point: "User/create",
+      end_point: "Court/get-list",
       // payload được truyền từ giao diện
-      body: payload,
+      // body: payload,
     });
   } catch (e) {
     // Log lỗi nếu có

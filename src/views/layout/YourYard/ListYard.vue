@@ -21,7 +21,7 @@
                 </div>
             </div>
             <!-- Đã có sân -->
-            <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 ">
+            <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 py-2 ">
                 <div class="grid h-full overflow-y-auto grid-cols-4  gap-15">
                     <!-- sân -->
                     <div v-for="yard in list_yard" :key="yard.key"
@@ -239,6 +239,8 @@ import 'vue3-toastify/dist/index.css';
 /**kiểu dữ liệu*/
 import type { Division, Location } from '@/interface'
 
+/**Danh sách sân đã lọc theo địa chỉ , tên sân */ 
+
 /**Biến router */
 const router = useRouter()
 
@@ -266,7 +268,7 @@ const infor_yard = ref({
     street: '',
     minPrice: 0,
     maxPrice: 0,
-    images: []  as string[],
+    images: [] as string[],
     contactPerson: '',
     contactPhone: '',
 })
@@ -303,7 +305,7 @@ onMounted(() => {
 const getDistricts = async () => {
     try {
         const response = await axios.get("https://provinces.open-api.vn/api/d/");
-        districts.value = response.data.filter((d:any) => d.province_code === 1); // 1 là mã của Hà Nội
+        districts.value = response.data.filter((d: any) => d.province_code === 1); // 1 là mã của Hà Nội
     } catch (error) {
         console.error("Lỗi khi lấy quận/huyện:", error);
     }
@@ -323,7 +325,8 @@ const getWards = async () => {
         console.log("Lấy phường/xã cho quận/huyện:", response);
 
         // Lọc danh sách phường/xã theo quận/huyện đã chọn
-        wards.value = response.data.filter((ward: any) => { ward.district_code === selectedDistrict.value });
+        wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
+
     } catch (error) {
         console.error("Lỗi khi lấy phường/xã:", error);
     }
@@ -331,7 +334,7 @@ const getWards = async () => {
 
 // Khi chọn phường/xã
 const getStreets = () => {
-    const ward = wards.value.find( (w: any) => {w.code === selectedWard.value});
+    const ward = wards.value.find((w: any) => w.code === selectedWard.value);
     infor_yard.value.ward = ward ? ward.name : ""; // Lưu tên phường/xã
 };
 
@@ -517,7 +520,7 @@ function addYard() {
 }
 
 /**check kiểu số điện thoại*/
-const validatePhoneNumber = (event :any) => {
+const validatePhoneNumber = (event: any) => {
     event.target.value = event.target.value.replace(/\D/g, ""); // Loại bỏ tất cả ký tự không phải số
     infor_yard.value.contactPhone = event.target.value; // Cập nhật giá trị đã lọc vào biến v-model
 };
@@ -534,7 +537,7 @@ const triggerFileInput = () => {
     fileInput.value!.click(); // Dùng ! để nói với TypeScript rằng giá trị không phải null
 };
 
-const uploadImage = async (event :any) => {
+const uploadImage = async (event: any) => {
     const file = event.target.files[0]; // Lấy file ảnh từ input
     if (!file) return;
 
@@ -555,7 +558,13 @@ const uploadImage = async (event :any) => {
     }
 };
 async function createCourt() {
-    infor_yard.value.userId = store.UserInfo?.id || 0
+    // Khôi phục và sử dụng thông tin từ localStorage
+    infor_yard.value.userId = JSON.parse(localStorage.getItem("userInfo") ?? '{}')?.id || 0;
+
+    if (!validateCourtData()) {
+        return;
+    }
+
     try {
         const response = await apiCreateCourt(infor_yard.value);
         console.log("API Response:", response);
@@ -570,6 +579,35 @@ async function createCourt() {
     }
 
 
+}
+
+// Validation function
+function validateCourtData() {
+    if (!infor_yard.value.courtName) {
+        toast("Tên sân không được để trống!", { autoClose: 5000 });
+        return false;
+    }
+    if (!infor_yard.value.courtDescription) {
+        toast("Mô tả sân không được để trống!", { autoClose: 5000 });
+        return false;
+    }
+    if (!infor_yard.value.district || !infor_yard.value.ward || !infor_yard.value.street) {
+        toast("Vui lòng nhập đầy đủ địa chỉ!", { autoClose: 5000 });
+        return false;
+    }
+    if (infor_yard.value.minPrice <= 0 || infor_yard.value.maxPrice <= 0 || infor_yard.value.minPrice > infor_yard.value.maxPrice) {
+        toast("Giá không hợp lệ!", { autoClose: 5000 });
+        return false;
+    }
+    if (!infor_yard.value.contactPerson) {
+        toast("Người liên hệ không được để trống!", { autoClose: 5000 });
+        return false;
+    }
+    if (!infor_yard.value.contactPhone || !/^\d{10,11}$/.test(infor_yard.value.contactPhone)) {
+        toast("Số điện thoại không hợp lệ!", { autoClose: 5000 });
+        return false;
+    }
+    return true;
 }
 
 
