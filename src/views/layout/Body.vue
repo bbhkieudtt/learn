@@ -20,7 +20,7 @@
     </header>
     <!--  -->
     <div class="h-full overflow-hidden">
-      <div v-if="list_yard && list_yard.length === 0" class="w-full h-full flex justify-center items-center">
+      <div v-if="list_court && list_court.length === 0" class="w-full h-full flex justify-center items-center">
         <div class="flex flex-col gap-2 justify-center items-center">
           <img src="@/assets/imgs/image9.png" alt="" />
           <h3 class="text-2xl text-white font-bold">Chưa có sân nào</h3>
@@ -29,7 +29,7 @@
       <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 py-2">
         <div class="grid h-full overflow-y-auto grid-cols-4  gap-15">
           <!-- sân -->
-          <div @click="goToDetail" v-for="yard in list_court" :key="yard.id"
+          <div @click="goToDetail(yard)" v-for="yard in list_court" :key="yard.id"
             class="flex items-center h-fit w-60 border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
             <img class="w-60 rounded-t-lg  h-50"  :src="isValidImage(yard.images[0]) ? yard.images[0] : anh1" alt="ảnh sân" />
             <div class="flex w-full  flex-shrink-0 flex-col  gap-0.5 p-1 py-2">
@@ -38,7 +38,7 @@
               </h3>
               <p class="text-sm flex-shrink-0 text-slate-500 truncate">{{ yard.street + ', ' + yard.ward + ', ' + yard.district }}</p>
               <div class="flex items-center gap-2"> <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                <p class="text-xs ">{{ yard.contactPhone }}</p>
+                <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + ' - ' + formatHour(yard.endTime) : '24/7' }}</p>
               </div>
               <div class="flex items-center justify-between">
                 <vue3-star-ratings v-model="start" />
@@ -166,170 +166,27 @@ const wards = ref<Location[]>([]);
 
 /**Danh sách sân đã được lọc*/ 
 const list_court = computed(() => {
-    // Lấy danh sách các sân từ store_court
     const courts = store_court.list_court;
-    
-    // Truy cập vào giá trị thực tế của infor_yard
     const yard = infor_yard.value;
 
-    // Lọc danh sách sân theo các giá trị trong infor_yard
+    // Nếu courts chưa có dữ liệu hoặc không phải mảng thì trả về mảng rỗng
+    if (!Array.isArray(courts)) return [];
+
     return courts.filter(court => {
         const matchDistrict = yard.district ? court.district === yard.district : true;
         const matchWard = yard.ward ? court.ward === yard.ward : true;
         const matchStreet = yard.street ? court.street === yard.street : true;
         const matchCourtName = yard.courtName ? court.courtName === yard.courtName : true;
-        
-        // Trả về kết quả nếu tất cả các điều kiện đều thỏa mãn
+
         return matchDistrict && matchWard && matchStreet && matchCourtName;
     });
 });
 
+
 /**biến mở modal tìm kiếm sân theo địa chỉ*/
 const show_modal = ref(false);
 
-/**danh sách sân pickleball*/
-const list_yard = ref([
-  {
-    key: 1,
-    name_yard: "Sân Pickleball 1",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh1,
-    status: "exhaust",
-    evaluate: 3,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 2,
-    name_yard: "Sân Pickleball Phương Nam",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh2,
-    status: "exhaust",
-    evaluate: 2,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 3,
-    name_yard: "Sân Pickleball Phương Mai",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh3,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 1,
-    name_yard: "Sân Pickleball 1",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh1,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 2,
-    name_yard: "Sân Pickleball Phương Nam",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh2,
-    status: "exhaust",
-    evaluate: 4.7,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 3,
-    name_yard: "Sân Pickleball Phương Mai",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh3,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 3,
-    name_yard: "Sân Pickleball Phương Mai",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh3,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 1,
-    name_yard: "Sân Pickleball 1",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh1,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 2,
-    name_yard: "Sân Pickleball Phương Nam",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh2,
-    status: "exhaust",
-    evaluate: 4.7,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 3,
-    name_yard: "Sân Pickleball Phương Mai",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh3,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 3,
-    name_yard: "Sân Pickleball Phương Mai",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh3,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 1,
-    name_yard: "Sân Pickleball 1",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh1,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 2,
-    name_yard: "Sân Pickleball Phương Nam",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh2,
-    status: "exhaust",
-    evaluate: 4.7,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-  {
-    key: 3,
-    name_yard: "Sân Pickleball Phương Mai",
-    add_yard: "Phương Mai, Đống Đa, Hà Nội",
-    img: anh3,
-    status: "exhaust",
-    evaluate: 5,
-    time: "9am - 21pm",
-    pitch: 6,
-  },
-]);
+
 
 const infor_yard = ref({
   courtName: '',
@@ -415,8 +272,11 @@ const removeActive = () => {
 };
 
 /**Khi xem một sân*/
-function goToDetail() {
+function goToDetail(yard : Court) {
   router.push('/detail');
+  /**Lưu sân được bấm vào store*/
+  store_court.court_detail = yard
+
 }
 
 /**Hàm lấy danh sách sân*/
@@ -446,6 +306,8 @@ function isValidImage(image :string) {
         return urlPattern.test(image);
     }
 
-
+function formatHour(timeStr: string): string {
+  return timeStr?.slice(0, 5) // Lấy 5 ký tự đầu: "08:00"
+}
 
 </script>

@@ -16,6 +16,8 @@ export interface Court {
     status: number;
     userFullname: string | null; // Allowing it to be null if the value is absent
     userPhoneNumber: string | null; // Allowing it to be null if the value is absent
-    childLst: any[] | null; // Assuming `childLst` is an array or null, you can adjust the type if needed
+    childLst: any[] | null; // Assuming `childLst` is an array or null, you can adjust the type if needed,
+    startTime: string,
+    endTime: string,
   }
   

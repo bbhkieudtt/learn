@@ -40,7 +40,7 @@ export const apiCreateChillCourt = async (payload: any) => {
       // Phương thức
       method: "POST",
        // endpoint API
-       end_point: "User/create",
+       end_point: "ChildCourt/create",
        // payload được truyền từ giao diện
        body: payload,
      });
@@ -54,15 +54,15 @@ export const apiCreateChillCourt = async (payload: any) => {
  }; 
 
  /**api lấy danh sách sân con*/
-export const apiGetChillCourt = async (payload: any) => {
+export const apiGetChillCourt = async () => {
   try {
     return await apiRequest({
       // Phương thức
       method: "GET",
       // endpoint API
-      end_point: "User/create",
+      end_point: "ChildCourt/get-list",
       // payload được truyền từ giao diện
-      body: payload,
+      // body: payload,
     });
   } catch (e) {
     // Log lỗi nếu có

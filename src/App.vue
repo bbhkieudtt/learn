@@ -1,7 +1,7 @@
 <template>
   <div class="w-screen h-screen">
-    <Network />
-    <AdBlocker />
+    <!-- <Network />
+    <AdBlocker /> -->
     <Loading v-if="commonStore.is_loading_full_screen" type="FULL" />
     <div class="h-full overflow-hidden overflow-y-auto">
       <router-view />

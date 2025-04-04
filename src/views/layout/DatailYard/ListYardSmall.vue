@@ -5,7 +5,8 @@
                 <p>
 
                 </p>
-                <p>Pickleball 1</p>
+                <p>{{ list_child.length === 0 ? 'Chưa có sân con !' : list_child[0].childCourtName }}</p>
+
                 <ClipboardDocumentListIcon class="w-5 h-5 text-white"></ClipboardDocumentListIcon>
             </button>
 
@@ -14,16 +15,16 @@
         <template #box>
             <div v-show="store.filter_yard"
                 class="px-2 py-2  bg-[#faf2ac] absolute  top-2 z-50  rounded-xl w-full">
-                <div v-for="(item, index) in list_yard" :key="index"
+                <div @click="selectChill(item.childCourtName)" v-for="(item, index) in list_child" :key="index"
                     :class="{ 'border-green-700': index !== list_yard.length - 1 }"
                     class="flex border-b py-2 text-sm font-medium justify-between text-green-800 items-center">
                     <p>
 
                     </p>
                     <p>
-                        {{ item.name_yard }}
+                        {{ item.childCourtName }}
                     </p>
-                    <FireIcon v-if="item.vip" class="w-5 h-5 text-yellow-600"></FireIcon>
+                    <FireIcon v-if="item.position = 'vip'" class="w-5 h-5 text-yellow-600"></FireIcon>
                     <p v-else class="w-5 h-5">
 
                     </p>
@@ -36,17 +37,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref,computed } from "vue";
 import DropBox from "@/components/DropBox.vue";
 import { useAppStore } from '@/stores/appStore'
+import { useAppStoreCourt } from '@/stores/appStoreCourt'
 
 /**icon*/
 import { } from "@heroicons/vue/24/outline";
 // 
 import { ClipboardDocumentListIcon, FireIcon } from "@heroicons/vue/24/solid";
 
+
+
 /**biến store*/
 const store = useAppStore()
+
+const store_court = useAppStoreCourt()
+
+/**Biến Id sân được chọn */
+const id_Court = store_court.court_detail?.id ?? 0
+
+const list_child = computed(() => {
+  if (!Array.isArray(store_court.list_chill_court)) return [];
+  return store_court.list_chill_court.filter(child => child.courtId === id_Court)
+})
 
 /**Danh sách sân con*/
 const list_yard = ref([
@@ -72,5 +86,11 @@ function openListSelected() {
     console.log('store.filter_time', store.filter_time);
     store.filter_yard = !store.filter_yard
 }
+
+/**Hàm chọn sân con*/
+function selectChill(childCourtName:string){
+   
+
+} 
 
 </script>

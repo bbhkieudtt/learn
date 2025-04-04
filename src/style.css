@@ -53,5 +53,10 @@
   }
 }
 
+/* Tạo khoảng cách giữa label và select */
+.custom-label .el-form-item__label {
+  margin-right: 80px;
+}
+
 
 
