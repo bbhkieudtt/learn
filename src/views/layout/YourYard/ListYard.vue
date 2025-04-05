@@ -459,6 +459,7 @@ const validatePhoneNumber = (event: any) => {
 /**Hàm trở về trang chủ*/
 function goHome() {
     router.push('/main');
+    store_court.is_court = 'home'
 }
 
 

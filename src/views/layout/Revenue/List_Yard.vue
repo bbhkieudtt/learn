@@ -69,7 +69,6 @@ const list_yard = ref([
 
 /**hàm mở danh sách lọc*/
 function openListSelected() {
-    console.log('store.filter_time', store.filter_time);
     store.filter_yard = !store.filter_yard
 }
 

@@ -15,8 +15,8 @@
       <div class="grid grid-cols-4 gap-3 ">
         <div class="flex items-center justify-between text-lg cursor-pointer button rounded-md ">
           <p></p>
-          <p>Lịch thuê</p>
-          <IconClock></IconClock>
+          <p>{{ formatCurrency(store_court.chill_detail?.rentCost) }}đ / 1giờ</p>
+          <CurrencyDollarIcon class="w-5 h-5 text-white"></CurrencyDollarIcon>
         </div>
         <!--  -->
         <div class="flex cursor-pointer gap-2 button rounded-md  ">
@@ -60,7 +60,7 @@
       <div v-if="list_child && list_child.length === 0" class="w-full h-full flex justify-center items-center">
         <div class="flex flex-col gap-2 justify-center items-center">
           <img src="@/assets/imgs/image9.png" alt="" />
-          <h3 class="text-2xl text-green-800 font-bold">Hãy tạo sân con bạn nhé !</h3>
+          <h3 class="text-2xl text-green-800 font-bold">Chưa có sân con!</h3>
         </div>
       </div>
       <div v-else>
@@ -75,7 +75,7 @@
       <ClipboardDocumentCheckIcon class="w-5 h-5 text-white"></ClipboardDocumentCheckIcon>
       Đặt sân
     </button>
-    <button @click="createChillCourt"
+    <button v-if="is_create" @click="createChillCourt"
       class=" text-lg items-center z-50 font-semibold flex-shrink-0 absolute bottom-5 left-5 w-fit py-2 px-3 flex gap-1 rounded-lg bg-yellow-600 text-white">
       <HeartIcon class="w-5 h-5 text-white"></HeartIcon>
       Tạo sân con
@@ -169,7 +169,7 @@ import ListYardSmall from "./layout/DatailYard/ListYardSmall.vue";
 /**icon*/
 import { } from "@heroicons/vue/24/outline";
 // 
-import { ClipboardDocumentCheckIcon, XMarkIcon, CalendarDateRangeIcon, HeartIcon } from "@heroicons/vue/24/solid";
+import { ClipboardDocumentCheckIcon, XMarkIcon, CalendarDateRangeIcon, HeartIcon, CurrencyDollarIcon } from "@heroicons/vue/24/solid";
 import IconBack from "@/components/Icons/IconBack.vue";
 import IconSearch from "@/components/Icons/IconSearch.vue";
 import IconFilter from "@/components/Icons/IconFilter.vue";
@@ -177,6 +177,10 @@ import IconFilter from "@/components/Icons/IconFilter.vue";
 /**icon menu*/
 import IconClock from "@/components/Icons/IconClock.vue";
 import IconPhone from "@/components/Icons/IconPhone.vue";
+
+/**toast*/
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const store = useAppStore()
 
@@ -195,9 +199,15 @@ const customDayNames = [
 /**Biến kiểm tra xem mở modal nào */
 const is_modal = ref(true)
 
-/**toast*/
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+// Lấy userInfo từ localStorage
+const userInfo = JSON.parse(localStorage.getItem("userInfo") || 'null');
+
+
+// biến check có hiện nút tạo sân con k 
+const is_create = computed(() => {
+  return userInfo && store_court.court_detail?.userId === userInfo.id
+})
+
 
 /**Biến router */
 const router = useRouter()
@@ -249,17 +259,27 @@ const list_statistical = ref([
   },
 ]);
 
-
-onMounted(() => {
-  //  Lấy danh sách sân con thuộc sân này
-  getChillCourt()
-
-})
-
 const list_child = computed(() => {
   if (!Array.isArray(store_court.list_chill_court)) return [];
   return store_court.list_chill_court.filter(child => child.courtId === id_Court)
 })
+
+
+
+ onMounted( async() => {
+  //  Lấy danh sách sân con thuộc sân này
+ await getChillCourt()
+  console.log('list_child',list_child);
+  
+
+  store_court.chill_detail = list_child.value[0];
+  console.log(list_child.value[0]);
+  
+
+
+})
+
+
 
 // Định dạng số thành tiền VND
 const formatCurrency = (value: any) => {
@@ -295,7 +315,12 @@ function goToBocking() {
 
 /**Hàm quay trở lại trang chủ*/
 function goToBack() {
+  if(store_court.is_court === 'YourYard'){
+    router.push('/YourYard');
+  }
+  if(store_court.is_court === 'home'){
   router.push('/main')
+  }
 }
 
 /**Đi đến thông tin chi tiết sân*/
@@ -322,8 +347,10 @@ async function createCourt() {
 
     // Kiểm tra nếu API trả về thành công
     if (response && response.status === 200) {
-      getChillCourt()
+      await getChillCourt()
       toast("Tạo sân con thành công!", { autoClose: 5000 });
+      showModal()
+
 
     } else {
       toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
@@ -365,6 +392,8 @@ async function getChillCourt() {
     console.error("API Error:", error);
   }
 }
+
+
 
 </script>
 

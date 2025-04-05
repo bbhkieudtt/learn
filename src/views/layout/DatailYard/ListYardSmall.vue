@@ -5,7 +5,7 @@
                 <p>
 
                 </p>
-                <p>{{ list_child.length === 0 ? 'Chưa có sân con !' : list_child[0].childCourtName }}</p>
+                <p>{{ list_child.length === 0 ? 'Chưa có sân con !' : store_court.chill_detail?.childCourtName }}</p>
 
                 <ClipboardDocumentListIcon class="w-5 h-5 text-white"></ClipboardDocumentListIcon>
             </button>
@@ -15,16 +15,16 @@
         <template #box>
             <div v-show="store.filter_yard"
                 class="px-2 py-2  bg-[#faf2ac] absolute  top-2 z-50  rounded-xl w-full">
-                <div @click="selectChill(item.childCourtName)" v-for="(item, index) in list_child" :key="index"
-                    :class="{ 'border-green-700': index !== list_yard.length - 1 }"
-                    class="flex border-b py-2 text-sm font-medium justify-between text-green-800 items-center">
+                <div @click="selectChill(item)" v-for="(item, index) in list_child" :key="index"
+                    :class="{ 'border-green-700 ': index !== list_yard.length ,'border-b':index !== list_yard.length }"
+                    class="flex  py-2 text-sm font-medium justify-between text-green-800 items-center">
                     <p>
 
                     </p>
                     <p>
                         {{ item.childCourtName }}
                     </p>
-                    <FireIcon v-if="item.position = 'vip'" class="w-5 h-5 text-yellow-600"></FireIcon>
+                    <FireIcon v-if="item.position === 'Sân Vip'" class="w-5 h-5 text-yellow-600"></FireIcon>
                     <p v-else class="w-5 h-5">
 
                     </p>
@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,computed } from "vue";
+import { ref,computed, onMounted } from "vue";
 import DropBox from "@/components/DropBox.vue";
 import { useAppStore } from '@/stores/appStore'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
@@ -46,6 +46,9 @@ import { useAppStoreCourt } from '@/stores/appStoreCourt'
 import { } from "@heroicons/vue/24/outline";
 // 
 import { ClipboardDocumentListIcon, FireIcon } from "@heroicons/vue/24/solid";
+
+/**kiểu dữ liệu*/
+import type {Court, ChildCourt} from '@/interface'
 
 
 
@@ -57,9 +60,19 @@ const store_court = useAppStoreCourt()
 /**Biến Id sân được chọn */
 const id_Court = store_court.court_detail?.id ?? 0
 
+
+/**Danh sách sân cọn của sanan cha được chọn*/ 
 const list_child = computed(() => {
   if (!Array.isArray(store_court.list_chill_court)) return [];
   return store_court.list_chill_court.filter(child => child.courtId === id_Court)
+})
+
+onMounted(()=>{
+    
+    store_court.chill_detail = list_child.value[0]
+
+    console.log('store_court.chill_detail',store_court.chill_detail);
+    
 })
 
 /**Danh sách sân con*/
@@ -88,8 +101,10 @@ function openListSelected() {
 }
 
 /**Hàm chọn sân con*/
-function selectChill(childCourtName:string){
-   
+function selectChill(childCour:ChildCourt){
+
+    store_court.chill_detail = childCour
+    store.filter_yard = false
 
 } 
 

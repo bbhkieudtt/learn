@@ -88,6 +88,9 @@ function handleClick(e: Event) {
       if (store.filter_time) {
         store.filter_time = false;
       }
+      if ( store.filter_yard) {
+        store.filter_yard = false;
+      }
       // if (store.is_statistical) {
       //   store.is_statistical = false;
       // }

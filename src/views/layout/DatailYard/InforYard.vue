@@ -1,16 +1,16 @@
 <template>
-    <div class="flex h-dvh flex-col  ">
+    <div class="flex overflow-hidden h-dvh flex-col  ">
         <header class="h-40 w-full">
-            <img class="w-full h-full" :src="ImgYard" alt="">
+            <img class="w-full h-auto object-cover" :src="Img2" alt="">
             <ArrowLeftIcon @click="goToDetail" class="w-7 absolute top-4 left-4 cursor-pointer h-7 text-white">
             </ArrowLeftIcon>
         </header>
         <main class="h-full relative bg-green w-full">
             <div class="flex absolute top-[-40px] left-5 items-center gap-2">
-                <img :src="ImgYard" class="w-25 h-25 rounded-full" alt="">
+                <img :src="validImageSrc" class="w-25 h-25 rounded-full" alt="">
             </div>
             <h3 class="text-white text-xl font-semibold ml-30 mt-3">
-                Thiên Lý Ơi
+                {{ store_court.court_detail?.courtName }}
             </h3>
 
             <div class="grid grid-cols-4 mt-10">
@@ -23,25 +23,35 @@
             </div>
             <!--Thông tin sân   -->
             <div v-if="yarf_select === 1" class="flex flex-col w-full">
-                <div @click="showMap(infor_yard.Address)"
+                <div @click="showMap(address)"
                     class="flex gap-2 py-5 px-2 cursor-pointer  w-full border-b border-slate-400 items-center">
                     <IconLocation class="w-5 h-5 text-white"></IconLocation>
                     <p class="text-sm text-white">
-                        {{ infor_yard.Address }}
+                        {{ address }}
                     </p>
                 </div>
                 <!--  -->
                 <div class="flex gap-2 py-5 px-2 w-full border-b border-slate-400 items-center">
                     <IconClock class="w-5 h-5 text-white"></IconClock>
                     <p class="text-sm text-white">
-                        Giờ hoạt động: {{ infor_yard.time_opent }}
+                        Giờ hoạt động: {{ store_court.court_detail?.startTime && store_court.court_detail?.endTime ?
+                            formatHour(store_court.court_detail?.startTime) + ' - ' +
+                            formatHour(store_court.court_detail?.endTime) : '24/7' }}
+                    </p>
+                </div>
+                <!--chủ sân   -->
+                <div class="flex gap-2 border-b border-slate-400 py-5 px-2 w-full  items-center">
+                    <UserCircleIcon class="w-5 h-5 text-white"></UserCircleIcon>
+                    <p class="text-sm text-white flex gap-2 ">
+                        <p>Chủ sân: </p>
+                        <span class="font-semibold">{{ store_court.court_detail?.contactPerson }}</span>
                     </p>
                 </div>
                 <!--  -->
                 <div class="flex gap-2 py-5 px-2 w-full  items-center">
                     <Iconphones class="w-5 h-5 text-white"></Iconphones>
                     <p class="text-sm text-white">
-                        {{ infor_yard.phone }}
+                        {{ store_court.court_detail?.contactPhone }}
                     </p>
                 </div>
                 <button
@@ -62,30 +72,30 @@
                             </th>
                         </tr>
                         <tr class="text-green-900">
-                            <th class="border border-green-700 p-2">Thứ</th>
-                            <th class="border border-green-700 p-2">Khung giờ</th>
+                            <th class="border border-green-700 p-2">Sân con</th>
+                            <th class="border border-green-700 p-2">Loại sân</th>
                             <th class="border border-green-700 p-2">Giá</th>
                         </tr>
                     </thead>
                     <!-- Nội dung bảng -->
                     <tbody class="text-green-900 text-center">
-                        <template v-for="(day, index) in infor_yard.price_yard" :key="index">
-                            <tr v-for="(time, timeIndex) in day.time" :key="timeIndex">
+                       
+                            <tr v-for="(time, timeIndex) in list_child" :key="timeIndex">
                                 <!-- Ô thứ chỉ hiển thị 1 lần cho mỗi nhóm -->
-                                <td v-if="timeIndex === 0" :rowspan="day.time.length"
+                                <td
                                     class="border border-green-700 p-2">
-                                    {{ day.time_day }}
+                                    {{ time.childCourtName }}
                                 </td>
-                                <td class="border border-green-700 p-2">{{ time.hour_time }}</td>
-                                <td class="border border-green-700 p-2">{{ time.price_time }}</td>
+                                <td class="border border-green-700 p-2">{{ time.position }}</td>
+                                <td class="border border-green-700 p-2">{{ formatCurrency( time.rentCost) + 'đ /giờ' }}</td>
                             </tr>
-                        </template>
+                        
                     </tbody>
                 </table>
             </div>
             <!-- Hình ảnh -->
             <div v-if="yarf_select === 3" class="grid py-5 grid-cols-3 gap-2 px-5">
-                <img class="w-[80%] h-50" v-for="(item, index) in infor_yard.list_img" :key="index" :src="item" alt="">
+                <img class="w-[80%] h-50" v-for="(item, index) in  store_court.court_detail?.images" :key="index" :src="item" alt="">
 
             </div>
             <!-- Đánh giá -->
@@ -98,13 +108,12 @@
                         <div class="flex gap-1 items-center">
                             <p class="text-sm text-yellow-500">{{ item.Star }}</p>
                             <!--  -->
-                            <vue3-star-ratings :interactive="false"  v-model="item.Star" />
+                            <vue3-star-ratings :interactive="false" v-model="item.Star" />
                         </div>
                         <p class="text-xs text-white">{{ item.content }}</p>
                     </div>
                 </div>
-                <button
-                @click="openComment"
+                <button @click="openComment"
                     class="flex px-3 absolute bottom-4 right-5 py-2 rounded-lg text-sm text-white gap-1 bg-yellow-500">
                     <IconEdit class="w-5 h-5 text-white"></IconEdit>
                     <p class="font-medium">
@@ -137,7 +146,7 @@
                         <div class="flex flex-col gap-2  pb-5">
                             <label class="font-semibold text-green-900" for="">Chất lượng sân </label>
                             <div class="flex gap-1 items-center">
-                              
+
                                 <!--  -->
                                 <vue3-star-ratings v-model="comment.ratingStar" />
                                 <p class="text-sm text-yellow-500"></p>
@@ -157,14 +166,13 @@
                     </div>
                 </body>
                 <footer class="flex-shrink-0 py-2">
-                    <button
-                @click="openComment"
-                    class="flex px-3  w-full py-2 text-center rounded-lg text-sm text-white gap-1 bg-yellow-500">
-                   
-                    <p class="font-medium">
-                        Tạo đánh giá
-                    </p>
-                </button>
+                    <button @click="openComment"
+                        class="flex px-3  w-full py-2 text-center rounded-lg text-sm text-white gap-1 bg-yellow-500">
+
+                        <p class="font-medium">
+                            Tạo đánh giá
+                        </p>
+                    </button>
                 </footer>
             </main>
         </template>
@@ -173,8 +181,9 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAppStoreCourt } from '@/stores/appStoreCourt'
 
 
 /**Thư viện*/
@@ -187,7 +196,7 @@ import Iconphones from '@/components/Icons/Iconphones.vue'
 import IconClock from '@/components/Icons/IconClock.vue'
 import IconLocation from '@/components/Icons/IconLocation.vue'
 import IconEdit from '@/components/Icons/IconEdit.vue'
-import { ArrowLeftIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, XMarkIcon, UserCircleIcon } from "@heroicons/vue/24/solid";
 
 /**modal*/
 import Modal from '@/components/Modal/Modal.vue';
@@ -199,6 +208,26 @@ import Imgbg from '@/assets/imgs/bg_san1.jpg'
 import Img1 from '@/assets/imgs/bg_san.jpg'
 import Img2 from '@/assets/imgs/bg_san2.jpg'
 import ImgUser from '@/assets/imgs/avatarUser.png'
+import ImgUsers from '@/assets/imgs/bgmain1.jpg'
+
+const store_court = useAppStoreCourt()
+
+const address = computed(() => {
+    const detail = store_court.court_detail;
+
+    if (!detail) return "";
+
+    return `${detail.street}, ${detail.ward}, ${detail.district}, Hà Nội`;
+});
+
+
+const validImageSrc = computed(() => {
+    const img = store_court.court_detail?.images?.[0]
+    return isValidImage(img || '') ? img : ImgYard
+})
+
+/**Biến Id sân được chọn */
+const id_Court = store_court.court_detail?.id ?? 0
 
 /**Biến router */
 const router = useRouter()
@@ -297,6 +326,11 @@ const list_items = ref([
     }
 ])
 
+const list_child = computed(() => {
+  if (!Array.isArray(store_court.list_chill_court)) return [];
+  return store_court.list_chill_court.filter(child => child.courtId === id_Court)
+})
+
 const getCoordinates = async (address: string) => {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1`;
 
@@ -388,8 +422,26 @@ const removeActive = () => {
 
 
 /***/
-function openComment(){
+function openComment() {
     is_comment.value = true;
-    show_modal.value = true; 
-} 
+    show_modal.value = true;
+}
+
+/**Kiểm tra link ảnh*/
+function isValidImage(image: string) {
+    // Kiểm tra xem image có phải là một URL hợp lệ hay không (bắt đầu với http:// hoặc https://)
+    const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|bmp|webp))$/i;
+    return urlPattern.test(image);
+}
+
+/**formatHour*/
+function formatHour(timeStr: string): string {
+    return timeStr?.slice(0, 5) // Lấy 5 ký tự đầu: "08:00"
+}
+
+// Định dạng số thành tiền VND
+const formatCurrency = (value: any) => {
+  if (value === null || value === undefined || value === "") return ""; // Cho phép xóa hết số
+  return new Intl.NumberFormat("vi-VN").format(value);
+};
 </script>

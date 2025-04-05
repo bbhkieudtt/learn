@@ -7,7 +7,7 @@
             <img src="@/assets/imgs/logoNo.png" class="w-[70px] h-[50px]" alt="" />
           </div>
           <!--  -->
-          <h2 class="text-3xl font-semibold text-white">Picklaball</h2>
+          <h2 class="text-3xl font-semibold text-white">Pickleball</h2>
         </div>
       </div>
       <!--  -->

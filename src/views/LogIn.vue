@@ -3,7 +3,7 @@
     <main class="bg-login fixed z-0 top-0 left-0 w-full h-screen gradient-custom pt-20">
       <div class="flex z-50 px-20 justify-between">
         <div>
-          <h1 class="flex text-4xl font-bold text-slate-900">Picklaball</h1>
+          <h1 class="flex text-4xl font-bold text-slate-900">Pickleball</h1>
           <!--  -->
           <p class="flex text-xl text-slate-900">
             Sân Pickleball của bạn, niềm vui của chúng tôi!
@@ -15,7 +15,7 @@
             <img src="@/assets/imgs/logoPick.png" class="h-[100px] w-[100px] mx-auto" alt="" />
             <h1 class="text-2xl font-semibold text-black">
               {{
-                !status_login ? "Đăng nhập Picklaball" : "Đăng nhập thành công"
+                !status_login ? "Đăng nhập Pickleball" : "Đăng nhập thành công"
               }}
             </h1>
           </div>
@@ -97,6 +97,8 @@ const store = useAppStore();
 
 /**Biến router */
 const router = useRouter()
+
+
 
 const status_login = ref(false);
 

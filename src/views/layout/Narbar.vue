@@ -14,6 +14,7 @@
 
 import{ref} from 'vue'
 import { useRouter } from 'vue-router'
+import { useAppStoreCourt } from '@/stores/appStoreCourt'
 
 /**img icon*/ 
 import ban from '@/assets/imgs/icon/ban.png'
@@ -25,6 +26,8 @@ import sancuaban from '@/assets/imgs/icon/sancuaban.png'
 
 /**Biến router */
 const router = useRouter()
+
+const store_court = useAppStoreCourt()
 
 /**biến*/
 const list_menu = ref([
@@ -70,6 +73,7 @@ function goItem(id:number){
     // 
     if(id===2){
         router.push('/YourYard');
+        store_court.is_court = 'YourYard'
     }
     // 
     if(id===3){

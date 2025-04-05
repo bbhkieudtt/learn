@@ -12,6 +12,10 @@ export const useAppStoreCourt = defineStore("app", () => {
     const court_detail = ref<Court>() 
     /**Danh sách sân con thuộc sân cha */
     const list_chill_court = ref<ChildCourt[]>([]);
+    /**Biến kiểm tra đang ở danh sách sân của tôi hay trang chủ*/
+    const is_court= ref('home') 
+    /**sân con được chọn*/
+    const chill_detail = ref<ChildCourt>() 
 
    
 
@@ -19,7 +23,9 @@ export const useAppStoreCourt = defineStore("app", () => {
     return {
         list_court,
         court_detail,
-        list_chill_court
+        list_chill_court,
+        is_court,
+        chill_detail
     }
 
 });
