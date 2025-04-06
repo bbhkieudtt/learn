@@ -3,7 +3,7 @@ export const api_host: { [index: string]: { [index: string]: string } } = {
     development: {
         contact: "https://api-contact.merchant.vn",
         product: "https://api-product.merchant.vn",
-        pickleyard: "http://pickleyard.somee.com/api",  // Thay bằng đường dẫn API dev
+        pickleyard: "https://pickleyard.somee.com/api",  // Thay bằng đường dẫn API dev
         
     },
     staging: {
@@ -12,7 +12,7 @@ export const api_host: { [index: string]: { [index: string]: string } } = {
     production: {
         contact: "https://api-contact.merchant.vn",
         product: "https://api-product.merchant.vn",
-        pickleyard: "http://pickleyard.somee.com/api",
+        pickleyard: "https://pickleyard.somee.com/api",
     },
 };
 
