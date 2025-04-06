@@ -47,6 +47,17 @@
                   nhận lại mật khẩu</label>
               </div>
               <!--  -->
+              <div class="group relative z-0 mb-6 w-full">
+                <input v-model="account_login.phoneNumber" id="phone_input" type="text" inputmode="numeric"
+                  pattern="[0-9]*" maxlength="10"
+                  class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
+                  placeholder=" " />
+                <label for="phone_input"
+                  class="absolute top-0.5 left-0 -z-10 origin-[0] -translate-y-3 scale-75 transform pt-3 pl-6 text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-orange-600">
+                  Nhập Số điện thoại
+                </label>
+              </div>
+
               <!--  -->
               <div class="group relative z-0 mb-6 w-full">
                 <input v-model="account_login.email" type="email"
@@ -147,10 +158,17 @@ async function createUse() {
     return;
   }
 
-   // Kiểm tra username: chữ thường, không dấu, không có khoảng trắng
+  // Kiểm tra username: chữ thường, không dấu, không có khoảng trắng
   const usernameRegex = /^[a-z0-9]+$/;
   if (!usernameRegex.test(account_login.value.username || '')) {
     toast("Tên đăng nhập phải là chữ thường, không dấu và không có khoảng trắng!", { autoClose: 5000 });
+    return;
+  }
+
+  const phone = account_login.value.phoneNumber || '';
+  const phoneRegex = /^(0[0-9]{9})$/;
+  if (!phoneRegex.test(phone)) {
+    toast("Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 chữ số, bắt đầu bằng 0.", { autoClose: 5000 });
     return;
   }
 
@@ -176,7 +194,7 @@ async function createUse() {
   }
 }
 
-function goToLogin(){
+function goToLogin() {
   router.push('/login')
 }
 

@@ -53,3 +53,23 @@ export const apiCreateReview = async (payload: any) => {
    }
  }; 
 
+ /**api lấy danh sách bình luận*/
+export const apiGetListReview = async () => {
+  try {
+    return await apiRequest({
+      // Phương thức
+      method: "GET",
+      // endpoint API
+      end_point: "Review/get-list",
+      // payload được truyền từ giao diện
+      // body: payload,
+    });
+  } catch (e) {
+    // Log lỗi nếu có
+   //  console.error("Error:", e);
+   console.log(e);
+   
+    throw e;
+  }
+}; 
+

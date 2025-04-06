@@ -31,21 +31,26 @@
           <!-- sân -->
           <div @click="goToDetail(yard)" v-for="yard in list_court" :key="yard.id"
             class="flex items-center h-fit w-60 border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
-            <img class="w-60 rounded-t-lg  h-50"  :src="isValidImage(yard.images[0]) ? yard.images[0] : anh1" alt="ảnh sân" />
+            <img class="w-60 rounded-t-lg  h-50" :src="isValidImage(yard.images[0]) ? yard.images[0] : anh1"
+              alt="ảnh sân" />
             <div class="flex w-full  flex-shrink-0 flex-col  gap-0.5 p-1 py-2">
               <h3 class="text-sm font-medium text-back truncate">
                 {{ yard.courtName }}
               </h3>
-              <p class="text-sm flex-shrink-0 text-slate-500 truncate">{{ yard.street + ', ' + yard.ward + ', ' + yard.district }}</p>
+              <p class="text-sm flex-shrink-0 text-slate-500 truncate">{{ yard.street + ', ' + yard.ward + ', ' +
+                yard.district }}</p>
               <div class="flex items-center gap-2"> <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-                <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + ' - ' + formatHour(yard.endTime) : '24/7' }}</p>
+                <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + ' - ' +
+                  formatHour(yard.endTime) : '24/7' }}</p>
               </div>
               <div class="flex items-center justify-between">
-                <vue3-star-ratings v-model="start" />
+                <vue3-star-ratings v-if="store_review.list_review[yard.id]" v-model="store_review.list_review[yard.id].averageRatingStar"  />
+                <vue3-star-ratings v-else v-model="start"  />
+
                 <div class="flex items-center gap-1">
                   <IconComment class="w-4 h-4 text-slate-500"></IconComment>
                   <p class="text-xs text-slate-400">
-                    3
+                    {{ store_review.list_review[yard.id]?.total_comments ?? 0 }}
                   </p>
                 </div>
               </div>
@@ -124,10 +129,14 @@ import { useRouter } from 'vue-router'
 import axios from "axios";
 
 /**api*/
+import { getListUser } from "@/service/api/api";
 import { apiGetCourt } from "@/service/api/apiCourt";
+import { apiGetListReview } from "@/service/api/apiReview";
 
 /**Kho lưu trữ*/
+import { useAppStore } from '@/stores/appStore'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
+import { useAppStoreReview } from '@/stores/appStoreReview'
 
 
 /**icon*/
@@ -140,19 +149,24 @@ import Modal from "@/components/Modal/Modal.vue"
 
 /**ảnh sân*/
 import anh1 from "@/assets/imgs/bg_san.jpg";
-import anh2 from "@/assets/imgs/bg_san1.jpg";
-import anh3 from "@/assets/imgs/bg_san2.jpg";
+
 
 /**kiểu dữ liệu*/
-import type { Court, Division, Location } from '@/interface'
+import type { Court, Division, Location, Review, GroupedReview } from '@/interface'
 
 /**Biến router */
 const router = useRouter()
 
-const start =5
+
+const start = ref(5);
 
 /**biến store*/
+
+const store = useAppStore()
+
 const store_court = useAppStoreCourt()
+
+const store_review = useAppStoreReview()
 
 /**biến*/
 const date = ref();
@@ -164,22 +178,22 @@ const selectedStreet = ref("");        // Tên đường
 const districts = ref<Division[]>([]);
 const wards = ref<Location[]>([]);
 
-/**Danh sách sân đã được lọc*/ 
+/**Danh sách sân đã được lọc*/
 const list_court = computed(() => {
-    const courts = store_court.list_court;
-    const yard = infor_yard.value;
+  const courts = store_court.list_court;
+  const yard = infor_yard.value;
 
-    // Nếu courts chưa có dữ liệu hoặc không phải mảng thì trả về mảng rỗng
-    if (!Array.isArray(courts)) return [];
+  // Nếu courts chưa có dữ liệu hoặc không phải mảng thì trả về mảng rỗng
+  if (!Array.isArray(courts)) return [];
 
-    return courts.filter(court => {
-        const matchDistrict = yard.district ? court.district === yard.district : true;
-        const matchWard = yard.ward ? court.ward === yard.ward : true;
-        const matchStreet = yard.street ? court.street === yard.street : true;
-        const matchCourtName = yard.courtName ? court.courtName === yard.courtName : true;
+  return courts.filter(court => {
+    const matchDistrict = yard.district ? court.district === yard.district : true;
+    const matchWard = yard.ward ? court.ward === yard.ward : true;
+    const matchStreet = yard.street ? court.street === yard.street : true;
+    const matchCourtName = yard.courtName ? court.courtName === yard.courtName : true;
 
-        return matchDistrict && matchWard && matchStreet && matchCourtName;
-    });
+    return matchDistrict && matchWard && matchStreet && matchCourtName;
+  });
 });
 
 
@@ -209,47 +223,53 @@ const isSearchDisabled = computed(() => {
   return !Address_value.value.trim() && !name_value.value.trim();
 });
 
-onMounted(() => {
+onMounted(async () => {
   // *Lấy danh sách sân 
-  getListCourt(),
+  await getListCourt(),
     // *Lấy quận huyện
-    getDistricts();
-     store_court.is_court = 'home'
+  await  getDistricts();
+  // *lấy danh sách bình luận các sân
+  await getListReview()
+  // *lấy danh sách người dùng
+  await getListUsers()
+ 
+  store_court.is_court = 'home'
 
-   
-    
+
+
 });
 
-// Lấy danh sách quận/huyện Hà Nội
 const getDistricts = async () => {
   try {
     const response = await axios.get("https://provinces.open-api.vn/api/d/");
-    districts.value = response.data.filter((d: any) => d.province_code === 1); // 1 là mã của Hà Nội
+    if (response && response.data) {
+      districts.value = response.data.filter((d: any) => d.province_code === 1); // 1 là mã của Hà Nội
+    } else {
+      console.error("Dữ liệu quận/huyện không hợp lệ");
+    }
   } catch (error) {
     console.error("Lỗi khi lấy quận/huyện:", error);
   }
 };
 
-// Khi chọn quận/huyện
 const getWards = async () => {
   const district = districts.value.find(d => d.code === selectedDistrict.value);
   infor_yard.value.district = district ? district.name : ""; // Lưu tên quận/huyện
 
-
   selectedStreet.value = "";
 
   try {
-
     const response = await axios.get("https://provinces.open-api.vn/api/w/");
-    console.log("Lấy phường/xã cho quận/huyện:", response);
-
-    // Lọc danh sách phường/xã theo quận/huyện đã chọn
-    wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
-
+    if (response && response.data) {
+      wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
+    } else {
+      console.error("Dữ liệu phường/xã không hợp lệ");
+    }
   } catch (error) {
     console.error("Lỗi khi lấy phường/xã:", error);
   }
 };
+
 
 // Khi chọn phường/xã
 const getStreets = () => {
@@ -273,7 +293,7 @@ const removeActive = () => {
 };
 
 /**Khi xem một sân*/
-function goToDetail(yard : Court) {
+function goToDetail(yard: Court) {
   router.push('/detail');
   /**Lưu sân được bấm vào store*/
   store_court.court_detail = yard
@@ -301,11 +321,71 @@ async function getListCourt() {
   }
 }
 
-function isValidImage(image :string) {
-        // Kiểm tra xem image có phải là một URL hợp lệ hay không (bắt đầu với http:// hoặc https://)
-        const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|bmp|webp))$/i;
-        return urlPattern.test(image);
+
+/**Hàm lấy danh sách sân*/
+async function getListReview() {
+  try {
+    const response = await apiGetListReview();
+
+    // Kiểm tra response.data nếu là mảng
+    if (Array.isArray(response.data)) {
+      store_review.list_review = convertToGroupedObject(response.data);
+    } else {
+      console.error('Dữ liệu trả về không phải là mảng:', response);
     }
+
+  } catch (error) {
+    console.error("API Error:", error);
+  }
+}
+
+/**Hàm lấy danh sách sân*/
+async function getListUsers() {
+  try {
+    const response = await getListUser();
+
+    // 
+    store.list_user = response.data
+
+  } catch (error) {
+    console.error("API Error:", error);
+  }
+}
+
+function convertToGroupedObject(array: Review[]): { [key: number]: GroupedReview } {
+  const result: { [key: number]: GroupedReview } = {};
+
+  array.forEach((item) => {
+    const courtId = item.courtId;
+
+    if (!result[courtId]) {
+      result[courtId] = {
+        courtId: courtId,
+        averageRatingStar: 0,
+        total_comments: 0,
+        comments: []
+      };
+    }
+
+    result[courtId].comments.push(item);
+    result[courtId].total_comments += 1;
+    result[courtId].averageRatingStar += item.ratingStar;
+  });
+
+  // Tính trung bình ratingStar
+  Object.values(result).forEach((group) => {
+    group.averageRatingStar = parseFloat((group.averageRatingStar / group.total_comments).toFixed(2));
+  });
+
+  return result;
+}
+
+
+function isValidImage(image: string) {
+  // Kiểm tra xem image có phải là một URL hợp lệ hay không (bắt đầu với http:// hoặc https://)
+  const urlPattern = /^(https?:\/\/.*\.(?:png|jpg|jpeg|gif|bmp|webp))$/i;
+  return urlPattern.test(image);
+}
 
 function formatHour(timeStr: string): string {
   return timeStr?.slice(0, 5) // Lấy 5 ký tự đầu: "08:00"

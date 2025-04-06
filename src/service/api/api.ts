@@ -77,4 +77,24 @@ export const login = async (payload: {
   }
 };
 
+ /**api tạo tài khoản*/
+ export const getListUser = async () => {
+ try {
+   return await apiRequest({
+      // Phương thức
+      method: "GET",
+     // endpoint API
+     end_point: "User/get-list",
+     // payload được truyền từ giao diện
+    //  body: payload,
+   });
+ } catch (e) {
+   // Log lỗi nếu có
+  //  console.error("Error:", e);
+  console.log(e);
+  
+   throw e;
+ }
+};
+
 
