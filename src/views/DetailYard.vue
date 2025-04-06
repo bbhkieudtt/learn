@@ -274,7 +274,7 @@ const list_child = computed(() => {
 
   store_court.chill_detail = list_child.value[0];
   console.log(list_child.value[0]);
-  
+ 
 
 
 })
@@ -315,6 +315,9 @@ function goToBocking() {
 
 /**Hàm quay trở lại trang chủ*/
 function goToBack() {
+  console.log('11111');
+  console.log(store_court.is_court);
+  
   if(store_court.is_court === 'YourYard'){
     router.push('/YourYard');
   }

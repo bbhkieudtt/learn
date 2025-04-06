@@ -214,6 +214,7 @@ onMounted(() => {
   getListCourt(),
     // *Lấy quận huyện
     getDistricts();
+     store_court.is_court = 'home'
 
    
     
