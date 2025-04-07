@@ -100,20 +100,20 @@
             </div>
             <!-- Đánh giá -->
             <div v-if="yarf_select === 4" class="flex flex-col px-5 py-3 gap-2 ">
-                <div v-for="(item, index) in infor_yard.list_comment" :key="index"
+                <div v-for="(item, index) in filteredReviews" :key="index"
                     class="flex border-b border-slate-400 items-center pb-3 gap-3">
-                    <img :src="item.avatar" class="w-15 h-15 rounded-full flex-shrink-0" alt="avatar">
+                    <!-- <img :src="item.avatar" class="w-15 h-15 rounded-full flex-shrink-0" alt="avatar"> -->
                     <div class="flex flex-col gap-0.5">
-                        <p class="text-white text-sm font-medium">{{ item.user_cm }}</p>
+                        <p class="text-white text-sm font-medium">{{ item.username }}</p>
                         <div class="flex gap-1 items-center">
-                            <p class="text-sm text-yellow-500">{{ item.Star }}</p>
+                            <p class="text-sm text-yellow-500">{{ item.ratingStar }}</p>
                             <!--  -->
-                            <vue3-star-ratings :interactive="false" v-model="item.Star" />
+                            <vue3-star-ratings :interactive="false" v-model="item.ratingStar" />
                         </div>
                         <p class="text-xs text-white">{{ item.content }}</p>
                     </div>
                 </div>
-                <button @click="openComment"
+                <button v-if="is_comment" @click="openComment"
                     class="flex px-3 absolute bottom-4 right-5 py-2 rounded-lg text-sm text-white gap-1 bg-yellow-500">
                     <IconEdit class="w-5 h-5 text-white"></IconEdit>
                     <p class="font-medium">
@@ -148,7 +148,8 @@
                             <div class="flex gap-1 items-center">
 
                                 <!--  -->
-                                <vue3-star-ratings v-model="review.ratingStar" />
+                                <vue3-star-ratings v-model="review.ratingStar" :increment="1" :star-size="30"
+                                    :max-rating="4" :show-rating="false" />
                                 <p class="text-sm text-yellow-500"></p>
                             </div>
 
@@ -166,7 +167,7 @@
                     </div>
                 </body>
                 <footer class="flex-shrink-0 py-2">
-                    <button @click="createComment"
+                    <button  @click="createComment"
                         class="flex px-3  w-full py-2 text-center rounded-lg text-sm text-white gap-1 bg-yellow-500">
 
                         <p class="font-medium">
@@ -184,6 +185,10 @@
 import { ref, onMounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
+
+/**api*/
+import { apiGetListBooking } from "@/service/api/apiBoking";
+
 
 /**Thư viện*/
 import vue3starRatings from "vue3-star-ratings";
@@ -210,7 +215,7 @@ import ImgUser from '@/assets/imgs/avatarUser.png'
 import ImgUsers from '@/assets/imgs/bgmain1.jpg'
 
 /**api*/
-import { apiCreateReview } from "@/service/api/apiReview";
+import { apiCreateReview, apiGetListReview } from "@/service/api/apiReview";
 
 /**kiểu dữ liệu*/
 import type { Review } from '@/interface'
@@ -228,6 +233,7 @@ const address = computed(() => {
 
     return `${detail.street}, ${detail.ward}, ${detail.district}, Hà Nội`;
 });
+
 
 
 const validImageSrc = computed(() => {
@@ -306,13 +312,16 @@ const infor_yard = ref({
 
 })
 
+
+const filteredReviews = ref<Review[]>([]);
+
 // Biến tạo bình luận
 const review = ref({
     userId: 0,
     courtId: 0,
     content: '',
     ratingStar: 5,
-   
+
 });
 
 /**Biến mở modal map*/
@@ -347,6 +356,11 @@ const list_items = ref([
 const list_child = computed(() => {
     if (!Array.isArray(store_court.list_chill_court)) return [];
     return store_court.list_chill_court.filter(child => child.courtId === id_Court)
+})
+
+onMounted(async () => {
+    await getListComment()
+    await getListBoking()
 })
 
 const getCoordinates = async (address: string) => {
@@ -470,13 +484,14 @@ async function createComment() {
     // Lấy id từ đối tượng userInfo và gán cho biến id
     review.value.userId = userInfo.id
     review.value.courtId = store_court.court_detail?.id ?? 0
+    review.value.ratingStar = Math.round(review.value.ratingStar);
 
     try {
         const response = await apiCreateReview(review.value);
 
         // Kiểm tra nếu API trả về thành công
         if (response && response.status === 200) {
-            console.log('response',response);
+            console.log('response', response);
             toast("Bình luận thành công!", { autoClose: 2000 });
 
             showModal()
@@ -484,6 +499,55 @@ async function createComment() {
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 3000 });
         }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
+
+/**Hàm tạo đánh giá cho sân*/
+async function getListComment() {
+
+    try {
+        const response = await apiGetListReview();
+
+        // Kiểm tra nếu API trả về thành công
+        if (response && response.status === 200) {
+            filteredReviews.value = response.data.filter(
+                (item: any) => item.courtId === store_court.court_detail?.id
+            );
+            console.log('filteredReviews.value', filteredReviews.value);
+
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 3000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
+
+/**Hàm lấy danh sách lịch đặt sân */
+async function getListBoking() {
+    try {
+        const response = await apiGetListBooking();
+
+        const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
+
+        if (response && response.status === 200) {
+            // lấy ra những lịch thuê của người này
+            const filteredData = response.data.filter((item: any) =>
+                item.userId === userInfo.id
+            );
+
+            console.log('filteredData', filteredData);
+
+            // kiểm tra trong lịch thuê có sân này không
+            is_comment.value = filteredData.some((item: any) =>
+                item.courtId === store_court.court_detail?.id
+            );
+            console.log('is_comment',is_comment.value);
+            
+        }
+
     } catch (error) {
         console.error("API Error:", error);
     }

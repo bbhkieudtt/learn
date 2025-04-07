@@ -33,27 +33,25 @@
                 <thead>
                     <tr class="bg-green-800 text-white">
                         <th class="py-3 px-6 text-left border-r border-gray-200">Sân</th>
-                        <th class="py-3 px-6 text-left border-r border-gray-200">Tổng giờ</th>
-                        <th class="py-3 px-6 text-left border-r border-gray-200">Tổng đơn</th>
-                        <th class="py-3 px-6 text-left border-r border-gray-200">Giảm giá</th>
-                        <th class="py-3 px-6 text-left">Đã T.Toán</th>
+                        <th class="py-3 px-6 text-left border-r border-gray-200">Tổng lịch đặt</th>
+                        <th class="py-3 px-6 text-left">Tổng tiền</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Use v-for to loop through the items in the data array -->
-                    <tr v-for="(item, index) in tableData" :key="index"
+                    <tr v-for="(item, index) in courtsWithBookingInfo" :key="index"
                         class="hover:bg-green-50 border-b border-gray-200">
-                        <td class="py-3 px-6 border-r border-gray-200">{{ item.san }}</td>
-                        <td class="py-3 px-6 border-r border-gray-200">{{ item.tongGio }}</td>
-                        <td class="py-3 px-6 border-r border-gray-200">{{ item.tongDon }}</td>
-                        <td class="py-3 px-6 border-r border-gray-200">{{ item.giamGia }}</td>
-                        <td class="py-3 px-6" :class="item.daToan ? 'text-green-500' : ''">{{ item.daToan }}</td>
+                        <td class="py-3 px-6 border-r border-gray-200">{{ item.name }}</td>
+                        <td class="py-3 px-6 border-r border-gray-200">{{ item.total_boking }}</td>
+                        <td class="py-3 px-6 border-r border-gray-200">{{ item.total_price }}</td>
                     </tr>
                 </tbody>
             </table>
             <!--  -->
-            <div class="flex-shrink-0 flex justify-end px-7 text-xl shadow-sm gap-1.5 text-green-900 font-bold pt-2 pb-4 text">
-              <CurrencyDollarIcon class="w-7 h-7 text-yellow-700"></CurrencyDollarIcon>  <p>Tổng doanh thu: <span class="font-bold">100.000.000 đ</span></p>
+            <div
+                class="flex-shrink-0 flex justify-end px-7 text-xl shadow-sm gap-1.5 text-green-900 font-bold pt-2 pb-4 text">
+                <CurrencyDollarIcon class="w-7 h-7 text-yellow-700"></CurrencyDollarIcon>
+                <p>Tổng doanh thu: <span class="font-bold">100.000.000 đ</span></p>
             </div>
         </main>
 
@@ -64,9 +62,8 @@
         <template #content>
             <div class="w-[300px] h-[300px]">
                 <!-- @update:model-value="handleDate" -->
-                 <!-- :day-names="customDayNames" -->
-                <VueDatePicker class="w-full h-full"  v-model="store.date"
-                    :inline="true" auto-apply locale="vi" >
+                <!-- :day-names="customDayNames" -->
+                <VueDatePicker class="w-full h-full" v-model="store.date" :inline="true" auto-apply locale="vi">
                 </VueDatePicker>
             </div>
         </template>
@@ -81,30 +78,77 @@ import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
 
 /**icon*/
-import { ArrowLeftIcon , CurrencyDollarIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, CurrencyDollarIcon } from "@heroicons/vue/24/solid";
 
 /***/
 import List_Yard from './List_Yard.vue';
 import TimeFilter from '../FilterYard/TimeFilter.vue';
 
+/**Kho lưu trữ*/
+import { useAppStoreCourt } from '@/stores/appStoreCourt'
+
 /**Modal*/
 import Modal from "@/components/Modal/Modal.vue"
+
+/**api*/
+import { apiGetChillCourt } from "@/service/api/apiChillCourt";
+/**api*/
+import { apiGetListBooking } from "@/service/api/apiBoking";
 
 
 /**Biến router */
 const router = useRouter()
 
 const store = useAppStore()
+/**biến store*/
+const store_court = useAppStoreCourt()
 
-const tableData = ref([
-    { san: 'Pickleball 1', tongGio: '3h30p', tongDon: '3.500 đ', giamGia: '0 đ', daToan: '1.500 đ' },
-    { san: 'Pickleball 2', tongGio: '4h', tongDon: '842.000 đ', giamGia: '0 đ', daToan: '0 đ' },
-    { san: 'Pickleball 3', tongGio: '3h', tongDon: '600.000 đ', giamGia: '0 đ', daToan: '0 đ' },
-    { san: 'Pickleball 4', tongGio: '2h', tongDon: '3.000 đ', giamGia: '0 đ', daToan: '0 đ' },
-    { san: 'Pickleball 5', tongGio: '2h', tongDon: '2.000 đ', giamGia: '0 đ', daToan: '0 đ' },
-    { san: 'Pickleball 6', tongGio: '0h', tongDon: '0 đ', giamGia: '0 đ', daToan: '0 đ' },
-    { san: 'Pickleball 1', tongGio: '2h', tongDon: '2.000 đ', giamGia: '0 đ', daToan: '2.000 đ' }
-])
+
+
+
+const list_boking = ref([])
+
+onMounted(async () => {
+
+    await getChillCourt()
+
+    await getListBoking()
+
+
+})
+
+const list_chill = computed(() => {
+  // Kiểm tra nếu list_chill_court không phải là null hoặc undefined
+  return store_court.list_chill_court ? store_court.list_chill_court.filter(court => court.courtId === store_court.court_detail?.id) : [];
+});
+
+
+
+// Tạo computed property để tính toán tổng số lượng và tổng giá tiền cho mỗi sân
+const courtsWithBookingInfo = computed(() => {
+  // Truy cập vào giá trị mảng từ computed
+  const listChillArray = list_chill.value || [];  // Nếu list_chill.value là undefined, dùng mảng rỗng
+  const listBokingArray = list_boking.value || [];  // Nếu list_boking.value là undefined, dùng mảng rỗng
+
+  if (listChillArray.length === 0) {
+    return [];  // Nếu list_chill là mảng rỗng, trả về mảng rỗng
+  }
+
+  return listChillArray.map(child => {
+    // Kiểm tra nếu list_boking có giá trị hợp lệ
+    const bookingsForCourt = listBokingArray.filter(booking => booking.childCourtId === child.id);
+
+    const total_boking = bookingsForCourt.length;  // Tổng số booking cho sân
+    const total_price = bookingsForCourt.reduce((sum, booking) => sum + booking.price, 0);  // Tổng giá tiền cho sân
+
+    return {
+      name: child.childCourtName,
+      total_boking,
+      total_price,
+    };
+  });
+});
+
 
 /**hàm đóng modal*/
 function showModal() {
@@ -114,6 +158,45 @@ function showModal() {
 /**Hàm trở về trang chủ*/
 function goHome() {
     router.push('/main');
+}
+
+/**Hàm lấy danh sách sân con thuộc sân này*/
+async function getChillCourt() {
+    try {
+        const response = await apiGetChillCourt();
+        console.log("API Response:", response);
+        // Kiểm tra nếu API trả về thành công
+        if (response && response.status === 200) {
+            store_court.list_chill_court = response.data
+            console.log('store_court.list_chill_court',store_court.list_chill_court);
+            
+
+        } else {
+            // toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
+
+/**Hàm lấy danh sách lịch đặt sân */
+async function getListBoking() {
+    try {
+        const response = await apiGetListBooking();
+
+
+
+        if (response && response.status === 200) {
+            // lấy ra những lịch thuê của người này
+            list_boking.value = response.data
+            console.log('list_boking.value',list_boking.value);
+            
+
+        }
+
+    } catch (error) {
+        console.error("API Error:", error);
+    }
 }
 
 

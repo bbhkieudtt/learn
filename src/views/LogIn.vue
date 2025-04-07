@@ -98,6 +98,9 @@ const store = useAppStore();
 /**Biến router */
 const router = useRouter()
 
+/**biến check quyền có có được bình luận không*/
+const is_comment = ref(true) 
+
 
 
 const status_login = ref(false);

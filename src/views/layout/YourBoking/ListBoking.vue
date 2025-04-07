@@ -145,37 +145,7 @@ const menu_list = ref([
     }
 ])
 
-/**danh sách sân pickleball*/
-const list_boking = ref([
-    {
-        id: 123,
-        name_court: 'Pickleball Bạch Tuyết',
-        status: 'Hoàn thành',
-        court_detail: 'Pickleball 1',
-        time: '18h - 19h',
-        date: 'Ngày 30/03/2025',
-        address: '91 Lương Định Của, Phương Mai, Đống Đa, Hà Nội'
-    },
-    {
-        id: 123,
-        name_court: 'Pickleball Bạch Tuyết',
-        status: 'Hoàn thành',
-        court_detail: 'Pickleball 1',
-        time: '18h - 19h',
-        date: 'Ngày 30/03/2025',
-        address: '91 Lương Định Của, Phương Mai, Đống Đa, Hà Nội'
-    },
-    {
-        id: 123,
-        name_court: 'Pickleball Bạch Tuyết',
-        status: 'Hoàn thành',
-        court_detail: 'Pickleball 1',
-        time: '18h - 19h',
-        date: 'Ngày 30/03/2025',
-        address: '91 Lương Định Của, Phương Mai, Đống Đa, Hà Nội'
-    }
 
-]);
 
 /**Danh sách lịch đặt*/
 const list_bokings = ref<CourtEvent[]>([]) 

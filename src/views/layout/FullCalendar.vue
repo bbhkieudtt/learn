@@ -62,18 +62,18 @@ const calendarOptions: CalendarOptions = {
 
   // 🔒 Không cho chọn khoảng thời gian trùng với event đã có
   selectAllow: (selectInfo) => {
-  const selectedStart = selectInfo.start;
-  const selectedEnd = selectInfo.end;
+    const selectedStart = selectInfo.start;
+    const selectedEnd = selectInfo.end;
 
-  // Kiểm tra nếu có giao nhau với sự kiện có sẵn
-  const isAllowed = !store.list_event?.some((event:any) => {
-    const eventStart = new Date(event.start);
-    const eventEnd = new Date(event.end);
-    return selectedStart < eventEnd && selectedEnd > eventStart;
-  });
+    // Kiểm tra nếu có giao nhau với sự kiện có sẵn
+    const isAllowed = !store.list_event?.some((event: any) => {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+      return selectedStart < eventEnd && selectedEnd > eventStart;
+    });
 
-  return isAllowed ?? false; // Nếu isAllowed là undefined, trả về false
-}
+    return isAllowed ?? false; // Nếu isAllowed là undefined, trả về false
+  }
 
 };
 
@@ -132,13 +132,16 @@ watch(
 async function getListBoking() {
   try {
     const response = await apiGetListBooking();
-   
+
     // Kiểm tra nếu API trả về thành công
     if (response && response.status === 200) {
+      console.log('response888888',response.data);
       
+
       // Biến đổi dữ liệu thành định dạng phù hợp với FullCalendar
       const events = transformToFullCalendar(response.data);
 
+      console.log('events', events);
 
       if (calendarRef.value) {
 
@@ -157,21 +160,22 @@ async function getListBoking() {
 
 
 /** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
-function transformToFullCalendar(eventsData :any) {
+/** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
+function transformToFullCalendar(eventsData: any) {
   return eventsData
-    .filter((event:any) => event.childCourtId === store_court.chill_detail?.id) // Lọc các sự kiện có childCourtId trùng với store_court.chill_detail.id
-    .map((event:any) => {
+    .filter((event: any) => event.childCourtId === store_court.chill_detail?.id) // Lọc sự kiện có childCourtId khớp
+    .map((event: any) => {
       // Tìm user từ userId trong danh sách user
       const user = store.list_user.find(user => user.id === event.userId);
       const title = user ? `${user.username} sđt: ${user.phoneNumber} giá: ${event.price}` : 'No User';
-      // Chuyển đổi thời gian về múi giờ 'Asia/Ho_Chi_Minh'
-      const start = event.startTime
-      const end = event.endTime
+      
+      const start = event.startTime;
+      const end = event.endTime;
 
-
+      // Lớp CSS dựa vào status
       const classList = event.status === 0
-        ? ['bg-green-500', 'text-white']
-        : ['bg-slate-400', 'text-yellow-400'];
+        ? ['bg-green-500', 'text-white']  // Màu cho status = 0
+        : ['bg-slate-400', 'text-yellow-400']; // Màu cho status khác 0 (ví dụ là 1)
 
       return {
         id: event.id,
@@ -183,14 +187,15 @@ function transformToFullCalendar(eventsData :any) {
     });
 }
 
+
 /**Hàm xử lý khi bấm vào một sự kiện*/
-function handleEventClick(info: any){
-  console.log('info',info.title);
+function handleEventClick(info: any) {
+  console.log('info', info.title);
   store.boking_detail = info
   store.is_modal = 'detail'
   store.show_modals = true;
 
-} 
+}
 
 
 

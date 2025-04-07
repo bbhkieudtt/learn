@@ -224,14 +224,14 @@ const removeActive = () => {
 
 
 
+
 /**Thông tin người đặt*/
 // Khởi tạo biến info_clien với kiểu dữ liệu User
-const info_clien = ref<User>({
+const info_clien = ref({
     username: "",
     fullname: "",
-    password: "",       // Mật khẩu của người dùng
+    password: "Abc123@",       // Mật khẩu của người dùng
     phoneNumber: "",    // Số điện thoại của người dùng
-    email: "",          // Địa chỉ email của người dùng
     address: "",        // Địa chỉ của người dùng
     role: 0,
 });
@@ -387,7 +387,7 @@ async function addBoking() {
     // khi khóa sân 
     if (key.value) {
         detail_boking.value.userId = store.user_boking?.id ?? 0
-        detail_boking.value.childCourtId = store.user_boking?.id ?? 0;
+        detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
         detail_boking.value.price = 0

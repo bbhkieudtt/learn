@@ -16,6 +16,8 @@ export const useAppStoreCourt = defineStore("app", () => {
     const is_court= ref('home') 
     /**sân con được chọn*/
     const chill_detail = ref<ChildCourt>() 
+    /**Sân được chọn để tính daonh thu*/
+    const court_revenue  = ref<Court>() 
 
    
 
@@ -25,7 +27,8 @@ export const useAppStoreCourt = defineStore("app", () => {
         court_detail,
         list_chill_court,
         is_court,
-        chill_detail
+        chill_detail,
+        court_revenue
     }
 
 });
