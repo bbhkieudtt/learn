@@ -469,7 +469,7 @@ async function createComment() {
 
     // Lấy id từ đối tượng userInfo và gán cho biến id
     review.value.userId = userInfo.id
-    review.value.courtId = store_court.court_detail?.id
+    review.value.courtId = store_court.court_detail?.id ?? 0
 
     try {
         const response = await apiCreateReview(review.value);

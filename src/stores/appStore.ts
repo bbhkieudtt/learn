@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 
 /**kiểu dữ liệu*/
-import type {ClientBoking, event_booking,UserInfo, } from '@/interface'
+import type {ClientBoking, event_booking,UserInfo,Event } from '@/interface'
 import type {  DateSelectArg } from "@fullcalendar/core";
 /***/ 
 export const useAppStore = defineStore("app", () => {

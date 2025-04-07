@@ -38,7 +38,8 @@
                             @keypress="onlyNumber" class="text-lg w-full  outline-none "
                             placeholder="Nhập số điện thoại">
                     </div>
-                    <PlusCircleIcon @click="openModal" v-tooltip="'Chú thích khi hover vào đây'" class="w-6 h-6 text-yellow-600 shrink-0">
+                    <PlusCircleIcon @click="openModal" v-tooltip="'Chú thích khi hover vào đây'"
+                        class="w-6 h-6 text-yellow-600 shrink-0">
                     </PlusCircleIcon>
                 </div>
                 <!-- Danh sách gợi ý -->
@@ -114,7 +115,7 @@
     <!--  -->
     <Modal v-if="show_modal" :close="showModal">
         <template #content>
-            <div  class="w-[700px] flex flex-col px-3 ">
+            <div class="w-[700px] flex flex-col px-3 ">
                 <header class="flex items-center border-b border-slate-300 py-2  justify-between">
                     <p class="text-green-800 text-xl font-semibold">
                         Thông tin người đặt
@@ -150,7 +151,7 @@
                 <footer class="w-full flex justify-end py-2 px-3 border-t border-slate-300">
                     <button @click="createClien"
                         class="px-3 py-2 bg-yellow-500 text-sm font-semibold text-white rounded-lg w-fit">
-                        Tạo thông tin 
+                        Tạo thông tin
                     </button>
                 </footer>
 
@@ -226,9 +227,13 @@ const removeActive = () => {
 /**Thông tin người đặt*/
 // Khởi tạo biến info_clien với kiểu dữ liệu User
 const info_clien = ref<User>({
-    username: "",       // Tên đăng nhập của người dùng   
+    username: "",
+    fullname: "",
+    password: "",       // Mật khẩu của người dùng
     phoneNumber: "",    // Số điện thoại của người dùng
-    role: 0,            // Vai trò của người dùng (0 hoặc giá trị khác)
+    email: "",          // Địa chỉ email của người dùng
+    address: "",        // Địa chỉ của người dùng
+    role: 0,
 });
 
 /**biến store*/
@@ -256,7 +261,7 @@ const key = ref(false)
 const is_key = computed(() => {
     // Logic tính toán để trả về giá trị true hoặc false
     const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
-    return store_court.court_detail.userId === userInfo.id;
+    return store_court.court_detail?.userId === userInfo.id;
 });
 
 
@@ -381,8 +386,8 @@ const onlyNumber = (event: any) => {
 async function addBoking() {
     // khi khóa sân 
     if (key.value) {
-        detail_boking.value.userId = store.user_boking.id
-        detail_boking.value.childCourtId = store_court.chill_detail.id
+        detail_boking.value.userId = store.user_boking?.id ?? 0
+        detail_boking.value.childCourtId = store.user_boking?.id ?? 0;
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
         detail_boking.value.price = 0
@@ -390,8 +395,8 @@ async function addBoking() {
     }
     else {
 
-        detail_boking.value.userId = store.user_boking.id
-        detail_boking.value.childCourtId = store_court.chill_detail.id
+        detail_boking.value.userId = store.user_boking?.id ?? 0
+        detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
         detail_boking.value.price = totalRentCostRaw.value
@@ -455,41 +460,43 @@ async function createClien() {
     }
 
     try {
-        const response =  apiCreateUser(info_clien.value);
+        // Dùng await để đợi kết quả từ API
+        const response = await apiCreateUser(info_clien.value);
         console.log("API Response:", response);
+
         // Kiểm tra nếu API trả về thành công
         if (response && response.status === 200) {
             toast("Tạo thông tin thành công!", { autoClose: 3000 });
 
-            showModal()
-            await getListUsers()
-
-
+            // Gọi các hàm khác nếu cần
+            showModal();
+            await getListUsers(); // Đảm bảo sử dụng await nếu getListUsers là một hàm async
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 3000 });
         }
-    } catch (error) {
-        toast(error, { autoClose: 5000 });
+    } catch (error :any) {
+        toast(error.message || error, { autoClose: 5000 });
     }
+
 
 }
 
 /**Hàm lấy danh sách sân*/
 async function getListUsers() {
-  try {
-    const response = await getListUser();
+    try {
+        const response = await getListUser();
 
-    // 
-    store.list_user = response.data
+        // 
+        store.list_user = response.data
 
-  } catch (error) {
-    console.error("API Error:", error);
-  }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
 }
 
-/**Mở modal*/ 
-function openModal(){
-    show_modal.value =true
+/**Mở modal*/
+function openModal() {
+    show_modal.value = true
 }
 
 

@@ -187,7 +187,7 @@
                 Thông tin lịch đặt:
               </p>
               <p v-if="store.boking_detail" class="font-bold">
-                {{ store.boking_detail.title }}
+                {{ store.boking_detail?.title }}
               </p>
             </div>
           </div>

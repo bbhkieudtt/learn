@@ -62,17 +62,19 @@ const calendarOptions: CalendarOptions = {
 
   // 🔒 Không cho chọn khoảng thời gian trùng với event đã có
   selectAllow: (selectInfo) => {
-    const selectedStart = selectInfo.start;
-    const selectedEnd = selectInfo.end;
+  const selectedStart = selectInfo.start;
+  const selectedEnd = selectInfo.end;
 
-    return !store.list_event.some(event => {
-      const eventStart = new Date(event.start);
-      const eventEnd = new Date(event.end);
+  // Kiểm tra nếu có giao nhau với sự kiện có sẵn
+  const isAllowed = !store.list_event?.some((event:any) => {
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+    return selectedStart < eventEnd && selectedEnd > eventStart;
+  });
 
-      // Kiểm tra nếu có giao nhau
-      return selectedStart < eventEnd && selectedEnd > eventStart;
-    });
-  }
+  return isAllowed ?? false; // Nếu isAllowed là undefined, trả về false
+}
+
 };
 
 
@@ -155,10 +157,10 @@ async function getListBoking() {
 
 
 /** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
-function transformToFullCalendar(eventsData) {
+function transformToFullCalendar(eventsData :any) {
   return eventsData
-    .filter(event => event.childCourtId === store_court.chill_detail.id) // Lọc các sự kiện có childCourtId trùng với store_court.chill_detail.id
-    .map(event => {
+    .filter((event:any) => event.childCourtId === store_court.chill_detail?.id) // Lọc các sự kiện có childCourtId trùng với store_court.chill_detail.id
+    .map((event:any) => {
       // Tìm user từ userId trong danh sách user
       const user = store.list_user.find(user => user.id === event.userId);
       const title = user ? `${user.username} sđt: ${user.phoneNumber} giá: ${event.price}` : 'No User';
