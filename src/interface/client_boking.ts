@@ -7,3 +7,32 @@ export interface ClientBoking {
     /***/ 
     note_boking: string;
 }
+
+export interface Booking {
+    userId: number;
+    childCourtId: number;
+    startTime: string; // ISO 8601 datetime string
+    endTime: string;   // ISO 8601 datetime string
+    status: number;    // 0 = pending, 1 = confirmed, etc. (tùy vào logic hệ thống)
+    price: number;     // giá tiền, đơn vị có thể là VND hoặc USD tùy hệ thống
+  }
+
+  export  interface CourtEvent {
+    childCourtId: number;
+    childCourtName: string;
+    courtDistrict: string;
+    courtId: number;
+    courtName: string;
+    courtStreet: string;
+    courtWard: string;
+    createDate: string; // Chuỗi ngày tháng ISO 8601
+    endTime: string; // Chuỗi ngày tháng ISO 8601
+    id: number;
+    price: number;
+    startTime: string; // Chuỗi ngày tháng ISO 8601
+    status: number;
+    userFullName: string;
+    userId: number;
+    userPhoneNumber: string;
+  }
+  

@@ -17,20 +17,20 @@
             <div v-if="list_boking && list_boking.length === 0" class="w-full h-full flex justify-center items-center">
                 <div class="flex-col">
                     <img :src="image9" class="justify-center items-center" alt="">
-                    <p class="text-lg text-white font-semibold text-center">Bạn chưa có sân nào</p>
+                    <p class="text-lg text-white font-semibold text-center">Bạn chưa có lịch đặt nào</p>
                 </div>
             </div>
             <!-- Đã có sân -->
             <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 ">
                 <div class=" h-full overflow-y-auto flex flex-col items-start w-full   gap-15">
                     <!-- sân -->
-                    <div v-for="(boking, index) in list_boking" :key="boking.id"
+                    <div v-for="(boking, index) in list_bokings" :key="boking.id"
                         :class="{ 'border-b border-yellow-500': index !== list_boking.length - 1 }" class="flex w-full text-lg px-3 border-b border-slate-400 text-white py-3 flex-col items-start gap-1 
                         transition duration-200 hover:brightness-90 hover:rounded-lg hover:bg-green-800">
                         <div class="flex items-center space-x-0">
                             <!-- Đơn ngày -->
                             <span class="bg-green-500 text-white px-6 py-1 text-sm relative">
-                               {{ boking.status }}
+                               Lịch
                                 
                             </span>
 
@@ -47,7 +47,7 @@
 
                         <div class="flex justify-between w-full items-center">
                             <p class="font-medium text-yellow-200">
-                                {{ boking.name_court }}
+                                {{ boking.courtName }}
                             </p>
                             <!--  -->
                             <button
@@ -62,26 +62,30 @@
                                 Chi tiết:
                             </p>
                             <p class="font-medium">
-                                {{ boking.court_detail }}:
+                                {{ boking.childCourtName }}:
                             </p>
                             <p class="font-medium border-r border-white pr-2">
-                                {{ boking.time }}
+                                {{ formatDate(boking.startTime) }}
                             </p>
                             <p class="font-medium">
-                                {{ boking.date }}
+                                {{ formatTime(boking.startTime) }} - {{ formatTime(boking.endTime) }}
+                            </p>
+
+                        </div>
+                        <div class="flex items-center gap-2 ">
+                            <p class="flex-shrink-0">Thanh toán:</p>
+                            <p class="font-medium">
+                                {{ formatCurrency(boking.price)}}
                             </p>
 
                         </div>
                         <div class="flex items-center gap-2 ">
                             <p class="flex-shrink-0">Địa chỉ:</p>
                             <p class="font-medium">
-                                {{ boking.address }}
+                                {{ boking.courtStreet }},{{ boking.courtWard }},{{ boking.courtDistrict }},Hà nội
                             </p>
 
                         </div>
-
-
-
                     </div>
                 </div>
             </div>
@@ -95,6 +99,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAppStore } from "@/stores/appStore";
 
 
 /**ảnh*/
@@ -103,10 +108,17 @@ import image9 from '@/assets/imgs/image9.png'
 /**icon*/
 import { PlusIcon, ArrowLeftIcon, ArchiveBoxXMarkIcon } from "@heroicons/vue/24/solid";
 
+/**api*/
+import { apiGetListBooking } from "@/service/api/apiBoking";
+
+/**kiểu dữ liệu*/
+import type {CourtEvent} from '@/interface'
 
 
 /**Biến router */
 const router = useRouter()
+/**biến store*/
+const store = useAppStore();
 
 
 /**Danh sách menu*/
@@ -165,6 +177,21 @@ const list_boking = ref([
 
 ]);
 
+/**Danh sách lịch đặt*/
+const list_bokings = ref<CourtEvent[]>([]) 
+
+
+onMounted(async()=>{
+   await getListBoking()
+})
+
+// Hàm chuyển đổi startTime thành ngày/tháng/năm
+function formatDate(startTime: string): string {
+  const date = new Date(startTime);
+  return date.toLocaleDateString('vi-VN'); // Trả về định dạng ngày/tháng/năm
+}
+
+
 /**Bấm chọn danh sách*/
 function clickMenu(key: number) {
     menu_list.value.forEach((item) => {
@@ -180,6 +207,48 @@ function clickMenu(key: number) {
 function goHome() {
     router.push('/main');
 }
+
+/**Hàm lấy danh sách lịch đặt sân */
+async function getListBoking() {
+  try {
+    const response = await apiGetListBooking();
+   // Lấy thông tin người dùng từ localStorage
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
+    // Kiểm tra nếu API trả về thành công
+    if (response && response.status === 200) {
+        console.log('response', response.data);
+
+  // Lọc những phần tử có userId = userInfo.id
+    const filteredData = response.data.filter((item: any) => item.userId === userInfo.id);
+  
+  // In ra những phần tử đã lọc
+        console.log('Filtered Data', filteredData);
+        list_bokings.value = filteredData
+} else {
+      // toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+    }
+  } catch (error) {
+    console.error("API Error:", error);
+  }
+}
+
+// Hàm chuyển đổi startTime thành giờ:phút
+function formatTime(startTime: string): string {
+  const date = new Date(startTime);
+  const hours = date.getHours().toString().padStart(2, '0'); // Lấy giờ và thêm số 0 phía trước nếu cần
+  const minutes = date.getMinutes().toString().padStart(2, '0'); // Lấy phút và thêm số 0 phía trước nếu cần
+  return `${hours}:${minutes}`; // Trả về giờ:phút
+}
+
+// Hàm chuyển đổi số thành định dạng tiền tệ
+function formatCurrency(amount: number): string {
+  return amount.toLocaleString('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  });
+}
+
+
 
 
 

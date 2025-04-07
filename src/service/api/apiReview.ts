@@ -40,7 +40,7 @@ export const apiCreateReview = async (payload: any) => {
        // Phương thức
        method: "POST",
        // endpoint API
-       end_point: "User/create",
+       end_point: "Review/create",
        // payload được truyền từ giao diện
        body: payload,
      });

@@ -82,15 +82,15 @@
     </button>
   </div>
   <!--  -->
-  <Modal v-if="show_modal" :close="showModal">
+  <Modal v-if="store.show_modals" :close="showModal">
     <template #content>
-      <div v-if="is_modal" class="w-[300px] h-[300px]">
+      <div v-if="store.is_modal === 'time'" class="w-[300px] h-[300px]">
         <VueDatePicker class="w-full h-full" @update:model-value="handleDate" v-model="store.date" :inline="true"
           auto-apply locale="vi" :day-names="customDayNames">
         </VueDatePicker>
       </div>
       <!-- modal tạo sân con -->
-      <div v-else class="w-[700px] flex flex-col px-3 ">
+      <div v-if="store.is_modal === 'create'" class="w-[700px] flex flex-col px-3 ">
         <header class="flex items-center border-b border-slate-300 py-2  justify-between">
           <p class="text-green-800 text-xl font-semibold">
             Tạo sân
@@ -120,7 +120,8 @@
               <!-- Chọn loại sân -->
               <el-form-item label="Chọn loại sân">
                 <el-select v-model="chill_court.position" placeholder="Chọn loại sân">
-                  <el-option v-for="type in type_court" :key="type.id" :label="type.name_type" :value="type.name_type" />
+                  <el-option v-for="type in type_court" :key="type.id" :label="type.name_type"
+                    :value="type.name_type" />
                 </el-select>
               </el-form-item>
             </el-form>
@@ -144,6 +145,61 @@
         </footer>
 
       </div>
+      <!-- Modal hiện chi tiêt thông tin sự kiện  -->
+      <div v-if="store.is_modal === 'detail'" class="w-[500px] flex flex-col px-3 ">
+        <header class="flex items-center border-b border-slate-300 py-2  justify-between">
+          <p class="text-green-800 text-xl font-semibold">
+            Thông tin chi tiết lịch thuê
+          </p>
+          <XMarkIcon @click="showModal" class="h-5 w-5 hover:bg-slate-300 rounded-lg "></XMarkIcon>
+        </header>
+
+        <body class="w-full grid py-2 gap-4 grid-cols-1">
+          <div class="flex-col col-span-1 gap-2 flex text-sm font-medium text-green-700">
+            <!-- Thông tin sân -->
+            <div class="flex gap-3 text-sm text-green-800">
+              <p>
+                Tên sân:
+              </p>
+              <p class="font-bold">
+                {{ store_court.court_detail?.courtName }}
+              </p>
+            </div>
+            <!-- Thông tin sân -->
+            <div class="flex gap-3 text-sm text-green-800">
+              <p>
+                Sân con:
+              </p>
+              <p class="font-bold">
+                {{ store_court.chill_detail?.childCourtName }}
+              </p>
+            </div>
+            <div class="flex gap-3 text-sm text-green-800">
+              <p>
+                Địa chỉ:
+              </p>
+              <p class="font-bold">
+                {{ address }}
+              </p>
+            </div>
+            <div class="flex gap-3 text-sm text-green-800">
+              <p>
+                Thông tin lịch đặt:
+              </p>
+              <p v-if="store.boking_detail" class="font-bold">
+                {{ store.boking_detail.title }}
+              </p>
+            </div>
+          </div>
+        </body>
+        <!--  -->
+        <footer class="w-full flex justify-end py-2 px-3 border-t border-slate-300">
+          <button @click="showModal" class="px-3 py-2 bg-slate-500 text-sm font-semibold text-white rounded-lg w-fit">
+            Đóng
+          </button>
+        </footer>
+
+      </div>
     </template>
   </Modal>
 </template>
@@ -155,7 +211,7 @@ import { useAppStoreCourt } from '@/stores/appStoreCourt'
 import { useRouter } from 'vue-router'
 
 /**api*/
-import { apiGetChillCourt,apiCreateChillCourt } from "@/service/api/apiChillCourt";
+import { apiGetChillCourt, apiCreateChillCourt } from "@/service/api/apiChillCourt";
 
 /**Modal*/
 import Modal from "@/components/Modal/Modal.vue"
@@ -196,8 +252,7 @@ const customDayNames = [
   'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'
 ];
 
-/**Biến kiểm tra xem mở modal nào */
-const is_modal = ref(true)
+
 
 // Lấy userInfo từ localStorage
 const userInfo = JSON.parse(localStorage.getItem("userInfo") || 'null');
@@ -208,12 +263,19 @@ const is_create = computed(() => {
   return userInfo && store_court.court_detail?.userId === userInfo.id
 })
 
+const address = computed(() => {
+  const detail = store_court.court_detail;
+
+  if (!detail) return "";
+
+  return `${detail.street}, ${detail.ward}, ${detail.district}, Hà Nội`;
+});
+
 
 /**Biến router */
 const router = useRouter()
 
-/**biến mở modal tìm kiếm sân theo địa chỉ*/
-const show_modal = ref(false);
+
 
 /**Thông tin sân con*/
 const chill_court = ref({
@@ -247,12 +309,9 @@ const list_statistical = ref([
   },
   {
     key: 2,
-    status: "Lịch ngày"
+    status: "Lịch thành công"
   },
-  {
-    key: 3,
-    status: "Lịch Tháng"
-  },
+
   {
     key: 4,
     status: "Khóa"
@@ -266,15 +325,15 @@ const list_child = computed(() => {
 
 
 
- onMounted( async() => {
+onMounted(async () => {
   //  Lấy danh sách sân con thuộc sân này
- await getChillCourt()
-  console.log('list_child',list_child);
-  
+  await getChillCourt()
+  console.log('list_child', list_child);
+
 
   store_court.chill_detail = list_child.value[0];
   console.log(list_child.value[0]);
- 
+
 
 
 })
@@ -305,7 +364,7 @@ const time_selected = computed(() => {
 
 /**hàm đóng modal*/
 function showModal() {
-  show_modal.value = false;
+  store.show_modals = false;
 }
 
 /**hàm hiển thị đặt lịch*/
@@ -317,12 +376,12 @@ function goToBocking() {
 function goToBack() {
   console.log('11111');
   console.log(store_court.is_court);
-  
-  if(store_court.is_court === 'YourYard'){
+
+  if (store_court.is_court === 'YourYard') {
     router.push('/YourYard');
   }
-  if(store_court.is_court === 'home'){
-  router.push('/main')
+  if (store_court.is_court === 'home') {
+    router.push('/main')
   }
 }
 
@@ -333,14 +392,14 @@ function goToInfo() {
 
 /***/
 function selectedTime() {
-  is_modal.value = true
-  show_modal.value = true;
+  store.is_modal = 'time'
+  store.show_modals = true;
 }
 
 /**Mở modal tạo sân con*/
 function createChillCourt() {
-  is_modal.value = false
-  show_modal.value = true;
+  store.is_modal = 'create'
+  store.show_modals = true;
 }
 
 /***/

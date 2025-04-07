@@ -28,6 +28,14 @@ export const useAppStore = defineStore("app", () => {
     const UserInfo = ref<UserInfo>()
     /**danh sách đăng nhập*/ 
     const list_user = ref<UserInfo[]>([])
+    /**người đặt sân*/
+    const user_boking = ref<UserInfo>() 
+    /**Thông tin chi tiết lịch đặt được chọn*/
+    const boking_detail = ref<Event>() 
+    /**Biến kiểm tra xem mở modal nào */
+    const is_modal = ref('time')
+/**biến mở modal tìm kiếm sân theo địa chỉ*/
+    const show_modals = ref(false);
 
     
     return {
@@ -40,7 +48,11 @@ export const useAppStore = defineStore("app", () => {
         date,
         show_modal,
         UserInfo,
-        list_user
+        list_user,
+        user_boking,
+        boking_detail,
+        is_modal,
+        show_modals
     }
 
 });

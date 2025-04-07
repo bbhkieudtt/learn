@@ -1,12 +1,13 @@
 <template>
-  <div>
+  <div class="h-full overflow-hidden">
     <FullCalendar class="demo-app-calendar" ref="calendarRef" :options="calendarOptions" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, watch } from "vue";
+import { ref, watchEffect, watch, onMounted, nextTick } from "vue";
 import { useAppStore } from '@/stores/appStore'
+import { useAppStoreCourt } from '@/stores/appStoreCourt'
 
 /**Biến thư viện */
 import type { CalendarOptions, DateSelectArg, CalendarApi } from "@fullcalendar/core";
@@ -16,9 +17,15 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import viLocale from "@fullcalendar/core/locales/vi";
 
+/**api*/
+import { apiGetListBooking } from "@/service/api/apiBoking";
+import { log } from "async";
+
 
 /**biến store*/
 const store = useAppStore()
+
+const store_court = useAppStoreCourt()
 
 // Tạo tham chiếu đến Calendar
 const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null);
@@ -31,7 +38,7 @@ const handleDateSelect = (selectInfo: DateSelectArg) => {
   store.selectInfo = selectInfo
 };
 
-// Cấu hình FullCalendar
+// 
 const calendarOptions: CalendarOptions = {
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   locale: viLocale,
@@ -40,15 +47,45 @@ const calendarOptions: CalendarOptions = {
     center: "title",
     right: "dayGridMonth,timeGridWeek,timeGridDay",
   },
-  initialView: "dayGridMonth",
-  editable: true,
+  initialView: "timeGridWeek",
   selectable: true, // Cho phép chọn ngày
   selectMirror: true,
+  editable: false,
   dayMaxEvents: true,
   weekends: true,
   select: handleDateSelect, // Bắt sự kiện khi chọn ngày
-  events: store.list_event
+  events: store.list_event,
+  eventClick: (info) => {
+    // Gọi hàm của bạn và chuyền event vào
+    handleEventClick(info.event);
+  },
+
+  // 🔒 Không cho chọn khoảng thời gian trùng với event đã có
+  selectAllow: (selectInfo) => {
+    const selectedStart = selectInfo.start;
+    const selectedEnd = selectInfo.end;
+
+    return !store.list_event.some(event => {
+      const eventStart = new Date(event.start);
+      const eventEnd = new Date(event.end);
+
+      // Kiểm tra nếu có giao nhau
+      return selectedStart < eventEnd && selectedEnd > eventStart;
+    });
+  }
 };
+
+
+// 
+onMounted(async () => {
+  await getListBoking()
+  if (calendarRef.value) {
+    const calendarApi = calendarRef.value.getApi();
+    calendarApi.refetchEvents(); // Đảm bảo tải lại sự kiện
+  }
+  console.log('store.list_event', store.list_event);
+
+})
 
 watch(
   () => store.date,
@@ -66,30 +103,93 @@ watch(
   }
 );
 
-/**Theo dõi sự thay đổi của biến store.add_boking*/
-
-watchEffect(() => {
-  console.log("watchEffect phát hiện thay đổi:", store.add_boking);
-  if (store.add_boking) {
-    if (store.info_client && calendarRef.value) {
-      console.log('store.info_client', store.info_client);
-
-      const calendarApi = calendarRef.value.getApi();
-      calendarApi.unselect();
-      const newEvent = {
-        id: String(Date.now()),
-        title: `${store.info_client?.name_client ?? "Không có tên"} - ${store.info_client?.phone_client ?? "Không có số"}`,
-        start: store.selectInfo?.startStr,
-        end: store.selectInfo?.endStr,
-        allDay: store.selectInfo?.allDay,
-      };
-      store.list_event?.push(newEvent);
-      calendarApi.addEvent(newEvent);
-
-    }
-
+watch(
+  () => store.list_event,
+  (newEvents) => {
+    nextTick(() => {
+      if (calendarRef.value) {
+        const calendarApi = calendarRef.value.getApi();
+        // Cập nhật lại events trong calendarOptions
+        calendarApi.setOption('events', newEvents); // Cập nhật sự kiện trực tiếp từ list_event
+      }
+    });
   }
-});
+);
+
+watch(
+  () => store_court.chill_detail,
+  (newDate) => {
+    if (newDate) {
+      getListBoking()
+    }
+  }
+);
+
+
+/**Hàm lấy danh sách lịch đặt sân */
+async function getListBoking() {
+  try {
+    const response = await apiGetListBooking();
+   
+    // Kiểm tra nếu API trả về thành công
+    if (response && response.status === 200) {
+      
+      // Biến đổi dữ liệu thành định dạng phù hợp với FullCalendar
+      const events = transformToFullCalendar(response.data);
+
+
+      if (calendarRef.value) {
+
+        store.list_event = events;
+
+      }
+
+    } else {
+      // toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+    }
+  } catch (error) {
+    console.error("API Error:", error);
+  }
+}
+
+
+
+/** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
+function transformToFullCalendar(eventsData) {
+  return eventsData
+    .filter(event => event.childCourtId === store_court.chill_detail.id) // Lọc các sự kiện có childCourtId trùng với store_court.chill_detail.id
+    .map(event => {
+      // Tìm user từ userId trong danh sách user
+      const user = store.list_user.find(user => user.id === event.userId);
+      const title = user ? `${user.username} sđt: ${user.phoneNumber} giá: ${event.price}` : 'No User';
+      // Chuyển đổi thời gian về múi giờ 'Asia/Ho_Chi_Minh'
+      const start = event.startTime
+      const end = event.endTime
+
+
+      const classList = event.status === 0
+        ? ['bg-green-500', 'text-white']
+        : ['bg-slate-400', 'text-yellow-400'];
+
+      return {
+        id: event.id,
+        start,
+        end,
+        title,
+        classNames: classList,
+      };
+    });
+}
+
+/**Hàm xử lý khi bấm vào một sự kiện*/
+function handleEventClick(info: any){
+  console.log('info',info.title);
+  store.boking_detail = info
+  store.is_modal = 'detail'
+  store.show_modals = true;
+
+} 
+
 
 
 

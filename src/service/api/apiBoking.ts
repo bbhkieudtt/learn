@@ -23,7 +23,7 @@ async function apiRequest({ end_point, body, method }: InputRequestApi) {
   try {
     let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
-      method: 'POST',
+      method: method || 'POST',
       headers: { "Content-Type": "application/json" },
       body,
     });
@@ -54,7 +54,7 @@ export const apiCreateBoking = async (payload: any) => {
  }; 
 
  /**api lấy danh sách boking*/
-export const apiGetListBooking = async (payload: any) => {
+export const apiGetListBooking = async () => {
   try {
     return await apiRequest({
       // Phương thức
@@ -62,7 +62,7 @@ export const apiGetListBooking = async (payload: any) => {
       // endpoint API
       end_point: "Booking/get-list",
       // payload được truyền từ giao diện
-      body: payload,
+      // body: payload,
     });
   } catch (e) {
     // Log lỗi nếu có

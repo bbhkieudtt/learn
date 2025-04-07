@@ -43,8 +43,8 @@
                 <div class="flex gap-2 border-b border-slate-400 py-5 px-2 w-full  items-center">
                     <UserCircleIcon class="w-5 h-5 text-white"></UserCircleIcon>
                     <p class="text-sm text-white flex gap-2 ">
-                        <p>Chủ sân: </p>
-                        <span class="font-semibold">{{ store_court.court_detail?.contactPerson }}</span>
+                    <p>Chủ sân: </p>
+                    <span class="font-semibold">{{ store_court.court_detail?.contactPerson }}</span>
                     </p>
                 </div>
                 <!--  -->
@@ -79,23 +79,23 @@
                     </thead>
                     <!-- Nội dung bảng -->
                     <tbody class="text-green-900 text-center">
-                       
-                            <tr v-for="(time, timeIndex) in list_child" :key="timeIndex">
-                                <!-- Ô thứ chỉ hiển thị 1 lần cho mỗi nhóm -->
-                                <td
-                                    class="border border-green-700 p-2">
-                                    {{ time.childCourtName }}
-                                </td>
-                                <td class="border border-green-700 p-2">{{ time.position }}</td>
-                                <td class="border border-green-700 p-2">{{ formatCurrency( time.rentCost) + 'đ /giờ' }}</td>
-                            </tr>
-                        
+
+                        <tr v-for="(time, timeIndex) in list_child" :key="timeIndex">
+                            <!-- Ô thứ chỉ hiển thị 1 lần cho mỗi nhóm -->
+                            <td class="border border-green-700 p-2">
+                                {{ time.childCourtName }}
+                            </td>
+                            <td class="border border-green-700 p-2">{{ time.position }}</td>
+                            <td class="border border-green-700 p-2">{{ formatCurrency(time.rentCost) + 'đ /giờ' }}</td>
+                        </tr>
+
                     </tbody>
                 </table>
             </div>
             <!-- Hình ảnh -->
             <div v-if="yarf_select === 3" class="grid py-5 grid-cols-3 gap-2 px-5">
-                <img class="w-[80%] h-50" v-for="(item, index) in  store_court.court_detail?.images" :key="index" :src="item" alt="">
+                <img class="w-[80%] h-50" v-for="(item, index) in store_court.court_detail?.images" :key="index"
+                    :src="item" alt="">
 
             </div>
             <!-- Đánh giá -->
@@ -148,7 +148,7 @@
                             <div class="flex gap-1 items-center">
 
                                 <!--  -->
-                                <vue3-star-ratings v-model="comment.ratingStar" />
+                                <vue3-star-ratings v-model="review.ratingStar" />
                                 <p class="text-sm text-yellow-500"></p>
                             </div>
 
@@ -159,14 +159,14 @@
                             'opacity-50': activeInput !== 'addresss' && !comment.content
                         }">
                             <label class="font-semibold text-green-900" for="">Viết đánh giá </label>
-                            <input v-model="comment.content" placeholder="Hãy chia sẻ nhận xét cho sân này bạn nhé !"
+                            <input v-model="review.content" placeholder="Hãy chia sẻ nhận xét cho sân này bạn nhé !"
                                 class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
                                 @focus="setActive('addresss')" @blur="removeActive" />
                         </div>
                     </div>
                 </body>
                 <footer class="flex-shrink-0 py-2">
-                    <button @click="openComment"
+                    <button @click="createComment"
                         class="flex px-3  w-full py-2 text-center rounded-lg text-sm text-white gap-1 bg-yellow-500">
 
                         <p class="font-medium">
@@ -184,7 +184,6 @@
 import { ref, onMounted, nextTick, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
-
 
 /**Thư viện*/
 import vue3starRatings from "vue3-star-ratings";
@@ -209,6 +208,16 @@ import Img1 from '@/assets/imgs/bg_san.jpg'
 import Img2 from '@/assets/imgs/bg_san2.jpg'
 import ImgUser from '@/assets/imgs/avatarUser.png'
 import ImgUsers from '@/assets/imgs/bgmain1.jpg'
+
+/**api*/
+import { apiCreateReview } from "@/service/api/apiReview";
+
+/**kiểu dữ liệu*/
+import type { Review } from '@/interface'
+
+/**toast*/
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
 
 const store_court = useAppStoreCourt()
 
@@ -297,6 +306,15 @@ const infor_yard = ref({
 
 })
 
+// Biến tạo bình luận
+const review = ref({
+    userId: 0,
+    courtId: 0,
+    content: '',
+    ratingStar: 5,
+   
+});
+
 /**Biến mở modal map*/
 const show_modal = ref(false);
 
@@ -327,8 +345,8 @@ const list_items = ref([
 ])
 
 const list_child = computed(() => {
-  if (!Array.isArray(store_court.list_chill_court)) return [];
-  return store_court.list_chill_court.filter(child => child.courtId === id_Court)
+    if (!Array.isArray(store_court.list_chill_court)) return [];
+    return store_court.list_chill_court.filter(child => child.courtId === id_Court)
 })
 
 const getCoordinates = async (address: string) => {
@@ -420,7 +438,6 @@ const removeActive = () => {
     activeInput.value = '';
 };
 
-
 /***/
 function openComment() {
     is_comment.value = true;
@@ -441,7 +458,34 @@ function formatHour(timeStr: string): string {
 
 // Định dạng số thành tiền VND
 const formatCurrency = (value: any) => {
-  if (value === null || value === undefined || value === "") return ""; // Cho phép xóa hết số
-  return new Intl.NumberFormat("vi-VN").format(value);
+    if (value === null || value === undefined || value === "") return ""; // Cho phép xóa hết số
+    return new Intl.NumberFormat("vi-VN").format(value);
 };
+
+/**Hàm tạo đánh giá cho sân*/
+async function createComment() {
+    // Lấy dữ liệu từ localStorage và chuyển đổi thành đối tượng
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
+
+    // Lấy id từ đối tượng userInfo và gán cho biến id
+    review.value.userId = userInfo.id
+    review.value.courtId = store_court.court_detail?.id
+
+    try {
+        const response = await apiCreateReview(review.value);
+
+        // Kiểm tra nếu API trả về thành công
+        if (response && response.status === 200) {
+            console.log('response',response);
+            toast("Bình luận thành công!", { autoClose: 2000 });
+
+            showModal()
+
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 3000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
 </script>
