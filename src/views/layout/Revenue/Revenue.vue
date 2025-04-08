@@ -95,6 +95,9 @@ import { apiGetChillCourt } from "@/service/api/apiChillCourt";
 /**api*/
 import { apiGetListBooking } from "@/service/api/apiBoking";
 
+/**kiểu dữ liệu*/
+import type {CourtEvent } from '@/interface'
+
 
 /**Biến router */
 const router = useRouter()
@@ -106,7 +109,7 @@ const store_court = useAppStoreCourt()
 
 
 
-const list_boking = ref([])
+const list_boking = ref<CourtEvent[]>([])
 
 onMounted(async () => {
 

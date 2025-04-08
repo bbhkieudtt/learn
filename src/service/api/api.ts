@@ -35,7 +35,7 @@ async function apiRequest({ end_point, body,method }: InputRequestApi) {
 
 
 /**api tạo tài khoản*/
-export const apiCreateUser = async (payload: User) => {
+export const apiCreateUser = async (payload: any) => {
    try {
      return await apiRequest({
        // Phương thức

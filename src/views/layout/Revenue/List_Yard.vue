@@ -80,7 +80,7 @@ function openListSelected() {
 
 function selectedYard(court_detail: Court) {
     // Kiểm tra nếu court_detail chưa có trong list_court
-    const index = store_court.list_court.findIndex(item => item.courtId === court_detail.courtId);
+    const index = store_court.list_court.findIndex(item => item.id === court_detail.id);
 
     // Nếu court đã có trong list_court, xóa nó ra khỏi mảng trước
     if (index !== -1) {
@@ -96,8 +96,6 @@ function selectedYard(court_detail: Court) {
     // Đặt filter_yard về false
     store.filter_yard = false;
 
-    // Debug thông tin
-    console.log('Updated list_court:', store_court.list_court);
 }
 
 

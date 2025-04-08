@@ -230,9 +230,9 @@ const removeActive = () => {
 const info_clien = ref({
     username: "",
     fullname: "",
-    password: "Abc123@",       // Mật khẩu của người dùng
-    phoneNumber: "",    // Số điện thoại của người dùng
-    address: "",        // Địa chỉ của người dùng
+    password: "Abc123@",       
+    phoneNumber: "",    
+    address: "",        
     role: 0,
 });
 

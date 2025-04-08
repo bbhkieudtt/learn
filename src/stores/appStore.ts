@@ -34,7 +34,7 @@ export const useAppStore = defineStore("app", () => {
     const boking_detail = ref<Event>() 
     /**Biến kiểm tra xem mở modal nào */
     const is_modal = ref('time')
-/**biến mở modal tìm kiếm sân theo địa chỉ*/
+    /**biến mở modal tìm kiếm sân theo địa chỉ*/
     const show_modals = ref(false);
 
     

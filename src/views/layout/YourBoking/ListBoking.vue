@@ -14,7 +14,7 @@
         <!--  -->
         <main class="h-full py-5 flex-1 w-full overflow-hidden">
             <!-- Chưa có sân -->
-            <div v-if="list_boking && list_boking.length === 0" class="w-full h-full flex justify-center items-center">
+            <div v-if="list_bokings && list_bokings.length === 0" class="w-full h-full flex justify-center items-center">
                 <div class="flex-col">
                     <img :src="image9" class="justify-center items-center" alt="">
                     <p class="text-lg text-white font-semibold text-center">Bạn chưa có lịch đặt nào</p>
@@ -25,7 +25,7 @@
                 <div class=" h-full overflow-y-auto flex flex-col items-start w-full   gap-15">
                     <!-- sân -->
                     <div v-for="(boking, index) in list_bokings" :key="boking.id"
-                        :class="{ 'border-b border-yellow-500': index !== list_boking.length - 1 }" class="flex w-full text-lg px-3 border-b border-slate-400 text-white py-3 flex-col items-start gap-1 
+                        :class="{ 'border-b border-yellow-500': index !== list_bokings.length - 1 }" class="flex w-full text-lg px-3 border-b border-slate-400 text-white py-3 flex-col items-start gap-1 
                         transition duration-200 hover:brightness-90 hover:rounded-lg hover:bg-green-800">
                         <div class="flex items-center space-x-0">
                             <!-- Đơn ngày -->
@@ -97,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from "@/stores/appStore";
 
@@ -106,7 +106,7 @@ import { useAppStore } from "@/stores/appStore";
 import image9 from '@/assets/imgs/image9.png'
 
 /**icon*/
-import { PlusIcon, ArrowLeftIcon, ArchiveBoxXMarkIcon } from "@heroicons/vue/24/solid";
+import {  ArrowLeftIcon, ArchiveBoxXMarkIcon } from "@heroicons/vue/24/solid";
 
 /**api*/
 import { apiGetListBooking } from "@/service/api/apiBoking";
@@ -117,8 +117,7 @@ import type {CourtEvent} from '@/interface'
 
 /**Biến router */
 const router = useRouter()
-/**biến store*/
-const store = useAppStore();
+
 
 
 /**Danh sách menu*/

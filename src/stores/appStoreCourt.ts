@@ -18,10 +18,7 @@ export const useAppStoreCourt = defineStore("app", () => {
     const chill_detail = ref<ChildCourt>() 
     /**Sân được chọn để tính daonh thu*/
     const court_revenue  = ref<Court>() 
-
-   
-
-    
+ 
     return {
         list_court,
         court_detail,
