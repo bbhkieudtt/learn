@@ -91,9 +91,9 @@ function handleClick(e: Event) {
       if ( store.filter_yard) {
         store.filter_yard = false;
       }
-      // if (store.is_statistical) {
-      //   store.is_statistical = false;
-      // }
+      if (store.is_status) {
+        store.is_status = false;
+      }
       // if (store.is_filter) {
       //   store.is_filter = false;
       // }

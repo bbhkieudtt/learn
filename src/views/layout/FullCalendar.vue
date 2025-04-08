@@ -10,7 +10,7 @@ import { useAppStore } from '@/stores/appStore'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
 
 /**Biến thư viện */
-import type { CalendarOptions, DateSelectArg, CalendarApi } from "@fullcalendar/core";
+import type { CalendarOptions, DateSelectArg } from "@fullcalendar/core";
 import FullCalendar from "@fullcalendar/vue3";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -85,7 +85,7 @@ onMounted(async () => {
     const calendarApi = calendarRef.value.getApi();
     calendarApi.refetchEvents(); // Đảm bảo tải lại sự kiện
   }
-  console.log('store.list_event', store.list_event);
+
 
 })
 

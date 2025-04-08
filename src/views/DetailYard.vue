@@ -12,7 +12,7 @@
         </div>
       </div>
       <!--  -->
-      <div class="grid grid-cols-4 gap-3 ">
+      <div class="grid grid-cols-5 gap-3 ">
         <div class="flex items-center justify-between text-lg cursor-pointer button rounded-md ">
           <p></p>
           <p>{{ formatCurrency(store_court.chill_detail?.rentCost) }}đ / 1giờ</p>
@@ -21,6 +21,14 @@
         <!--  -->
         <div class="flex cursor-pointer gap-2 button rounded-md  ">
           <ListYardSmall></ListYardSmall>
+        </div>
+         <!--  -->
+         <div @click="goToListBoking" class="flex items-center justify-between text-lg cursor-pointer button rounded-md ">
+          <p></p>
+          <p>
+            Danh sách lịch đặt sân
+          </p>
+          <IconPhone></IconPhone>
         </div>
         <!--  -->
         <div @click="goToInfo" class="flex items-center justify-between text-lg cursor-pointer button rounded-md ">
@@ -231,7 +239,6 @@ import IconSearch from "@/components/Icons/IconSearch.vue";
 import IconFilter from "@/components/Icons/IconFilter.vue";
 
 /**icon menu*/
-import IconClock from "@/components/Icons/IconClock.vue";
 import IconPhone from "@/components/Icons/IconPhone.vue";
 
 /**toast*/
@@ -388,6 +395,11 @@ function goToBack() {
 /**Đi đến thông tin chi tiết sân*/
 function goToInfo() {
   router.push('/Info')
+}
+
+/**Đi đến thông tin chi tiết sân*/
+function goToListBoking() {
+  router.push('/bokingCout')
 }
 
 /***/

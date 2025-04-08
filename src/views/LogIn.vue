@@ -158,7 +158,7 @@ async function loginUse() {
 
         setTimeout(() => {
           router.push('/main');
-        }, 5000); // Delay 100ms để đảm bảo watch chạy trước
+        }, 3000); // Delay 100ms để đảm bảo watch chạy trước
 
       } else {
         toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
