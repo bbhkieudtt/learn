@@ -40,36 +40,47 @@
                     <div v-for="(boking, index) in filteredBookings" :key="boking.id"
                         :class="{ 'border-b border-yellow-500': index !== list_bokings.length - 1 }" class="flex w-full text-lg px-3 border-b border-slate-400 text-white py-3 flex-col items-start gap-1 
                         transition duration-200 hover:brightness-90 hover:rounded-lg hover:bg-green-800">
-                        <div class="flex items-center space-x-0">
-                            <!-- Đơn ngày -->
-                            <span class="bg-green-500 text-white px-6 py-1 text-sm relative">
-                                Lịch
+                        <div class="flex justify-between w-full items-center">
+                            <div class="flex items-center space-x-0">
+                                <!-- Đơn ngày -->
+                                <span class="bg-green-500 text-white px-6 py-1 text-sm relative">
+                                    Lịch
 
-                            </span>
-                            <!-- Mũi tên -->
-                            <span class="text-white pl-2 pr-7 py-1 text-sm relative" :class="{
-                                'bg-blue-500': boking.status === 0,
-                                'bg-gray-500': boking.status === 1,
-                                'bg-yellow-500': boking.status === 2,
-                                'bg-green-500': boking.status === 3
-                            }">
-                                {{
-                                    boking.status === 0 ? 'Đã Đặt' :
-                                        boking.status === 1 ? 'Đã Khóa' :
-                                            boking.status === 2 ? 'Đã hủy' :
-                                boking.status === 3 ? 'Hủy thành công' :
-                                'Không xác định'
-                                }}
-                                <div class="absolute left-[-14px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent"
-                                    :class="{
-                                        'border-r-blue-500': boking.status === 0,
-                                        'border-r-gray-500': boking.status === 1,
-                                        'border-r-yellow-500': boking.status === 2,
-                                        'border-r-green-500': boking.status === 3
-                                    }"></div>
-                            </span>
+                                </span>
+                                <!-- Mũi tên -->
+                                <span class="text-white pl-2 pr-7 py-1 text-sm relative" :class="{
+                                    'bg-blue-500': boking.status === 0,
+                                    'bg-gray-500': boking.status === 1,
+                                    'bg-red-500': boking.status === 2,
+                                    'bg-yellow-500': boking.status === 3
+                                }">
+                                    {{
+                                        boking.status === 0 ? 'Đã Đặt' :
+                                            boking.status === 1 ? 'Đã Khóa' :
+                                                boking.status === 2 ? 'Đã hủy' :
+                                                    boking.status === 3 ? 'Hủy thành công' :
+                                                        'Không xác định'
+                                    }}
+                                    <div class="absolute left-[-14px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent"
+                                        :class="{
+                                            'border-r-blue-500': boking.status === 0,
+                                            'border-r-gray-500': boking.status === 1,
+                                            'border-r-red-500': boking.status === 2,
+                                            'border-r-yellow-500': boking.status === 3
+                                        }"></div>
+                                </span>
 
 
+                            </div>
+                            <!--  -->
+                             <!--  -->
+                             <button
+                            v-if="boking.status === 2"
+                            @click="openModal(boking)"
+                                class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
+                                Hoàn tiền
+                                <DocumentCurrencyDollarIcon class="w-4 h-4 text-white"></DocumentCurrencyDollarIcon>
+                            </button>
                         </div>
 
 
@@ -77,13 +88,7 @@
                             <p class="font-medium text-yellow-200">
                                 {{ boking.courtName }}
                             </p>
-                            <!--  -->
-                            <button
-                            v-if="boking.status === 2"
-                                class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
-                                Hoàn tiền
-                                <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>
-                            </button>
+
                         </div>
 
                         <div class="flex gap-1 items-center">
@@ -125,10 +130,79 @@
     <!--  -->
     <Modal v-if="show_modals" :close="showModal">
         <template #content>
-            <div class="w-[300px] h-[300px]">
+            <div v-if="is_modal" class="w-[300px] h-[300px]">
                 <VueDatePicker class="w-full h-full" v-model="store.date" :inline="true" auto-apply locale="vi"
                     :day-names="customDayNames">
                 </VueDatePicker>
+            </div>
+            <div v-else class="w-[500px] flex flex-col px-3 ">
+                <header class="flex items-center border-b border-slate-300 py-2  justify-between">
+                    <p class="text-red-500 text-xl font-semibold">
+                        Thông tin hoàn tiền
+                    </p>
+                    <XMarkIcon @click="showModal" class="h-5 w-5 hover:bg-slate-300 rounded-lg "></XMarkIcon>
+                </header>
+
+                <body class="w-full grid py-2 gap-4 grid-cols-1">
+                    <div class="flex-col col-span-1 gap-2 flex text-sm font-medium text-green-700">
+                        <!-- Thông tin sân -->
+                        <div class="flex gap-3 text-sm text-green-800">
+                            <p>
+                                Tên sân:
+                            </p>
+                            <p class="font-bold">
+                                {{ cancel_bokings?.courtName }}
+                            </p>
+                        </div>
+                        <!-- Thông tin sân -->
+                        <div class="flex gap-3 text-sm text-green-800">
+                            <p>
+                                Sân con:
+                            </p>
+                            <p class="font-bold">
+                                {{ cancel_bokings?.childCourtName }}
+                            </p>
+                        </div>
+                        <div class="flex gap-3 text-sm text-green-800">
+                            <p>
+                                Địa chỉ:
+                            </p>
+                            <p class="font-bold">
+                                {{ cancel_bokings?.courtStreet }}, {{ cancel_bokings?.courtWard }},{{
+                                cancel_bokings?.courtDistrict }}, Hà Nội
+                            </p>
+                        </div>
+                        <div class="flex gap-3 text-sm text-green-800">
+                            <p>
+                                Tiền đã thanh toán
+                            </p>
+                            <p class="font-bold">
+                                {{ cancel_bokings?.price }}
+                            </p>
+                        </div>
+                        <div class="flex gap-3 text-sm text-green-800">
+                            <ExclamationCircleIcon class="w-5 h-5 text-red-500"></ExclamationCircleIcon>
+                            <p>
+                                Số tiền bạn cần hoàn lại là 75% số tiền gôc
+                            </p>
+                            <p v-if="cancel_bokings?.price" class="font-bold">
+                                {{ calculate75PercentFormatted(cancel_bokings.price) }}
+                            </p>
+                        </div>
+                    </div>
+                </body>
+                <!--  -->
+                <footer class="w-full flex justify-between py-2 px-3 border-t border-slate-300">
+                    <button @click="showModal"
+                        class="px-3 py-2 bg-slate-500 text-sm font-semibold text-white rounded-lg w-fit">
+                        Đóng
+                    </button>
+
+                    <button @click="cancelBokings"
+                        class="px-3 py-2 bg-green-600 text-sm font-semibold text-white rounded-lg w-fit">
+                        Hoàn Tiền
+                    </button>
+                </footer>
             </div>
 
         </template>
@@ -155,15 +229,22 @@ import FilterBokingStatus from './FilterBokingStatus.vue';
 import image9 from '@/assets/imgs/image9.png'
 
 /**icon*/
-import { ArrowLeftIcon, ArchiveBoxXMarkIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, ExclamationCircleIcon,DocumentCurrencyDollarIcon } from "@heroicons/vue/24/solid";
 
 import { CalendarDateRangeIcon } from "@heroicons/vue/24/solid";
 
 /**api*/
-import { apiGetListBooking } from "@/service/api/apiBoking";
+import { apiGetListBooking,apiUpdateBoking } from "@/service/api/apiBoking";
 
 /**kiểu dữ liệu*/
 import type { CourtEvent } from '@/interface'
+
+/**toast*/
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+
+/**Modal*/
+import Modal from "@/components/Modal/Modal.vue"
 
 /**Biến router */
 const router = useRouter()
@@ -174,6 +255,8 @@ const store = useAppStore()
 const customDayNames = [
     'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'
 ];
+
+const is_modal = ref(true)
 
 const show_modals = ref(false);
 
@@ -191,7 +274,11 @@ const time_selected = computed(() => {
 /**Danh sách lịch đặt*/
 const list_bokings = ref<CourtEvent[]>([])
 
+const cancel_bokings = ref<CourtEvent>()
+
 const filteredBookings = computed(() => {
+
+
     return list_bokings.value.filter((booking) => {
         const isSameCourt = booking.childCourtId === store_court.chill_detail?.id;
 
@@ -213,6 +300,7 @@ const filteredBookings = computed(() => {
 
 onMounted(async () => {
     await getListBoking()
+    store.status = 5
 })
 
 /**hàm đóng modal*/
@@ -222,6 +310,7 @@ function showModal() {
 
 /***/
 function selectedTime() {
+    is_modal.value = true
     show_modals.value = true;
 }
 
@@ -242,16 +331,19 @@ async function getListBoking() {
     try {
         const response = await apiGetListBooking();
         // Lấy thông tin người dùng từ localStorage
-        const CourtId = store_court.court_detail?.id
+        const CourtId = store_court.court_detail?.courtName
         // Kiểm tra nếu API trả về thành công
         if (response && response.status === 200) {
             console.log('response', response.data);
 
             // Lọc những lịch thuộc sân cha này 
-            const filteredData = response.data.filter((item: any) => item.CourtId === CourtId);
+            const filteredData = response.data.filter((item: any) => item.courtName === CourtId);
 
 
             list_bokings.value = filteredData
+
+            console.log('list_bokings.value', list_bokings.value);
+
         } else {
             // toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
         }
@@ -275,6 +367,42 @@ function formatCurrency(amount: number): string {
         currency: 'VND',
     });
 }
+
+
+/**Hoàn tiền*/
+function openModal(boking: CourtEvent){
+    is_modal.value = false
+    show_modals.value = true;
+    cancel_bokings.value = boking
+}
+
+function calculate75PercentFormatted(number: number) {
+    const percentValue = number * 0.75
+    return percentValue.toLocaleString('vi-VN', {
+        style: 'currency',
+        currency: 'VND',
+    })
+}
+
+/**Hàm hủy lịch*/
+async function cancelBokings() {
+    if (cancel_bokings.value) {
+        cancel_bokings.value.status = 3
+    }
+    try {
+        const response = await apiUpdateBoking(cancel_bokings.value);
+     
+        if (response && response.status === 200) {
+            toast("Hoàn tiền thành công!", { autoClose: 3000 });
+            getListBoking()
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
+
 
 
 

@@ -78,7 +78,7 @@ export const apiGetListBooking = async () => {
   try {
     return await apiRequest({
         // Phương thức
-        method: "PUT",
+       method: "PUT",
       // endpoint API
       end_point: "Booking/update",
       // payload được truyền từ giao diện

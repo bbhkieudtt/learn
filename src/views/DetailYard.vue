@@ -341,8 +341,6 @@ onMounted(async () => {
   store_court.chill_detail = list_child.value[0];
   console.log(list_child.value[0]);
 
-
-
 })
 
 

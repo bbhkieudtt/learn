@@ -51,7 +51,6 @@ import { ClipboardDocumentListIcon, FireIcon } from "@heroicons/vue/24/solid";
 import type {Court, ChildCourt} from '@/interface'
 
 
-
 /**biến store*/
 const store = useAppStore()
 

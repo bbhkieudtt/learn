@@ -135,8 +135,8 @@ async function getListBoking() {
 
     // Kiểm tra nếu API trả về thành công
     if (response && response.status === 200) {
-      console.log('response888888',response.data);
-      
+      console.log('response888888', response.data);
+
 
       // Biến đổi dữ liệu thành định dạng phù hợp với FullCalendar
       const events = transformToFullCalendar(response.data);
@@ -163,19 +163,24 @@ async function getListBoking() {
 /** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
 function transformToFullCalendar(eventsData: any) {
   return eventsData
-    .filter((event: any) => event.childCourtId === store_court.chill_detail?.id) // Lọc sự kiện có childCourtId khớp
+  .filter((event: any) =>
+      event.childCourtId === store_court.chill_detail?.id &&
+      (event.status === 0 || event.status === 1) // Chỉ lấy status 0 và 1
+    )
     .map((event: any) => {
       // Tìm user từ userId trong danh sách user
       const user = store.list_user.find(user => user.id === event.userId);
       const title = user ? `${user.username} sđt: ${user.phoneNumber} giá: ${event.price}` : 'No User';
-      
+
       const start = event.startTime;
       const end = event.endTime;
 
       // Lớp CSS dựa vào status
       const classList = event.status === 0
-        ? ['bg-green-500', 'text-white']  // Màu cho status = 0
-        : ['bg-slate-400', 'text-yellow-400']; // Màu cho status khác 0 (ví dụ là 1)
+        ? ['bg-green-500', 'text-white']             // Màu cho status = 0
+        : event.status === 1
+          ? ['bg-blue-500', 'text-white']            // Màu riêng cho status = 1
+          : ['bg-slate-400', 'text-yellow-400'];     // Màu cho các status khác
 
       return {
         id: event.id,

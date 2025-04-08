@@ -39,7 +39,7 @@ export const useAppStore = defineStore("app", () => {
     /**biến mở chọn trạng thái*/
     const is_status = ref(false) ;
     /**biến lưu giá trị lọc sân theo trạng thái*/
-    const status = 0
+    const status = 5
     
     return {
         filter_time,
