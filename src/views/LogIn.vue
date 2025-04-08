@@ -45,7 +45,7 @@
                   <span>Đăng ký </span>
                 </p>
                 <!--  -->
-                <p class="line-clamp-1 cursor-pointer hover:underline text-primary">
+                <p @click="goToForget" class="line-clamp-1 cursor-pointer hover:underline text-primary">
                   <span>Quên mật khẩu </span>
                 </p>
               </div>
@@ -173,6 +173,13 @@ async function loginUse() {
 function goToForgot() {
   router.push('/forgot');
 }
+
+// 
+function goToForget() {
+  router.push('/forget');
+}
+
+
 </script>
 
 <style scoped lang="scss"></style>

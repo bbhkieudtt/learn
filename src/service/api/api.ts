@@ -77,7 +77,7 @@ export const login = async (payload: {
   }
 };
 
- /**api tạo tài khoản*/
+ /**api lấy danh sách tài khoản*/
  export const getListUser = async () => {
  try {
    return await apiRequest({
@@ -96,5 +96,26 @@ export const login = async (payload: {
    throw e;
  }
 };
+
+/**api lấy danh sách tài khoản*/
+export const forgotPasswword = async (payload: {
+  "email": string,
+}) => {
+  try {
+    return await apiRequest({
+       // Phương thức
+       method: "POST",
+      // endpoint API
+       end_point: "User/forgot-password",
+      // payload được truyền từ giao diện
+        body: payload,
+    });
+  } catch (e) {
+   
+   console.log(e);
+   
+    throw e;
+  }
+ };
 
 

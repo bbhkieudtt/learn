@@ -35,12 +35,15 @@ import Boking from '@/views/CreateBoking.vue';
 import ListYard from '@/views/layout/YourYard/ListYard.vue';
 import ListBoking from '@/views/layout/YourBoking/ListBoking.vue';
 import Revenue from '@/views/layout/Revenue/Revenue.vue';
+import Forget from '@/views/Forget.vue';
+
 
 // Định nghĩa routes
 export const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login },
   { path: '/forgot', component: Forgot },
+  { path: '/forget', component: Forget },
   { path: '/main', component: Main },
   { path: '/detail', component: Detail },
   { path: '/Info', component: Info },
@@ -61,7 +64,7 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token'); // Lấy token từ localStorage
 
   // Nếu route yêu cầu đăng nhập mà không có token, chuyển hướng về trang login
-  if ((to.path !== '/login' && to.path !== '/forgot') && !token) {
+  if ((to.path !== '/login' && to.path !== '/forgot' && to.path !== '/forget') && !token) {
     next('/login'); // Chuyển hướng đến trang đăng nhập nếu chưa đăng nhập
   } else {
     next(); // Tiếp tục điều hướng nếu có token hoặc route không yêu cầu đăng nhập
