@@ -1,8 +1,8 @@
 <template>
   <div class="w-full bg-green flex flex-shrink-0  gap-8 backdrop-blur-lg px-20  ">
     <ul class="w-full justify-between flex  ">
-        <li @click="goItem(item.id)" v-for="item in list_menu" class="flex cursor-pointer flex-col  items-center gap-1  p-1 rounded-[20px]">
-            <img :src="item.icon_menu" class="h-[45px] w-[45px] hover:border hover:border-white p-1 rounded-lg" :alt="item.name_menu">
+        <li @click="goItem(item.id)"  v-for="item in list_menu" class="flex cursor-pointer flex-col  items-center gap-1  p-1 rounded-[20px]">
+            <img :src="item.icon_menu" :class="{'border-white':item.id ===1 , 'border':item.id===1 }" class="h-[45px] w-[45px] hover:border hover:border-white p-1 rounded-lg" :alt="item.name_menu">
             <!--  -->
             <p class="text-xl text-white font-medium">{{ item.name_menu }}</p>
         </li>

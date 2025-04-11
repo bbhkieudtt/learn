@@ -18,8 +18,8 @@
                 <label for="" class="text-xl font-semibold text-white"> Tên khách hàng</label>
                 <div
                     class="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-slate-500 shadow-sm">
-                    <input type="text" v-model="info_client.name_client" class="text-lg w-full outline-none "
-                        placeholder="Nhập tên khách hàng">
+                    <input type="text" v-if="user_court" v-model="user_court.fullname"
+                        class="text-lg w-full outline-none " placeholder="Nhập tên khách hàng">
 
                 </div>
             </div>
@@ -34,7 +34,7 @@
                                 <StarIcon class="w-4 h-4 text-yellow-300"></StarIcon>
                             </div>
                         </div>
-                        <input type="tel" v-model="info_client.phone_client" @input="filterSuggestions"
+                        <input v-if="user_court" type="tel" v-model="user_court.phoneNumber" @input="filterSuggestions"
                             @keypress="onlyNumber" class="text-lg w-full  outline-none "
                             placeholder="Nhập số điện thoại">
                     </div>
@@ -127,10 +127,10 @@
                     <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
                         <!-- Nhập tên sân con -->
                         <div class="flex flex-col gap-2  pb-5" :class="{
-                            'opacity-50': activeInput !== 'addresss' && !info_clien.username
+                            'opacity-50': activeInput !== 'addresss' && !info_clien.fullname
                         }">
-                            <label class="font-semibold text-green-900" for="">UserName</label>
-                            <input v-model="info_clien.username" placeholder="Nhập UserName  "
+                            <label class="font-semibold text-green-900" for="">Tên người dùng</label>
+                            <input v-model="info_clien.fullname" placeholder="Nhập tên người thuê"
                                 class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
                                 @focus="setActive('addresss')" @blur="removeActive" />
                         </div>
@@ -139,7 +139,7 @@
                             'opacity-50': activeInput !== 'addresss' && !info_clien.phoneNumber
                         }">
                             <label class="font-semibold text-green-900" for="">Nhập số điện thoại</label>
-                            <input v-model="info_clien.phoneNumber" placeholder="Nhập UserName  "
+                            <input v-model="info_clien.phoneNumber" placeholder="Nhập số điện thoại"
                                 class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
                                 @focus="setActive('address')" @blur="removeActive" />
                         </div>
@@ -161,7 +161,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 /**Router*/
 import { useRouter } from 'vue-router'
@@ -179,12 +179,7 @@ import { getListUser } from "@/service/api/api";
 
 /**icon*/
 import { } from "@heroicons/vue/24/outline";
-import { ArrowLeftIcon, MagnifyingGlassIcon, PlusCircleIcon, StarIcon, ClipboardDocumentListIcon } from "@heroicons/vue/24/solid";
-
-/**kiểu dữ liệu*/
-import type {
-    ClientBoking, UserInfo, Booking
-} from '@/interface'
+import { ArrowLeftIcon, PlusCircleIcon, StarIcon, ClipboardDocumentListIcon } from "@heroicons/vue/24/solid";
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -196,10 +191,25 @@ import 'vue3-toastify/dist/index.css';
 
 /**Modal*/
 import Modal from "@/components/Modal/Modal.vue"
-import type { User } from '@/interface'
+
+/**kiểu dữ liệu*/
+import type {
+    ClientBoking, UserInfo, Booking
+} from '@/interface'
+
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+
+const store_court = useAppStoreCourt()
+
+/**biến store*/
+const store = useAppStore()
+
+/**Biến thông tin người đặt*/
+const user_court = ref<UserInfo>();
+
+const suggestions = ref<UserInfo[]>([])
 
 /**biến mở modal tìm kiếm sân theo địa chỉ*/
 const show_modal = ref(false);
@@ -222,22 +232,18 @@ const removeActive = () => {
     activeInput.value = '';
 };
 
-
-
-
 /**Thông tin người đặt*/
 // Khởi tạo biến info_clien với kiểu dữ liệu User
 const info_clien = ref({
     username: "",
     fullname: "",
-    password: "Abc123@",       
-    phoneNumber: "",    
-    address: "",        
+    password: "Abc123@",
+    phoneNumber: "",
+    address: "",
     role: 0,
 });
 
-/**biến store*/
-const store = useAppStore()
+
 
 const formattedTimeStart = dayjs(store.selectInfo?.startStr)
     .format("YYYY-MM-DDTHH:mm:ss.SSS");
@@ -264,7 +270,6 @@ const is_key = computed(() => {
     return store_court.court_detail?.userId === userInfo.id;
 });
 
-
 const address = computed(() => {
     const detail = store_court.court_detail;
 
@@ -272,16 +277,6 @@ const address = computed(() => {
 
     return `${detail.street}, ${detail.ward}, ${detail.district}, Hà Nội`;
 });
-
-
-
-
-const suggestions = ref<UserInfo[]>([])
-
-
-
-
-const store_court = useAppStoreCourt()
 
 /**Biến router */
 const router = useRouter()
@@ -318,8 +313,6 @@ const total_boking_time = computed(() => {
     return 0; // Nếu không có dữ liệu, trả về 0
 });
 
-
-
 const formattedStartDate = computed(() => {
     const startStr = store.selectInfo?.startStr;
     if (!startStr) {
@@ -332,7 +325,6 @@ const formattedStartDate = computed(() => {
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
 });
-
 
 /**giá sân trong 1 tiếng*/
 const formattedRentCost = computed(() => {
@@ -362,16 +354,13 @@ const totalRentCostRaw = computed(() => {
     return totalCost; // Trả về số, không định dạng
 });
 
+onMounted(() => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
+    user_court.value = userInfo;
 
 
-
-
-/**Biến lưu thông tin khách đặt lịch*/
-const info_client = ref<ClientBoking>({
-    name_client: '',      // Add an empty string or default value
-    phone_client: '',     // Add an empty string or default value
-    note_boking: '',      // Add an empty string or default value
 });
+
 
 
 /**Hàm kiểm tra chỉ cho nhập số không nhập chữ*/
@@ -386,7 +375,7 @@ const onlyNumber = (event: any) => {
 async function addBoking() {
     // khi khóa sân 
     if (key.value) {
-        detail_boking.value.userId = store.user_boking?.id ?? 0
+        detail_boking.value.userId = user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
@@ -395,7 +384,7 @@ async function addBoking() {
     }
     else {
 
-        detail_boking.value.userId = store.user_boking?.id ?? 0
+        detail_boking.value.userId =user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
@@ -431,23 +420,25 @@ function goToDetail() {
 
 
 const filterSuggestions = () => {
-    const input = info_client.value.phone_client.trim();
-    if (input.length === 0) {
-        suggestions.value = [];
-        return;
+    if (user_court.value) {
+        const input = user_court.value.phoneNumber.trim();
+        if (input.length === 0) {
+            suggestions.value = [];
+            return;
+        }
+        suggestions.value = store.list_user.filter((user) =>
+            user.phoneNumber.startsWith(input)
+        );
     }
-    console.log('store.list_user', store.list_user);
-
-    suggestions.value = store.list_user.filter((user) =>
-        user.phoneNumber.startsWith(input)
-    );
 };
 
 const selectUser = (user: UserInfo) => {
-    info_client.value.phone_client = user.phoneNumber;
-    info_client.value.name_client = user.username;
-    store.user_boking = user
-    suggestions.value = []; // Ẩn gợi ý sau khi chọn
+    if (user_court.value) {
+        user_court.value.phoneNumber = user.phoneNumber;
+        user_court.value.fullname = user.fullname;
+        store.user_boking = user
+        suggestions.value = []; // Ẩn gợi ý sau khi chọn
+    }
 };
 
 /**Hàm tạo mới khách*/
@@ -460,12 +451,19 @@ async function createClien() {
     }
 
     try {
+
+        info_clien.value.username = removeVietnameseTones(info_clien.value.fullname)
+            .toLowerCase()
+            .replace(/\s+/g, "");
+
         // Dùng await để đợi kết quả từ API
         const response = await apiCreateUser(info_clien.value);
         console.log("API Response:", response);
 
         // Kiểm tra nếu API trả về thành công
         if (response && response.status === 200) {
+            user_court.value = response.data
+
             toast("Tạo thông tin thành công!", { autoClose: 3000 });
 
             // Gọi các hàm khác nếu cần
@@ -474,7 +472,7 @@ async function createClien() {
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 3000 });
         }
-    } catch (error :any) {
+    } catch (error: any) {
         toast(error.message || error, { autoClose: 5000 });
     }
 
@@ -497,6 +495,13 @@ async function getListUsers() {
 /**Mở modal*/
 function openModal() {
     show_modal.value = true
+}
+
+function removeVietnameseTones(str:any) {
+    return str.normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D");
 }
 
 

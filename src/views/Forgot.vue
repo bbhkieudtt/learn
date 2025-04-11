@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <main class="bg-login gradient-custom-forgot fixed z-0 top-0 left-0 w-full h-screen  pt-10">
+    <main class="bg-login gradient-custom-forgot fixed z-0 top-0 left-0 w-full h-screen  pt-5">
       <div class="flex z-50 px-20 justify-between">
         <div>
           <h1 class="flex text-4xl font-bold text-slate-900">Pickleball</h1>
@@ -10,8 +10,8 @@
           </p>
         </div>
         <!--  -->
-        <div class="sm:w-96 bg-white drop-shadow-2xl rounded-3xl p-5 ">
-          <div class="text-center flex flex-col gap-2">
+        <div class="sm:w-96 bg-white drop-shadow-2xl rounded-3xl p-2 ">
+          <div class="text-center flex flex-col gap-1">
             <img src="@/assets/imgs/logoPick.png" class="h-[100px] w-[100px] mx-auto" alt="" />
             <h1 class="text-2xl font-semibold text-black">
               {{
@@ -21,16 +21,24 @@
           </div>
           <!--  -->
           <div>
-            <div class="px-0 py-8" v-if="!status_login">
-              <div class="group relative z-0 mb-6 w-full">
+            <div class="px-0 py-2" v-if="!status_login">
+              <div class="group relative z-0 mb-5 w-full">
                 <input v-model="account_login.username" type="text"
+                  class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
+                  placeholder=" " /><label for="floating_email"
+                  class="bg-red absolute top-0.5 left-0 -z-10 origin-[0] -translate-y-3 scale-75 transform pt-3 pl-6 text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-orange-600">Nhập
+                 username người dùng</label>
+              </div>
+              <!--  -->
+              <div class="group relative z-0 mb-5 w-full">
+                <input v-model="account_login.fullname" type="text"
                   class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
                   placeholder=" " /><label for="floating_email"
                   class="bg-red absolute top-0.5 left-0 -z-10 origin-[0] -translate-y-3 scale-75 transform pt-3 pl-6 text-sm text-gray-500 duration-300 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:left-0 peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:font-medium peer-focus:text-orange-600">Nhập
                   tên người dùng</label>
               </div>
               <!--  -->
-              <div class="group relative z-0 mb-6 w-full">
+              <div class="group relative z-0 mb-5 w-full">
                 <input v-model="account_login.password" type="password"
                   class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
                   placeholder=" " /><label for="floating_email"
@@ -39,7 +47,7 @@
               </div>
               <!--  -->
               <!--  -->
-              <div class="group relative z-0 mb-6 w-full">
+              <div class="group relative z-0 mb-5 w-full">
                 <input v-model="password_confirm" type="password"
                   class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
                   placeholder=" " /><label for="floating_email"
@@ -47,7 +55,7 @@
                   nhận lại mật khẩu</label>
               </div>
               <!--  -->
-              <div class="group relative z-0 mb-6 w-full">
+              <div class="group relative z-0 mb-5 w-full">
                 <input v-model="account_login.phoneNumber" id="phone_input" type="text" inputmode="numeric"
                   pattern="[0-9]*" maxlength="10"
                   class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
@@ -59,7 +67,7 @@
               </div>
 
               <!--  -->
-              <div class="group relative z-0 mb-6 w-full">
+              <div class="group relative z-0 mb-5 w-full">
                 <input v-model="account_login.email" type="email"
                   class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"
                   placeholder=" " /><label for="floating_email"

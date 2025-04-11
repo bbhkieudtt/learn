@@ -170,17 +170,17 @@ function transformToFullCalendar(eventsData: any) {
     .map((event: any) => {
       // Tìm user từ userId trong danh sách user
       const user = store.list_user.find(user => user.id === event.userId);
-      const title = user ? `${user.username} sđt: ${user.phoneNumber} giá: ${event.price}` : 'No User';
+      const title = user ? `${user.fullname} sđt: ${user.phoneNumber} giá: ${event.price}` : 'No User';
 
       const start = event.startTime;
       const end = event.endTime;
 
       // Lớp CSS dựa vào status
       const classList = event.status === 0
-        ? ['bg-green-500', 'text-white']             // Màu cho status = 0
+        ? ['bg-green-500', 'text-white']            
         : event.status === 1
-          ? ['bg-blue-500', 'text-white']            // Màu riêng cho status = 1
-          : ['bg-slate-400', 'text-yellow-400'];     // Màu cho các status khác
+          ? ['bg-bg-red-500', 'text-white']            
+          : ['bg-blue-400', 'text-yellow-400'];    
 
       return {
         id: event.id,

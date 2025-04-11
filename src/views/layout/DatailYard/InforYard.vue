@@ -113,7 +113,8 @@
                         <p class="text-xs text-white">{{ item.content }}</p>
                     </div>
                 </div>
-                <button v-if="is_comment" @click="openComment"
+                <!-- v-if="is_comment" -->
+                <button  @click="openComment"
                     class="flex px-3 absolute bottom-4 right-5 py-2 rounded-lg text-sm text-white gap-1 bg-yellow-500">
                     <IconEdit class="w-5 h-5 text-white"></IconEdit>
                     <p class="font-medium">
@@ -493,8 +494,10 @@ async function createComment() {
         if (response && response.status === 200) {
             console.log('response', response);
             toast("Bình luận thành công!", { autoClose: 2000 });
+     
 
             showModal()
+
 
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 3000 });

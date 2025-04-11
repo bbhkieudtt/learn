@@ -11,9 +11,42 @@
         </div>
       </div>
       <!--  -->
-      <div class="flex gap-5 w-100   items-center">
+
+
+
+      <div class="flex gap-5 w-fit   items-center">
+        <transition name="slide-in">
+        <div v-if="show_modal" class="flex w-fit items-center gap-2">
+          <!-- Địa chỉ chi tiết -->
+          <el-form label-position="top" class="flex w-fit gap-2 h-fit">
+
+            <!-- Quận/Huyện -->
+            <el-select class="min-w-[200px] flex-1" v-model="selectedDistrict" placeholder="Chọn quận/huyện cần tìm"
+              @change="getWards" size="large">
+              <el-option v-for="district in districts" :key="district.code" :label="district.name"
+                :value="district.code" />
+            </el-select>
+
+            <!-- Phường/Xã -->
+            <el-select class="min-w-[200px] flex-1" v-model="selectedWard" placeholder="Chọn phường/xã cần tìm"
+              :disabled="wards.length === 0" @change="getStreets" size="large">
+              <el-option v-for="ward in wards" :key="ward.code" :label="ward.name" :value="ward.code" />
+            </el-select>
+
+            <!-- Đường -->
+            <el-input class="min-w-[200px] flex-1" v-model="infor_yard.street" placeholder="Nhập tên đường cần tìm" />
+
+          </el-form>
+        
+            <input v-model="infor_yard.courtName" placeholder="Nhập tên sân "
+              class="px-3 outline-none min-w-[200px] flex-1 py-2 rounded-md border border-green-600" type="text"
+              />
+       
+        </div>
+      </transition>
+
         <div class="p-2 flex group  cursor-pointer items-center gap-2 bg-white rounded-full">
-          <icon-search @click="show_modal = true" class="w-5 h-5 group-hover:text-green-500 "></icon-search>
+          <icon-search @click="showFilter" class="w-5 h-5 group-hover:text-green-500 "></icon-search>
         </div>
         <VueDatePicker class="shadow-sm py-0.5" placeholder="Chọn thời gian đặt sân " v-model="date" range />
       </div>
@@ -44,8 +77,9 @@
                   formatHour(yard.endTime) : '24/7' }}</p>
               </div>
               <div class="flex items-center justify-between">
-                <vue3-star-ratings v-if="store_review.list_review[yard.id]" v-model="store_review.list_review[yard.id].averageRatingStar"  />
-                <vue3-star-ratings v-else v-model="start"  />
+                <vue3-star-ratings v-if="store_review.list_review[yard.id]"
+                  v-model="store_review.list_review[yard.id].averageRatingStar" />
+                <vue3-star-ratings v-else v-model="start" />
 
                 <div class="flex items-center gap-1">
                   <IconComment class="w-4 h-4 text-slate-500"></IconComment>
@@ -62,63 +96,7 @@
     </div>
   </main>
   <!--  -->
-  <Modal v-if="show_modal" :close="showModal">
-    <template #content>
-      <div class="w-[800px] px-5 py-4 gap-4 flex flex-col">
-        <header class="flex justify-between items-center  py-0.5">
-          <p class="text-xl font-semibold ">
-            Tìm kiếm sân
-          </p>
-          <IconClose @click="showModal"
-            class="w-6 h-6 text-green-600 cursor-pointer  rounded-md flex-shrink-0 p-0.5 hover:bg-green-200">
-          </IconClose>
-        </header>
-
-        <body class="w-full flex flex-col gap-2">
-          <!-- Địa chỉ chi tiết -->
-          <el-form label-position="top" class="grid grid-cols-2 gap-2 w-full">
-            <el-form-item label="Tìm kiếm theo Quận/Huyện">
-              <el-select v-model="selectedDistrict" placeholder="Chọn quận/huyện cần tìm" @change="getWards"
-                size="large">
-                <el-option v-for="district in districts" :key="district.code" :label="district.name"
-                  :value="district.code" />
-              </el-select>
-            </el-form-item>
-
-            <!-- Chọn Phường/Xã -->
-            <el-form-item label="Tìm kiếm theo Phường/Xã">
-              <el-select v-model="selectedWard" placeholder="Chọn phường/xã cần tìm" :disabled="wards.length === 0"
-                @change="getStreets" size="large">
-                <el-option v-for="ward in wards" :key="ward.code" :label="ward.name" :value="ward.code" />
-              </el-select>
-            </el-form-item>
-
-            <!-- Chọn Đường -->
-            <el-form-item label="Tìm kiếm theo Đường" class="col-span-2" size="large">
-              <el-input v-model="infor_yard.street" placeholder="Nhập tên đường cần tìm" />
-            </el-form-item>
-          </el-form>
-
-          <!-- Ô nhập tên sân -->
-          <div class="flex flex-col gap-2 mb-7" :class="{
-            'opacity-50': activeInput !== 'name' && !name_value
-          }">
-            <label class="font-semibold text-green-900 " for="">Tên sân</label>
-            <input v-model="name_value" placeholder="Nhập tên sân muốn tìm kiếm"
-              class="w-full px-3 outline-none py-2 rounded-md border border-green-600" type="text"
-              @focus="setActive('name')" @blur="removeActive" />
-          </div>
-
-          <!-- buttom tìm kiếm -->
-          <button :class="{ 'opacity-80': isSearchDisabled }" :disabled="isSearchDisabled"
-            class="py-2 text-sm font-medium text-white bg-green-700 rounded-md">
-            Tìm kiếm
-          </button>
-        </body>
-
-      </div>
-    </template>
-  </Modal>
+  
 
 </template>
 
@@ -190,8 +168,10 @@ const list_court = computed(() => {
     const matchDistrict = yard.district ? court.district === yard.district : true;
     const matchWard = yard.ward ? court.ward === yard.ward : true;
     const matchStreet = yard.street ? court.street === yard.street : true;
-    const matchCourtName = yard.courtName ? court.courtName === yard.courtName : true;
-
+    const matchCourtName = yard.courtName
+      ? court.courtName?.toLowerCase().includes(yard.courtName.toLowerCase())
+      : true;
+      
     return matchDistrict && matchWard && matchStreet && matchCourtName;
   });
 });
@@ -209,30 +189,22 @@ const infor_yard = ref({
   street: '',
 })
 
-/**Lưu ô input nào đang được focus*/
-const activeInput = ref('');
 
-/**giá trị tìm kiếm theo địa chỉ*/
-const Address_value = ref('')
-
-/**giá trị tìm kiếm theo tên sân*/
-const name_value = ref('')
-
-// Điều kiện để nút "Tìm kiếm" được bấm
-const isSearchDisabled = computed(() => {
-  return !Address_value.value.trim() && !name_value.value.trim();
-});
+// // Điều kiện để nút "Tìm kiếm" được bấm
+// const isSearchDisabled = computed(() => {
+//   return !Address_value.value.trim() && !name_value.value.trim();
+// });
 
 onMounted(async () => {
   // *Lấy danh sách sân 
   await getListCourt(),
     // *Lấy quận huyện
-  await  getDistricts();
+    await getDistricts();
   // *lấy danh sách bình luận các sân
   await getListReview()
   // *lấy danh sách người dùng
   await getListUsers()
- 
+
   store_court.is_court = 'home'
 
 
@@ -277,20 +249,8 @@ const getStreets = () => {
   infor_yard.value.ward = ward ? ward.name : ""; // Lưu tên phường/xã
 };
 
-/**hàm đóng modal*/
-function showModal() {
-  show_modal.value = false;
-}
 
-/***/
-const setActive = (field: string) => {
-  activeInput.value = field;
-};
 
-/***/
-const removeActive = () => {
-  activeInput.value = '';
-};
 
 /**Khi xem một sân*/
 function goToDetail(yard: Court) {
@@ -389,6 +349,14 @@ function isValidImage(image: string) {
 
 function formatHour(timeStr: string): string {
   return timeStr?.slice(0, 5) // Lấy 5 ký tự đầu: "08:00"
+}
+
+function showFilter() {
+  show_modal.value = !show_modal.value
+  infor_yard.value.courtName = ''
+  infor_yard.value.district = ''
+  infor_yard.value.ward = ''
+  infor_yard.value.street = ''
 }
 
 </script>
