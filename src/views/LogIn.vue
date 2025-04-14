@@ -152,6 +152,11 @@ async function loginUse() {
         // localStorage.setItem("userInfo", JSON.stringify(response.data.infor));
         // Lưu thông tin người dùng vào localStorage
         localStorage.setItem("userInfo", JSON.stringify(response.data.infor));
+        store.business_token = response.data.token;
+
+        console.log(' store.business_token', store.business_token);
+        
+
         store.UserInfo = response.data.infor
 
         status_login.value = true
@@ -165,6 +170,7 @@ async function loginUse() {
       }
     } catch (error) {
       console.error("API Error:", error);
+      toast(error, { autoClose: 5000 });
     }
   }
 }

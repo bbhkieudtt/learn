@@ -1,6 +1,7 @@
 import { api_host } from "./env";
 import { requestAxios } from "./request";
 import type {User } from '@/interface'
+import { useAppStore } from "@/stores/appStore";
 
 interface InputRequestApi {
   end_point?: string;
@@ -12,19 +13,22 @@ interface InputRequestApi {
 const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
 
 
-// /** Lấy token business từ store */
-// function getBusinessToken() {
-//   const $store = useAppStore();
-//   return $store.business_token;
-// }
+
 
 /** Request api */
 async function apiRequest({ end_point, body, method }: InputRequestApi) {
   try {
+    const store = useAppStore(); // ✅ Đặt ở đây
+
+    const token = store.business_token;
+    console.log("Gửi token:", token);
     let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
       method: method || 'POST',
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body,
     });
     return response;
@@ -32,6 +36,7 @@ async function apiRequest({ end_point, body, method }: InputRequestApi) {
     throw e;
   }
 }
+
 
 /**api tạo sân */
 export const apiCreateCourt = async (payload: any) => {
@@ -72,3 +77,23 @@ export const apiGetCourt = async () => {
     throw e;
   }
 }; 
+
+ /**api lấy cập nhật sân  */
+ export const apiUpdateCourt = async (payload: any) => {
+  try {
+    return await apiRequest({
+      // Phương thức
+      method: "PUT",
+      // endpoint API
+      end_point: "Court/update",
+      // payload được truyền từ giao diện
+      body: payload,
+    });
+  } catch (e) {
+    // Log lỗi nếu có
+   //  console.error("Error:", e);
+   console.log(e);
+   
+    throw e;
+  }
+};

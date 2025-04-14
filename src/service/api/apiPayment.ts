@@ -12,11 +12,7 @@ interface InputRequestApi {
 const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
 
 
-// /** Lấy token business từ store */
-// function getBusinessToken() {
-//   const $store = useAppStore();
-//   return $store.business_token;
-// }
+
 
 /** Request api */
 async function apiRequest({ end_point, body, method }: InputRequestApi) {

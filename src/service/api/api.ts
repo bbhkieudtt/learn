@@ -1,6 +1,7 @@
 import { api_host } from "./env";
 import { requestAxios } from "./request";
 import type { User } from '@/interface'
+import { useAppStore } from "@/stores/appStore";
 
 interface InputRequestApi {
   end_point?: string;
@@ -25,6 +26,27 @@ async function apiRequest({ end_point, body,method }: InputRequestApi) {
       uri: `${HOST["pickleyard"]}/${end_point}`,
       method: method || 'GET',
       headers: { "Content-Type": "application/json" },
+      body,
+    });
+    return response;
+  } catch (e) {
+    throw e;
+  }
+}
+
+/** Request api */
+async function apiRequests({ end_point, body, method }: InputRequestApi) {
+  try {
+    const store = useAppStore(); // ✅ Đặt ở đây
+    const token = store.business_token;
+    console.log("Gửi token:", token);
+    let response = await requestAxios({
+      uri: `${HOST["pickleyard"]}/${end_point}`,
+      method: method || 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body,
     });
     return response;
@@ -80,7 +102,7 @@ export const login = async (payload: {
  /**api lấy danh sách tài khoản*/
  export const getListUser = async () => {
  try {
-   return await apiRequest({
+   return await apiRequests({
       // Phương thức
       method: "GET",
      // endpoint API
@@ -102,7 +124,7 @@ export const forgotPasswword = async (payload: {
   "email": string,
 }) => {
   try {
-    return await apiRequest({
+    return await apiRequests({
        // Phương thức
        method: "POST",
       // endpoint API

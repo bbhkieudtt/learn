@@ -54,7 +54,7 @@
                         {{ store_court.court_detail?.contactPhone }}
                     </p>
                 </div>
-                <button
+                <button v-if="isOwner" @click="editCourtModal"
                     class="flex px-3 absolute bottom-4 right-5 py-2 rounded-lg text-sm text-white gap-1 bg-yellow-500">
                     <IconEdit class="w-5 h-5 text-white"></IconEdit>
                     <p class="font-medium">
@@ -128,11 +128,11 @@
     <!-- Modal -->
     <Modal v-if="show_modal" :close="showModal">
         <template #content>
-            <main v-if="!is_comment" class="flex-1 w-[700px] h-[480px] py-2  main overflow-hidden">
+            <main v-if="is_comment === 'map'" class="flex-1 w-[700px] h-[480px] py-2  main overflow-hidden">
                 <!-- Phần hiển thị bản đồ -->
                 <div id="map"></div>
             </main>
-            <main v-else class="flex w-[500px] h-[380px] px-2  flex-col">
+            <main v-if="is_comment === 'comment'" class="flex w-[500px] h-[380px] px-2  flex-col">
                 <header class="flex items-center border-b border-slate-300 py-2  justify-between">
                     <p class="text-green-800 text-xl font-semibold">
                         Tạo đánh giá
@@ -168,12 +168,148 @@
                     </div>
                 </body>
                 <footer class="flex-shrink-0 py-2">
-                    <button  @click="createComment"
+                    <button @click="createComment"
                         class="flex px-3  w-full py-2 text-center rounded-lg text-sm text-white gap-1 bg-yellow-500">
 
                         <p class="font-medium">
                             Tạo đánh giá
                         </p>
+                    </button>
+                </footer>
+            </main>
+            <main v-if="is_comment === 'edit'" class="w-[1100px] flex flex-col px-3">
+                <!-- Header -->
+                <header class="flex items-center border-b border-slate-300 py-2 justify-between">
+                    <p class="text-green-800 text-xl font-semibold">Chỉnh sửa sân</p>
+                    <XMarkIcon @click="showModal" class="h-5 w-5 hover:bg-slate-300 rounded-lg" />
+                </header>
+
+                <!-- Body -->
+                <div class="w-full grid py-2 gap-4 grid-cols-2">
+                    <!-- Cột trái -->
+                    <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
+                        <!-- Tên sân -->
+                        <div class="flex flex-col gap-2 pb-5"
+                            :class="{ 'opacity-50': activeInput !== 'addresss' && !store_court?.court_detail?.courtName }">
+                            <label class="font-semibold text-green-900">Tên sân</label>
+                            <input v-if="store_court.court_detail" v-model="store_court.court_detail.courtName"
+                                placeholder="Nhập tên sân"
+                                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
+                                @focus="setActive('addresss')" @blur="removeActive" />
+                        </div>
+
+                        <!-- Địa chỉ chi tiết -->
+                        <el-form label-position="top" class="grid grid-cols-2 gap-2 w-full">
+                            <el-form-item label="Chọn Quận/Huyện">
+                                <el-select v-model="selectedDistrict" placeholder="Chọn quận/huyện" @change="getWards"
+                                    size="large">
+                                    <el-option v-for="district in districts" :key="district.code" :label="district.name"
+                                        :value="district.code" />
+                                </el-select>
+                            </el-form-item>
+
+                            <el-form-item label="Chọn Phường/Xã">
+                                <el-select v-model="selectedWard" placeholder="Chọn phường/xã"
+                                    :disabled="wards.length === 0" size="large">
+                                    <el-option v-for="ward in wards" :key="ward.code" :label="ward.name"
+                                        :value="ward.code" />
+                                </el-select>
+                            </el-form-item>
+
+                            <el-form-item v-if="store_court?.court_detail?.street" label="Nhập Đường" class="col-span-2"
+                                size="large">
+                                <el-input v-model="store_court.court_detail.street" placeholder="Nhập tên đường" />
+                            </el-form-item>
+                        </el-form>
+
+                        <!-- Kết quả địa chỉ -->
+                        <div class="h-10">
+                            <p>
+                                <strong>Địa chỉ:</strong> {{ store_court.court_detail?.street }}, {{
+                                    store_court.court_detail?.ward }}, {{
+                                    store_court.court_detail?.district }}, Hà Nội
+                            </p>
+                        </div>
+
+                        <!-- Giá tiền -->
+                        <!-- <el-form label-position="top" class="w-full grid py-2 grid-cols-2 gap-2">
+                            <el-form-item label="Giá thuê sân từ (VNĐ/giờ)">
+                                <el-input v-if="store_court?.court_detail?.maxPrice" v-model.number="store_court.court_detail.maxPrice" placeholder="Nhập giá tối thiểu"
+                                    :formatter="formatCurrency" :parser="parseCurrency" size="large" />
+                            </el-form-item>
+
+                            <el-form-item label="Giá thuê sân đến (VNĐ/giờ)">
+                                <el-input v-model.number="infor_yard.maxPrice" placeholder="Nhập giá tối đa"
+                                    :formatter="formatCurrency" :parser="parseCurrency" size="large" />
+                            </el-form-item>
+                        </el-form> -->
+
+                        <!-- Giờ mở cửa -->
+                        <div class="w-full flex flex-col gap-1.5">
+                            <label class="text-sm font-medium text-slate-700">Thời gian mở cửa</label>
+                            <div class="w-full flex justify-between items-center">
+                                <Datepicker class="w-[50%]" v-model="timeRange" range time-picker
+                                    :minute-increment="60" />
+                                <p>Thời gian đã chọn: {{ formattedTime }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Mô tả sân -->
+                        <div v-if="store_court?.court_detail?.courtDescription"
+                            class="w-full flex flex-col mt-5 gap-1.5">
+                            <label class="text-sm font-medium text-slate-700">Mô tả sân</label>
+                            <textarea v-model="store_court.court_detail.courtDescription" cols="30" rows="5"
+                                class="p-2 rounded-lg border border-slate-300"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Cột phải -->
+                    <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
+                        <!-- Tên chủ sân -->
+                        <div v-if="store_court.court_detail?.contactPerson" class="flex flex-col gap-2 pb-5"
+                            :class="{ 'opacity-50': activeInput !== 'address' && !store_court.court_detail.contactPerson }">
+                            <label class="font-semibold text-green-900">Tên chủ sân</label>
+                            <input v-model="store_court.court_detail.contactPerson" placeholder="Nhập tên chủ sân"
+                                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
+                                @focus="setActive('address')" @blur="removeActive" />
+                        </div>
+
+                        <!-- Số điện thoại -->
+                        <div v-if="store_court?.court_detail?.contactPhone" class="flex flex-col gap-2 pb-5"
+                            :class="{ 'opacity-50': activeInput !== 'addressss' && !store_court.court_detail.contactPhone }">
+                            <label class="font-semibold text-green-900" for="phone">Số điện thoại chủ sân</label>
+                            <input v-model="store_court.court_detail.contactPhone" placeholder="Nhập số điện thoại"
+                                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="tel"
+                                inputmode="numeric" pattern="\d*" @input="validatePhoneNumber"
+                                @focus="setActive('addressss')" @blur="removeActive" />
+                        </div>
+
+                        <!-- Ảnh sân -->
+                        <div class="w-full flex flex-col mt-5 gap-1.5">
+                            <button @click="triggerFileInput"
+                                class="flex gap-2 w-fit rounded-lg bg-yellow-500 py-2 px-2">
+                                <p class="text-sm text-white font-medium">Tải ảnh sân</p>
+                                <CloudArrowUpIcon class="h-5 w-5 text-white" />
+                                <input type="file" ref="fileInput" @change="uploadImage" class="hidden" />
+                            </button>
+
+                            <!-- Hiển thị ảnh đã tải lên -->
+                            <div class="w-full"
+                                v-if="store_court?.court_detail?.images && store_court.court_detail?.images.length > 0">
+                                <div class="w-full mt-4 grid grid-cols-4 gap-3">
+                                    <img v-for="(url, index) in store_court.court_detail.images" :key="index" :src="url"
+                                        alt="Uploaded Image" class="rounded-xl h-[100px] w-full object-cover" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <footer class="w-full flex justify-end py-2 px-3 border-t border-slate-300">
+                    <button @click="editCourt"
+                        class="px-3 py-2 bg-yellow-500 text-sm font-semibold text-white rounded-lg w-fit">
+                        Cập nhật sân
                     </button>
                 </footer>
             </main>
@@ -183,17 +319,21 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted, nextTick, computed } from 'vue'
+import { ref, onMounted, nextTick, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
 
 /**api*/
-import { apiGetListBooking } from "@/service/api/apiBoking";
+import { apiGetListBooking, } from "@/service/api/apiBoking";
+import { apiUpdateCourt, apiGetCourt } from "@/service/api/apiCourt";
 
 
 /**Thư viện*/
 import vue3starRatings from "vue3-star-ratings";
 import L from 'leaflet';
+
+import Datepicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 
 /**icon*/
@@ -208,22 +348,43 @@ import Modal from '@/components/Modal/Modal.vue';
 
 /*ảnh sân **/
 import ImgYard from '@/assets/imgs/bg2.jpg'
-import Img from '@/assets/imgs/bg10.jpg'
-import Imgbg from '@/assets/imgs/bg_san1.jpg'
-import Img1 from '@/assets/imgs/bg_san.jpg'
-import Img2 from '@/assets/imgs/bg_san2.jpg'
-import ImgUser from '@/assets/imgs/avatarUser.png'
-import ImgUsers from '@/assets/imgs/bgmain1.jpg'
 
 /**api*/
 import { apiCreateReview, apiGetListReview } from "@/service/api/apiReview";
 
 /**kiểu dữ liệu*/
-import type { Review } from '@/interface'
+
+import type { Review, Division, Location } from '@/interface'
 
 /**toast*/
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
+import axios from "axios";
+
+
+
+const selectedDistrict = ref("");      // Mã quận/huyện
+const selectedWard = ref("");          // Mã phường/xã
+const selectedStreet = ref("");
+
+const timeRange = ref([
+    { hours: 6, minutes: 0, seconds: 0 },
+    { hours: 22, minutes: 0, seconds: 0 },
+]);
+
+watch(timeRange, (newVal) => {
+    if (Array.isArray(newVal) && newVal.length === 2 && store_court.court_detail) {
+        store_court.court_detail.startTime = formatTime(newVal[0]);
+        store_court.court_detail.endTime = formatTime(newVal[1]);
+    }
+});
+
+// ẩn hiện nút chỉnh sửa sân 
+const isOwner = computed(() => {
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
+  return store_court.court_detail?.userId === userInfo.id;
+});
+
 
 const store_court = useAppStoreCourt()
 
@@ -234,6 +395,20 @@ const address = computed(() => {
 
     return `${detail.street}, ${detail.ward}, ${detail.district}, Hà Nội`;
 });
+
+function formatTime(time: { hours: number; minutes: number; seconds: number }): string {
+    const pad = (n: number) => n.toString().padStart(2, '0')
+    return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`
+}
+const formattedTime = computed(() => {
+    if (timeRange.value.length === 2) {
+        return `${formatTime(timeRange.value[0])} - ${formatTime(timeRange.value[1])}`
+    }
+    return 'Chưa chọn thời gian'
+})
+
+
+const fileInput = ref<HTMLInputElement | null>(null);
 
 
 
@@ -249,7 +424,9 @@ const id_Court = store_court.court_detail?.id ?? 0
 const router = useRouter()
 
 /**Biến kiểm tra xem mở modal nào*/
-const is_comment = ref(false)
+const is_comment = ref('comment')
+
+const check_comment = ref(false)
 
 /**Biến thư viện hiển thị bản đồ */
 const mapPosition = ref<{ lat: number; lon: number } | null>(null);
@@ -260,58 +437,6 @@ const yarf_select = ref(1)
 
 /**Lưu ô input nào đang được focus*/
 const activeInput = ref('');
-
-/*Thông tin sân **/
-const infor_yard = ref({
-    name_yard: 'Hoa Thiên Lý',
-    img: ImgYard,
-    Address: "96 Định Công, Hoàng Mai, Hà Nội",
-    phone: '098765432',
-    time_opent: '5:00 - 23:00',
-    price_yard: [{
-        time_day: 'T2 - T6',
-        time: [{
-            hour_time: '5h-17h',
-            price_time: '100.000 đ',
-        },
-        {
-            hour_time: '16-23h',
-            price_time: '150.000 đ',
-        }]
-
-    }, {
-        time_day: 'T7 - CN',
-        time: [{
-            hour_time: '5h-23h',
-            price_time: '170.000 đ',
-        },
-        ]
-    }],
-    list_img: [
-        Imgbg, Img1, Img2
-    ],
-    list_comment: [
-        {
-            user_cm: "Mỹ Linh",
-            avatar: ImgUser,
-            content: 'Dịch vụ tốt',
-            Star: 5
-        },
-        {
-            user_cm: "Mỹ Linh",
-            avatar: Img,
-            content: 'Dịch vụ tốt',
-            Star: 5
-        },
-        {
-            user_cm: "Mỹ Linh",
-            avatar: ImgUser,
-            content: 'Dịch vụ tốt',
-            Star: 5
-        }
-    ]
-
-})
 
 
 const filteredReviews = ref<Review[]>([]);
@@ -359,10 +484,51 @@ const list_child = computed(() => {
     return store_court.list_chill_court.filter(child => child.courtId === id_Court)
 })
 
+
+const districts = ref<Division[]>([]);
+const wards = ref<Location[]>([]);
+
 onMounted(async () => {
     await getListComment()
     await getListBoking()
+    getDistricts();
 })
+
+// Lấy danh sách quận/huyện Hà Nội
+const getDistricts = async () => {
+    try {
+        const response = await axios.get("https://provinces.open-api.vn/api/d/");
+
+        districts.value = response.data // 1 là mã của Hà Nội
+        const matchedDistrict: any = districts.value.find((item: any) => item.name === store_court.court_detail?.district);
+        selectedDistrict.value = matchedDistrict ? matchedDistrict.code : null;
+        getWards()
+
+    } catch (error) {
+        console.error("Lỗi khi lấy quận/huyện:", error);
+    }
+};
+
+// Khi chọn quận/huyện
+const getWards = async () => {
+    try {
+
+        const response = await axios.get("https://provinces.open-api.vn/api/w/");
+        console.log("Lấy phường/xã cho quận/huyện:", response);
+
+        // Lọc danh sách phường/xã theo quận/huyện đã chọn
+        wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
+
+        const matchedWard = wards.value.find((item: any) => item.name === store_court.court_detail?.ward);
+
+        selectedWard.value = matchedWard ? matchedWard.code : null;
+
+    } catch (error) {
+        console.error("Lỗi khi lấy phường/xã:", error);
+    }
+};
+
+
 
 const getCoordinates = async (address: string) => {
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&addressdetails=1`;
@@ -386,6 +552,33 @@ const getCoordinates = async (address: string) => {
     }
 };
 
+// Chuyển chuỗi tiền tệ về số khi nhập
+const parseCurrency = (value: any) => {
+    const cleanedValue = value.replace(/[^\d]/g, ""); // Xóa tất cả ký tự không phải số
+    return cleanedValue ? Number(cleanedValue) : null; // Nếu xóa hết, trả về null
+};
+
+const uploadImage = async (event: any) => {
+    const file = event.target.files[0]; // Lấy file ảnh từ input
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file); // Thêm file vào form data
+    formData.append("upload_preset", "uploadImg"); // Thêm upload_preset vào form data
+
+    try {
+        const response = await fetch("https://api.cloudinary.com/v1_1/doqa5bvx5/image/upload", {
+            method: "POST",
+            body: formData,
+        });
+
+        const data = await response.json();
+        store_court.court_detail?.images.push(data.secure_url); // Thêm đường dẫn ảnh vào mảng
+    } catch (error) {
+        console.error("Error uploading image:", error);
+    }
+};
+
 /***/
 const setActive = (field: string) => {
     activeInput.value = field;
@@ -394,7 +587,7 @@ const setActive = (field: string) => {
 
 /**Hàm mở bản đồ*/
 const showMap = async (address: string) => {
-    is_comment.value = false
+    is_comment.value = 'map'
     show_modal.value = true; // Hiển thị modal
     console.log('Địa chỉ đang tìm:', address);
 
@@ -426,16 +619,11 @@ const showMap = async (address: string) => {
     });
 };
 
-
-
-
-
 window.addEventListener('resize', () => {
     if (mapInstance) {
         mapInstance.invalidateSize(); // Cập nhật lại bản đồ khi kích thước cửa sổ thay đổi
     }
 });
-
 
 
 /**hàm đóng modal*/
@@ -455,8 +643,20 @@ const removeActive = () => {
 
 /***/
 function openComment() {
-    is_comment.value = true;
+    is_comment.value = 'comment';
     show_modal.value = true;
+}
+
+// Hàm để mở file input khi người dùng nhấn vào nút
+const triggerFileInput = () => {
+    fileInput.value!.click(); // Dùng ! để nói với TypeScript rằng giá trị không phải null
+};
+
+
+/**Hàm mở modal chỉnh sửa sân*/
+function editCourtModal() {
+    is_comment.value = 'edit'
+    show_modal.value = true
 }
 
 /**Kiểm tra link ảnh*/
@@ -494,7 +694,7 @@ async function createComment() {
         if (response && response.status === 200) {
             console.log('response', response);
             toast("Bình luận thành công!", { autoClose: 2000 });
-     
+
 
             showModal()
 
@@ -544,15 +744,51 @@ async function getListBoking() {
             console.log('filteredData', filteredData);
 
             // kiểm tra trong lịch thuê có sân này không
-            is_comment.value = filteredData.some((item: any) =>
+            check_comment.value = filteredData.some((item: any) =>
                 item.courtId === store_court.court_detail?.id
             );
-            console.log('is_comment',is_comment.value);
-            
+            console.log('is_comment', is_comment.value);
+
         }
 
     } catch (error) {
         console.error("API Error:", error);
     }
 }
+
+/**hàm cập nhân sân*/
+async function editCourt() {
+
+    const selectedDistrictObj = districts.value.find(item => item.code === selectedDistrict.value);
+    const selectedWardObj = wards.value.find(item => item.code === selectedWard.value);
+
+    if (selectedDistrictObj) store_court.court_detail.district = selectedDistrictObj.name;
+    if (selectedWardObj) store_court.court_detail.ward = selectedWardObj.name;
+
+    try {
+        const response = await apiUpdateCourt(store_court.court_detail);
+
+
+        if (response && response.status === 200) {
+
+
+            apiGetCourt()
+            toast("Cập nhật sân thành công!", { autoClose: 3000 });
+
+            showModal()
+        }
+
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
+
+/**check kiểu số điện thoại*/
+const validatePhoneNumber = (event: any) => {
+    event.target.value = event.target.value.replace(/\D/g, ""); // Loại bỏ tất cả ký tự không phải số
+    if (store_court.court_detail)
+        store_court.court_detail.contactPhone = event.target.value; // Cập nhật giá trị đã lọc vào biến v-model
+};
+
+
 </script>

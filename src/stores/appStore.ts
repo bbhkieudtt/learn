@@ -40,6 +40,8 @@ export const useAppStore = defineStore("app", () => {
     const is_status = ref(false) ;
     /**biến lưu giá trị lọc sân theo trạng thái*/
     const status = 5
+      /** Token business */
+    const business_token = ref<string>("");
     
     return {
         filter_time,
@@ -57,7 +59,8 @@ export const useAppStore = defineStore("app", () => {
         is_modal,
         show_modals,
         is_status,
-        status
+        status,
+        business_token
     }
 
 });

@@ -231,8 +231,6 @@ import IconComment from '@/components/Icons/IconComment.vue'
 
 /**ảnh sân*/
 import anh1 from "@/assets/imgs/bg_san.jpg";
-import anh2 from "@/assets/imgs/bg_san1.jpg";
-import anh3 from "@/assets/imgs/bg_san2.jpg";
 import Datepicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
