@@ -1,6 +1,7 @@
 import { api_host } from "./env";
 import { requestAxios } from "./request";
 import type {User } from '@/interface'
+import { useAppStore } from "@/stores/appStore";
 
 interface InputRequestApi {
   end_point?: string;
@@ -17,10 +18,17 @@ const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
 /** Request api */
 async function apiRequest({ end_point, body, method }: InputRequestApi) {
   try {
+    const store = useAppStore(); // ✅ Đặt ở đây
+
+    const token = store.business_token;
+    console.log("Gửi token:", token);
     let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
       method: method || 'POST',
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body,
     });
     return response;
@@ -36,7 +44,7 @@ export const apiCreatePayment = async (payload: any) => {
       // Phương thức
       method: "POST",
        // endpoint API
-       end_point: "User/create",
+       end_point: "Payment/create",
        // payload được truyền từ giao diện
        body: payload,
      });
@@ -48,4 +56,28 @@ export const apiCreatePayment = async (payload: any) => {
      throw e;
    }
  }; 
+
+ /**api tạo thanh toán*/
+export const apiCreatePaymentVNpay = async (params: { paymentId: number; moneyToPay: number }) => {
+  const query = new URLSearchParams({
+    paymentId: params.paymentId.toString(),
+    moneyToPay: params.moneyToPay.toString()
+  });
+  try {
+    return await apiRequest({
+     // Phương thức
+     method: "GET",
+      // endpoint API
+      end_point: `Payment/CreatePaymentUrl?${query.toString()}`,
+      // payload được truyền từ giao diện
+      
+    });
+  } catch (e) {
+    // Log lỗi nếu có
+   //  console.error("Error:", e);
+   console.log(e);
+   
+    throw e;
+  }
+}; 
 

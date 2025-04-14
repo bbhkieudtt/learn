@@ -115,6 +115,7 @@
     <!--  -->
     <Modal v-if="show_modal" :close="showModal">
         <template #content>
+            <!--  -->
             <div class="w-[700px] flex flex-col px-3 ">
                 <header class="flex items-center border-b border-slate-300 py-2  justify-between">
                     <p class="text-green-800 text-xl font-semibold">
@@ -156,6 +157,7 @@
                 </footer>
 
             </div>
+
         </template>
     </Modal>
 </template>
@@ -172,6 +174,7 @@ import { useAppStoreCourt } from '@/stores/appStoreCourt'
 
 /**api*/
 import { apiCreateBoking } from "@/service/api/apiBoking";
+import { apiCreatePayment, apiCreatePaymentVNpay } from "@/service/api/apiPayment";
 import { apiCreateUser } from "@/service/api/api";
 import { getListUser } from "@/service/api/api";
 
@@ -260,6 +263,8 @@ const detail_boking = ref<Booking>({
     status: 0,
     price: 0
 });
+
+
 
 /**khóa sân*/
 const key = ref(false)
@@ -357,7 +362,7 @@ const totalRentCostRaw = computed(() => {
 onMounted(() => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
     console.log('userInfo', userInfo);
-    
+
     user_court.value = userInfo;
 
 
@@ -373,8 +378,21 @@ const onlyNumber = (event: any) => {
     }
 };
 
+//** Thông tin thanh toán */
+const pay_detail = ref({
+    userId: user_court.value?.id ?? 0,
+    bookingId: 0,
+    price: totalRentCostRaw.value,
+    type: 0,
+
+})
+
 /**Hàm tạo lịch đặt sân*/
 async function addBoking() {
+    // hàm thanh toán
+
+
+
     // khi khóa sân 
     if (key.value) {
         detail_boking.value.userId = user_court.value?.id ?? 0
@@ -386,7 +404,7 @@ async function addBoking() {
     }
     else {
 
-        detail_boking.value.userId =user_court.value?.id ?? 0
+        detail_boking.value.userId = user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
@@ -400,19 +418,25 @@ async function addBoking() {
         if (response && response.status === 200) {
             console.log('response', response.data);
 
-            toast("Đặt lịch thành công!", { autoClose: 2000 });
+            pay_detail.value.bookingId = response.data.id
 
-            setTimeout(() => {
-                router.push('/detail');
-            }, 3000); // Delay 100ms để đảm bảo watch chạy trước
+            pay_detail.value.userId = user_court.value?.id ?? 0
+
+            payBooking()
+
+            // toast("Đặt lịch thành công!", { autoClose: 2000 });
+
+            // setTimeout(() => {
+            //     router.push('/detail');
+            // }, 3000); // Delay 100ms để đảm bảo watch chạy trước
 
         } else {
-            toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+            toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
         }
     } catch (error) {
         console.error("API Error:", error);
     }
-    
+
 }
 
 function goToDetail() {
@@ -420,7 +444,65 @@ function goToDetail() {
 }
 
 
+/**Hàm tạo thanh toán*/
+async function payBooking() {
+    try {
+        const response = await apiCreatePayment(pay_detail.value);
 
+        // Kiểm tra nếu API trả về thành công
+        if (response && response.status === 200) {
+            console.log('response', response.data);
+
+            payVNpay(response.data.id)
+
+            // toast("Đặt lịch thành công!", { autoClose: 2000 });
+
+            // setTimeout(() => {
+            //     router.push('/detail');
+            // }, 3000); // Delay 100ms để đảm bảo watch chạy trước
+
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!2", { autoClose: 5000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
+
+/**hàm thanh toán vnpay*/
+async function payVNpay(id: number) {
+    console.log('id', id);
+
+    try {
+        const response = await apiCreatePaymentVNpay({
+            paymentId: id,
+            moneyToPay: pay_detail.value.price
+        });
+
+        // Kiểm tra nếu API trả về thành công
+        if (response && response.status === 201) {
+            console.log('response', response.data);
+            const paymentUrl = response.data; // hoặc response.data.url nếu API trả về như vậy
+
+            if (paymentUrl) {
+                window.open(paymentUrl, '_blank'); // Mở liên kết trong tab mới
+            } else {
+                toast("Không lấy được link thanh toán!", { autoClose: 3000 });
+            }
+
+            // toast("Đặt lịch thành công!", { autoClose: 2000 });
+
+            // setTimeout(() => {
+            //     router.push('/detail');
+            // }, 3000); // Delay 100ms để đảm bảo watch chạy trước
+
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!3", { autoClose: 5000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
 
 const filterSuggestions = () => {
     if (user_court.value) {
@@ -500,7 +582,7 @@ function openModal() {
     show_modal.value = true
 }
 
-function removeVietnameseTones(str:any) {
+function removeVietnameseTones(str: any) {
     return str.normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/đ/g, "d")

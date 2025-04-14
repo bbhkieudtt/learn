@@ -36,17 +36,22 @@
                                 ', ' + yard.district }}</p>
                             <div class="flex items-center gap-2"> <span
                                     class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + ' - ' + formatHour(yard.endTime) : '24/7' }}</p>
+                                <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + '  - ' + formatHour(yard.endTime) : '24/7' }}</p>
                             </div>
+
                             <div class="flex items-center justify-between">
-                                <vue3-star-ratings v-model="start" />
+                                <vue3-star-ratings v-if="store_review.list_review[yard.id]"
+                                    v-model="store_review.list_review[yard.id].averageRatingStar" />
+
+                                <vue3-star-ratings v-else v-model="start" />
                                 <div class="flex items-center gap-1">
                                     <IconComment class="w-4 h-4 text-slate-500"></IconComment>
                                     <p class="text-xs text-slate-400">
-                                        3
+                                        {{ store_review.list_review[yard.id]?.total_comments ?? 0 }}
                                     </p>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -88,8 +93,8 @@
                             <el-form-item label="Chọn Quận/Huyện">
                                 <el-select v-model="selectedDistrict" placeholder="Chọn quận/huyện" @change="getWards"
                                     size="large">
-                                    <el-option v-for="district in districts" :key="district.code" :label="district.name"
-                                        :value="district.code" />
+                                    <el-option v-for="district in store.districts" :key="district.code"
+                                        :label="district.name" :value="district.code" />
                                 </el-select>
                             </el-form-item>
 
@@ -114,21 +119,6 @@
                                     infor_yard.district }}, Hà Nội
                             </p>
                         </div>
-                        <!-- Giá tiền -->
-                        <el-form label-position="top" class="w-full grid py-2 grid-cols-2 gap-2">
-                            <!-- Nhập giá tối thiểu -->
-                            <el-form-item label="Giá thuê sân từ (VNĐ/giờ)">
-                                <el-input v-model.number="infor_yard.minPrice" placeholder="Nhập giá tối thiểu"
-                                    :formatter="formatCurrency" :parser="parseCurrency" size="large" />
-                            </el-form-item>
-
-                            <!-- Nhập giá tối đa -->
-                            <el-form-item label="Giá thuê sân đến (VNĐ/giờ)">
-                                <el-input v-model.number="infor_yard.maxPrice" placeholder="Nhập giá tối đa"
-                                    :formatter="formatCurrency" :parser="parseCurrency" size="large" />
-                            </el-form-item>
-                        </el-form>
-                        <!-- Giờ mở cửa -->
                         <div class="w-full flex flex-col gap-1.5 ">
                             <label class="text-sm font-medium text-slate-700" for="">Thời gian mở cửa</label>
 
@@ -208,16 +198,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted,watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from "axios";
 
 /**api*/
 import { apiCreateCourt, apiGetCourt } from "@/service/api/apiCourt";
 
-import { useAppStore } from "@/stores/appStore";
+
 /**Kho lưu trữ*/
+import { useAppStore } from "@/stores/appStore";
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
+import { useAppStoreReview } from '@/stores/appStoreReview'
 
 /**Modal*/
 import Modal from "@/components/Modal/Modal.vue"
@@ -250,6 +242,8 @@ const router = useRouter()
 
 /**biến store*/
 const store = useAppStore();
+
+const store_review = useAppStoreReview()
 
 /**biến store*/
 const store_court = useAppStoreCourt()
@@ -297,21 +291,21 @@ const infor_yard = ref({
 })
 
 watch(timeRange, (newVal) => {
-  if (newVal.length === 2) {
-    infor_yard.value.startTime = formatTime(newVal[0])
-    infor_yard.value.endTime = formatTime(newVal[1])
-  }
+    if (newVal.length === 2) {
+        infor_yard.value.startTime = formatTime(newVal[0])
+        infor_yard.value.endTime = formatTime(newVal[1])
+    }
 })
 
 function formatTime(time: { hours: number; minutes: number; seconds: number }): string {
-  const pad = (n: number) => n.toString().padStart(2, '0')
-  return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`
+    const pad = (n: number) => n.toString().padStart(2, '0')
+    return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`
 }
 const formattedTime = computed(() => {
-  if (timeRange.value.length === 2) {
-    return `${formatTime(timeRange.value[0])} - ${formatTime(timeRange.value[1])}`
-  }
-  return 'Chưa chọn thời gian'
+    if (timeRange.value.length === 2) {
+        return `${formatTime(timeRange.value[0])} - ${formatTime(timeRange.value[1])}`
+    }
+    return 'Chưa chọn thời gian'
 })
 
 
@@ -340,39 +334,68 @@ const fileInput = ref<HTMLInputElement | null>(null);
 
 
 onMounted(() => {
-    getDistricts();
+    if (store.UserInfo) {
+        infor_yard.value.contactPerson = store.UserInfo?.fullname || 'Chưa có tên'
+        infor_yard.value.contactPhone = store.UserInfo?.phoneNumber || 'Chưa có số điện thoại'
+    }
+
 });
 
-// Lấy danh sách quận/huyện Hà Nội
-const getDistricts = async () => {
-    try {
-        const response = await axios.get("https://provinces.open-api.vn/api/d/");
-        districts.value = response.data.filter((d: any) => d.province_code === 1); // 1 là mã của Hà Nội
-    } catch (error) {
-        console.error("Lỗi khi lấy quận/huyện:", error);
-    }
-};
+// // Lấy danh sách quận/huyện Hà Nội
+// const getDistricts = async () => {
+//     try {
+//         const response = await axios.get("https://provinces.open-api.vn/api/d/");
+//         districts.value = response.data.filter((d: any) => d.province_code === 1); // 1 là mã của Hà Nội
+//     } catch (error) {
+//         console.error("Lỗi khi lấy quận/huyện:", error);
+//     }
+// };
 
-// Khi chọn quận/huyện
+// const getDistricts = async () => {
+//     try {
+//         const response = await axios.get("https://provinces.open-api.vn/api/p/1?depth=2");
+//         districts.value = response.data.districts;
+//     } catch (error) {
+//         console.error("Lỗi khi lấy quận/huyện Hà Nội:", error);
+//     }
+// };
+
+
+// // Khi chọn quận/huyện
+// const getWards = async () => {
+//     const district = districts.value.find(d => d.code === selectedDistrict.value);
+//     infor_yard.value.district = district ? district.name : ""; // Lưu tên quận/huyện
+
+
+//     selectedStreet.value = "";
+
+//     try {
+
+//         const response = await axios.get("https://provinces.open-api.vn/api/w/");
+//         console.log("Lấy phường/xã cho quận/huyện:", response);
+
+//         // Lọc danh sách phường/xã theo quận/huyện đã chọn
+//         wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
+
+//     } catch (error) {
+//         console.error("Lỗi khi lấy phường/xã:", error);
+//     }
+// };
+
 const getWards = async () => {
-    const district = districts.value.find(d => d.code === selectedDistrict.value);
-    infor_yard.value.district = district ? district.name : ""; // Lưu tên quận/huyện
-
-
+    const district = store.districts.find(d => d.code === selectedDistrict.value);
+    infor_yard.value.district = district ? district.name : "";
     selectedStreet.value = "";
 
     try {
-
-        const response = await axios.get("https://provinces.open-api.vn/api/w/");
-        console.log("Lấy phường/xã cho quận/huyện:", response);
-
-        // Lọc danh sách phường/xã theo quận/huyện đã chọn
-        wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
-
+        const response = await axios.get(`https://provinces.open-api.vn/api/d/${selectedDistrict.value}?depth=2`);
+        wards.value = response.data.wards;
+        console.log("Danh sách phường/xã:", wards.value);
     } catch (error) {
         console.error("Lỗi khi lấy phường/xã:", error);
     }
 };
+
 
 // Khi chọn phường/xã
 const getStreets = () => {
@@ -490,6 +513,8 @@ const uploadImage = async (event: any) => {
 async function createCourt() {
     // Khôi phục và sử dụng thông tin từ localStorage
     infor_yard.value.userId = JSON.parse(localStorage.getItem("userInfo") ?? '{}')?.id || 0;
+    infor_yard.value.maxPrice = 999999999999999
+    infor_yard.value.minPrice = 10000
 
     if (!validateCourtData()) {
         return;
@@ -563,7 +588,7 @@ function isValidImage(image: string) {
 }
 
 function formatHour(timeStr: string): string {
-  return timeStr?.slice(0, 5) // Lấy 5 ký tự đầu: "08:00"
+    return timeStr?.slice(0, 5) // Lấy 5 ký tự đầu: "08:00"
 }
 
 

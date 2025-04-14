@@ -203,7 +203,7 @@
                             <el-form-item label="Chọn Quận/Huyện">
                                 <el-select v-model="selectedDistrict" placeholder="Chọn quận/huyện" @change="getWards"
                                     size="large">
-                                    <el-option v-for="district in districts" :key="district.code" :label="district.name"
+                                    <el-option v-for="district in store.districts" :key="district.code" :label="district.name"
                                         :value="district.code" />
                                 </el-select>
                             </el-form-item>
@@ -322,6 +322,8 @@
 import { ref, onMounted, nextTick, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
+import { useAppStore } from "@/stores/appStore";
+
 
 /**api*/
 import { apiGetListBooking, } from "@/service/api/apiBoking";
@@ -363,6 +365,7 @@ import 'vue3-toastify/dist/index.css';
 import axios from "axios";
 
 
+const store = useAppStore()
 
 const selectedDistrict = ref("");      // Mã quận/huyện
 const selectedWard = ref<number | null>(null);       // Mã phường/xã
@@ -486,7 +489,7 @@ const list_child = computed(() => {
 })
 
 
-const districts = ref<Division[]>([]);
+// const districts = ref<Division[]>([]);
 const wards = ref<Location[]>([]);
 
 onMounted(async () => {
@@ -498,10 +501,10 @@ onMounted(async () => {
 // Lấy danh sách quận/huyện Hà Nội
 const getDistricts = async () => {
     try {
-        const response = await axios.get("https://provinces.open-api.vn/api/d/");
+        // const response = await axios.get("https://provinces.open-api.vn/api/d/");
 
-        districts.value = response.data // 1 là mã của Hà Nội
-        const matchedDistrict: any = districts.value.find((item: any) => item.name === store_court.court_detail?.district);
+        // districts.value = response.data // 1 là mã của Hà Nội
+        const matchedDistrict: any = store.districts.find((item: any) => item.name === store_court.court_detail?.district);
         selectedDistrict.value = matchedDistrict ? matchedDistrict.code : null;
         getWards()
 
@@ -513,15 +516,13 @@ const getDistricts = async () => {
 // Khi chọn quận/huyện
 const getWards = async () => {
     try {
+        const response = await axios.get(`https://provinces.open-api.vn/api/d/${selectedDistrict.value}?depth=2`);
+        wards.value = response.data.wards;
 
-        const response = await axios.get("https://provinces.open-api.vn/api/w/");
-        console.log("Lấy phường/xã cho quận/huyện:", response);
+        console.log("Danh sách phường/xã:", wards.value);
 
-        // Lọc danh sách phường/xã theo quận/huyện đã chọn
-        wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
-
+        // Tìm phường/xã trùng với dữ liệu đã lưu (nếu có)
         const matchedWard = wards.value.find((item: any) => item.name === store_court.court_detail?.ward);
-
         selectedWard.value = matchedWard ? matchedWard.code : null;
 
     } catch (error) {
@@ -760,7 +761,7 @@ async function getListBoking() {
 /**hàm cập nhân sân*/
 async function editCourt() {
 
-    const selectedDistrictObj = districts.value.find(item => item.code === selectedDistrict.value);
+    const selectedDistrictObj = store.districts.find(item => item.code === selectedDistrict.value);
     const selectedWardObj = wards.value.find(item => item.code === selectedWard.value);
 
     if (selectedDistrictObj && store_court.court_detail) store_court.court_detail.district = selectedDistrictObj.name;

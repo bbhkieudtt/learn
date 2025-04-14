@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 
 /**kiểu dữ liệu*/
-import type {ClientBoking, event_booking,UserInfo,Event } from '@/interface'
+import type {ClientBoking, event_booking,UserInfo,Event,Division,Location } from '@/interface'
 import type {  DateSelectArg } from "@fullcalendar/core";
 /***/ 
 export const useAppStore = defineStore("app", () => {
@@ -42,6 +42,10 @@ export const useAppStore = defineStore("app", () => {
     const status = 5
       /** Token business */
     const business_token = ref<string>("");
+    // ** danh sách quận huyện
+    const districts = ref<Division[]>([]);
+   
+   
     
     return {
         filter_time,
@@ -60,7 +64,9 @@ export const useAppStore = defineStore("app", () => {
         show_modals,
         is_status,
         status,
-        business_token
+        business_token,
+        districts,
+      
     }
 
 });

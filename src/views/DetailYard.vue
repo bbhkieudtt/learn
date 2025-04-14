@@ -134,14 +134,6 @@
               </el-form-item>
             </el-form>
 
-
-            <!--Mô tả  -->
-            <div class="w-full flex flex-col mt-5 gap-1.5">
-              <label class="text-sm font-medium text-slate-700" for="">Mô tả sân</label>
-              <textarea name="" v-model="chill_court.childCourtDescription"
-                class="p-2 rounded-lg border border-slate-300" id=""></textarea>
-
-            </div>
           </div>
         </body>
         <!--  -->
@@ -455,7 +447,10 @@ async function getChillCourt() {
     console.log("API Response:", response);
     // Kiểm tra nếu API trả về thành công
     if (response && response.status === 200) {
+      console.log('ktra', response.data);
+      
       store_court.list_chill_court = response.data
+      console.log('ktra', store_court.list_chill_court);
 
     } else {
       // toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });

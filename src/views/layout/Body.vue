@@ -20,7 +20,7 @@
             <!-- Quận/Huyện -->
             <el-select class="min-w-[200px] flex-1" v-model="selectedDistrict" placeholder="Chọn quận/huyện cần tìm"
               @change="getWards" size="large">
-              <el-option v-for="district in districts" :key="district.code" :label="district.name"
+              <el-option v-for="district in store.districts" :key="district.code" :label="district.name"
                 :value="district.code" />
             </el-select>
 
@@ -76,6 +76,7 @@
               <div class="flex items-center justify-between">
                 <vue3-star-ratings v-if="store_review.list_review[yard.id]"
                   v-model="store_review.list_review[yard.id].averageRatingStar" />
+                  
                 <vue3-star-ratings v-else v-model="start" />
 
                 <div class="flex items-center gap-1">
@@ -150,7 +151,7 @@ const selectedDistrict = ref("");      // Mã quận/huyện
 const selectedWard = ref("");          // Mã phường/xã
 const selectedStreet = ref("");        // Tên đường
 
-const districts = ref<Division[]>([]);
+// const districts = ref<Division[]>([]);
 const wards = ref<Location[]>([]);
 
 /**Danh sách sân đã được lọc*/
@@ -196,7 +197,7 @@ onMounted(async () => {
   // *Lấy danh sách sân 
   await getListCourt(),
     // *Lấy quận huyện
-    await getDistricts();
+   await getDistricts();
   // *lấy danh sách bình luận các sân
   await getListReview()
   // *lấy danh sách người dùng
@@ -209,35 +210,28 @@ onMounted(async () => {
 });
 
 const getDistricts = async () => {
-  try {
-    const response = await axios.get("https://provinces.open-api.vn/api/d/");
-    if (response && response.data) {
-      districts.value = response.data.filter((d: any) => d.province_code === 1); // 1 là mã của Hà Nội
-    } else {
-      console.error("Dữ liệu quận/huyện không hợp lệ");
+    try {
+        const response = await axios.get("https://provinces.open-api.vn/api/p/1?depth=2");
+        store.districts = response.data.districts;
+    } catch (error) {
+        console.error("Lỗi khi lấy quận/huyện Hà Nội:", error);
     }
-  } catch (error) {
-    console.error("Lỗi khi lấy quận/huyện:", error);
-  }
 };
 
 const getWards = async () => {
-  const district = districts.value.find(d => d.code === selectedDistrict.value);
-  infor_yard.value.district = district ? district.name : ""; // Lưu tên quận/huyện
+    const district = store.districts.find(d => d.code === selectedDistrict.value);
+    infor_yard.value.district = district ? district.name : "";
+    selectedStreet.value = "";
 
-  selectedStreet.value = "";
-
-  try {
-    const response = await axios.get("https://provinces.open-api.vn/api/w/");
-    if (response && response.data) {
-      wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
-    } else {
-      console.error("Dữ liệu phường/xã không hợp lệ");
+    try {
+        const response = await axios.get(`https://provinces.open-api.vn/api/d/${selectedDistrict.value}?depth=2`);
+        wards.value = response.data.wards;
+      
+    } catch (error) {
+        console.error("Lỗi khi lấy phường/xã:", error);
     }
-  } catch (error) {
-    console.error("Lỗi khi lấy phường/xã:", error);
-  }
 };
+
 
 
 // Khi chọn phường/xã
@@ -278,7 +272,7 @@ async function getListCourt() {
 }
 
 
-/**Hàm lấy danh sách sân*/
+/**Hàm lấy danh sách bình luận sân*/
 async function getListReview() {
   try {
     const response = await apiGetListReview();

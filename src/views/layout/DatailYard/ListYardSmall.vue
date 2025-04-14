@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref,computed, onMounted } from "vue";
+import { ref,computed, onMounted, watch } from "vue";
 import DropBox from "@/components/DropBox.vue";
 import { useAppStore } from '@/stores/appStore'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
@@ -49,6 +49,7 @@ import { ClipboardDocumentListIcon, FireIcon } from "@heroicons/vue/24/solid";
 
 /**kiểu dữ liệu*/
 import type {Court, ChildCourt} from '@/interface'
+import { log } from "async";
 
 
 /**biến store*/
@@ -73,6 +74,16 @@ onMounted(()=>{
     console.log('store_court.chill_detail',store_court.chill_detail);
     
 })
+
+watch(store_court.list_chill_court, (newValue) => {
+  console.log('newValue', newValue);
+  
+  if (newValue.length > 0) {
+    store_court.chill_detail = newValue[0];
+    console.log('store_court.chill_detail', store_court.chill_detail);
+  } 
+}, { deep: true });
+
 
 /**Danh sách sân con*/
 const list_yard = ref([
