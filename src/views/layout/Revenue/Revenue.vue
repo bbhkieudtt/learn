@@ -127,7 +127,7 @@ const list_chill = computed(() => {
 
 
 
-// Tạo computed property để tính toán tổng số lượng và tổng giá tiền cho mỗi sân
+// tính toán tổng số lượng và tổng giá tiền cho mỗi sân
 const courtsWithBookingInfo = computed(() => {
   // Truy cập vào giá trị mảng từ computed
   const listChillArray = list_chill.value || [];  // Nếu list_chill.value là undefined, dùng mảng rỗng

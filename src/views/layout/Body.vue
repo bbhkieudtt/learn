@@ -254,7 +254,6 @@ function goToDetail(yard: Court) {
   router.push('/detail');
   /**Lưu sân được bấm vào store*/
   store_court.court_detail = yard
-
 }
 
 /**Hàm lấy danh sách sân*/

@@ -146,7 +146,7 @@
         </body>
         <!--  -->
         <footer class="w-full flex justify-end py-2 px-3 border-t border-slate-300">
-          <button @click="createCourt"
+          <button @click="createCourtChill"
             class="px-3 py-2 bg-yellow-500 text-sm font-semibold text-white rounded-lg w-fit">
             Tạo mới sân con
           </button>
@@ -413,7 +413,7 @@ function createChillCourt() {
 }
 
 /***/
-async function createCourt() {
+async function createCourtChill() {
   try {
     const response = await apiCreateChillCourt(chill_court.value);
 

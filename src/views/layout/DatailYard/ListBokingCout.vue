@@ -198,7 +198,7 @@
                         Đóng
                     </button>
 
-                    <button @click="cancelBokings"
+                    <button @click="refundBokings"
                         class="px-3 py-2 bg-green-600 text-sm font-semibold text-white rounded-lg w-fit">
                         Hoàn Tiền
                     </button>
@@ -276,6 +276,8 @@ const list_bokings = ref<CourtEvent[]>([])
 
 const cancel_bokings = ref<CourtEvent>()
 
+
+// hiện những lịch đặt thuộc sân này thôi 
 const filteredBookings = computed(() => {
 
 
@@ -385,7 +387,7 @@ function calculate75PercentFormatted(number: number) {
 }
 
 /**Hàm hủy lịch*/
-async function cancelBokings() {
+async function refundBokings() {
     if (cancel_bokings.value) {
         cancel_bokings.value.status = 3
     }

@@ -32,8 +32,7 @@ const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null);
 
 // Xử lý khi chọn ngày để thêm sự kiện
 const handleDateSelect = (selectInfo: DateSelectArg) => {
-  console.log('selectInfo', selectInfo);
-
+  
   store.add_boking = false
   store.selectInfo = selectInfo
 };
@@ -56,7 +55,7 @@ const calendarOptions: CalendarOptions = {
   select: handleDateSelect, // Bắt sự kiện khi chọn ngày
   events: store.list_event,
   eventClick: (info) => {
-    // Gọi hàm của bạn và chuyền event vào
+    
     handleEventClick(info.event);
   },
 
@@ -135,9 +134,7 @@ async function getListBoking() {
 
     // Kiểm tra nếu API trả về thành công
     if (response && response.status === 200) {
-      console.log('response888888', response.data);
-
-
+     
       // Biến đổi dữ liệu thành định dạng phù hợp với FullCalendar
       const events = transformToFullCalendar(response.data);
 
@@ -195,7 +192,7 @@ function transformToFullCalendar(eventsData: any) {
 
 /**Hàm xử lý khi bấm vào một sự kiện*/
 function handleEventClick(info: any) {
-  console.log('info', info.title);
+
   store.boking_detail = info
   store.is_modal = 'detail'
   store.show_modals = true;
