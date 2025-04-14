@@ -11,9 +11,6 @@
         </div>
       </div>
       <!--  -->
-
-
-
       <div class="flex gap-5 w-fit   items-center">
         <transition name="slide-in">
         <div v-if="show_modal" class="flex w-fit items-center gap-2">

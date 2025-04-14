@@ -376,43 +376,43 @@ const onlyNumber = (event: any) => {
 /**Hàm tạo lịch đặt sân*/
 async function addBoking() {
     // khi khóa sân 
-    // if (key.value) {
-    //     detail_boking.value.userId = user_court.value?.id ?? 0
-    //     detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
-    //     detail_boking.value.startTime = formattedTimeStart
-    //     detail_boking.value.endTime = formattedTimeEnd
-    //     detail_boking.value.price = 0
-    //     detail_boking.value.status = 1
-    // }
-    // else {
+    if (key.value) {
+        detail_boking.value.userId = user_court.value?.id ?? 0
+        detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
+        detail_boking.value.startTime = formattedTimeStart
+        detail_boking.value.endTime = formattedTimeEnd
+        detail_boking.value.price = 0
+        detail_boking.value.status = 1
+    }
+    else {
 
-    //     detail_boking.value.userId =user_court.value?.id ?? 0
-    //     detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
-    //     detail_boking.value.startTime = formattedTimeStart
-    //     detail_boking.value.endTime = formattedTimeEnd
-    //     detail_boking.value.price = totalRentCostRaw.value
-    // }
+        detail_boking.value.userId =user_court.value?.id ?? 0
+        detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
+        detail_boking.value.startTime = formattedTimeStart
+        detail_boking.value.endTime = formattedTimeEnd
+        detail_boking.value.price = totalRentCostRaw.value
+    }
 
-    // try {
-    //     const response = await apiCreateBoking(detail_boking.value);
-    //     console.log("API Response:", response);
-    //     // Kiểm tra nếu API trả về thành công
-    //     if (response && response.status === 200) {
-    //         console.log('response', response.data);
+    try {
+        const response = await apiCreateBoking(detail_boking.value);
+        console.log("API Response:", response);
+        // Kiểm tra nếu API trả về thành công
+        if (response && response.status === 200) {
+            console.log('response', response.data);
 
-    //         toast("Đặt lịch thành công!", { autoClose: 2000 });
+            toast("Đặt lịch thành công!", { autoClose: 2000 });
 
-    //         setTimeout(() => {
-    //             router.push('/detail');
-    //         }, 3000); // Delay 100ms để đảm bảo watch chạy trước
+            setTimeout(() => {
+                router.push('/detail');
+            }, 3000); // Delay 100ms để đảm bảo watch chạy trước
 
-    //     } else {
-    //         toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
-    //     }
-    // } catch (error) {
-    //     console.error("API Error:", error);
-    // }
-    fakePayment()
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+    
 }
 
 function goToDetail() {
@@ -508,49 +508,6 @@ function removeVietnameseTones(str:any) {
 }
 
 
-import qs from 'qs'
-import CryptoJS from 'crypto-js' // npm install crypto-js
-
-const fakePayment = () => {
-  const vnp_TmnCode = '3U7UAVBS'
-  const vnp_HashSecret = 'FLTHB6T9YXZNJC4BCY9O38L5H5HMK7TF' // ❌ CHỈ TEST — KHÔNG BAO GIỜ DÙNG TRONG FRONTEND
-  const vnp_Url = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html'
-  const vnp_ReturnUrl = 'http://localhost:5173/return'
-
-  const date = new Date()
-  const createDate = date.toISOString().replace(/[-:T.]/g, '').slice(0, 14)
-  const orderId = date.getTime().toString()
-
-  const params = {
-    vnp_Version: '2.1.0',
-    vnp_Command: 'pay',
-    vnp_TmnCode,
-    vnp_Locale: 'vn',
-    vnp_CurrCode: 'VND',
-    vnp_TxnRef: orderId,
-    vnp_OrderInfo: 'Test đơn hàng',
-    vnp_OrderType: 'billpayment',
-    vnp_Amount: 1000000, // 10,000đ
-    vnp_ReturnUrl,
-    vnp_IpAddr: '127.0.0.1',
-    vnp_CreateDate: createDate,
-  }
-
-  // Sort và tạo chuỗi ký
-  const sortedParams = Object.fromEntries(Object.entries(params).sort())
-  const signData = qs.stringify(sortedParams, { encode: false })
-
-  const secureHash = CryptoJS.HmacSHA512(signData, vnp_HashSecret).toString()
-
-  // Gắn hash vào URL
-  const paymentUrl =
-    vnp_Url +
-    '?' +
-    qs.stringify({ ...sortedParams, vnp_SecureHash: secureHash }, { encode: true })
-
-  // Redirect sang giao diện thanh toán
-  window.location.href = paymentUrl
-}
 
 
 

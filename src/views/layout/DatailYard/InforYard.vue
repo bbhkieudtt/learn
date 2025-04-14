@@ -347,7 +347,8 @@ import { ArrowLeftIcon, XMarkIcon, UserCircleIcon } from "@heroicons/vue/24/soli
 import Modal from '@/components/Modal/Modal.vue';
 
 /*ảnh sân **/
-import ImgYard from '@/assets/imgs/bg2.jpg'
+import Img2 from '@/assets/imgs/bg_san2.jpg'
+import ImgYard from '@/assets/imgs/bg_san2.jpg'
 
 /**api*/
 import { apiCreateReview, apiGetListReview } from "@/service/api/apiReview";
@@ -364,7 +365,7 @@ import axios from "axios";
 
 
 const selectedDistrict = ref("");      // Mã quận/huyện
-const selectedWard = ref("");          // Mã phường/xã
+const selectedWard = ref<number | null>(null);       // Mã phường/xã
 const selectedStreet = ref("");
 
 const timeRange = ref([
@@ -762,8 +763,8 @@ async function editCourt() {
     const selectedDistrictObj = districts.value.find(item => item.code === selectedDistrict.value);
     const selectedWardObj = wards.value.find(item => item.code === selectedWard.value);
 
-    if (selectedDistrictObj) store_court.court_detail.district = selectedDistrictObj.name;
-    if (selectedWardObj) store_court.court_detail.ward = selectedWardObj.name;
+    if (selectedDistrictObj && store_court.court_detail) store_court.court_detail.district = selectedDistrictObj.name;
+    if (selectedWardObj && store_court.court_detail) store_court.court_detail.ward = selectedWardObj.name;
 
     try {
         const response = await apiUpdateCourt(store_court.court_detail);
