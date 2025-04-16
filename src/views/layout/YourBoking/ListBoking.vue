@@ -25,7 +25,7 @@
             <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 ">
                 <div class=" h-full overflow-y-auto flex flex-col items-start w-full   gap-15">
                     <!-- sân -->
-                    <div v-for="(boking, index) in list_bokings" :key="boking.id"
+                    <div v-for="(boking, index) in list_bookings" :key="boking.id"
                         :class="{ 'border-b border-yellow-500': index !== list_bokings.length - 1 }" class="flex w-full text-lg px-3 border-b border-slate-400 text-white py-3 flex-col items-start gap-1 
                         transition duration-200 hover:brightness-90 hover:rounded-lg hover:bg-green-800">
                         <div class="flex items-center space-x-0">
@@ -176,7 +176,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted,computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from "@/stores/appStore";
 
@@ -201,6 +201,12 @@ import type { CourtEvent } from '@/interface'
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
+/**Danh sách lịch đặt*/
+const list_bokings = ref<CourtEvent[]>([])
+
+//* biến lọc danh sách lịch
+const statusList= ref(1) 
+
 /**Biến router */
 const router = useRouter()
 
@@ -221,12 +227,12 @@ const menu_list = ref([
     },
     {
         key: 2,
-        name_menu: 'Lịch sắp tới',
+        name_menu: 'Lịch hoàn thành',
         active: false
     },
     {
         key: 3,
-        name_menu: 'Lịch hoàn thành ',
+        name_menu: 'Lịch sắp tới ',
         active: false
     },
     {
@@ -238,14 +244,32 @@ const menu_list = ref([
 
 
 
-/**Danh sách lịch đặt*/
-const list_bokings = ref<CourtEvent[]>([])
+
 
 const cancel_bokings = ref<CourtEvent>()
 
 
 onMounted(async () => {
     await getListBoking()
+})
+
+const list_bookings = computed(() => {
+  return list_bokings.value.filter((booking) => {
+    const statusText = getStatusText(booking)
+
+    switch (statusList.value) {
+      case 1:
+        return true
+      case 2:
+        return statusText === 'Đã hoàn thành'
+      case 3:
+        return statusText === 'Lịch sắp tới'
+      case 4:
+        return statusText === 'Đã hủy' || statusText === 'Hủy thành công'
+      default:
+        return false
+    }
+  })
 })
 
 // Hàm chuyển đổi startTime thành ngày/tháng/năm
@@ -257,6 +281,7 @@ function formatDate(startTime: string): string {
 
 /**Bấm chọn danh sách*/
 function clickMenu(key: number) {
+    statusList.value = key
     menu_list.value.forEach((item) => {
         item.active = false
         if (item.key === key) {

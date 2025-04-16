@@ -44,7 +44,7 @@
                 </div>
                 <!-- Danh sách gợi ý -->
                 <ul v-if="suggestions.length > 0"
-                    class="absolute bg-white border w-full mt-1 max-h-48 overflow-y-auto rounded shadow z-10">
+                    class="absolute top-[0px] bg-white border w-full mt-1 max-h-48 overflow-y-auto rounded shadow z-10">
                     <li v-for="(user, index) in suggestions" :key="index" @click="selectUser(user)"
                         class="p-2 hover:bg-gray-100 cursor-pointer">
                         {{ user.username }} - {{ user.phoneNumber }}
@@ -391,8 +391,6 @@ const pay_detail = ref({
 async function addBoking() {
     // hàm thanh toán
 
-
-
     // khi khóa sân 
     if (key.value) {
         detail_boking.value.userId = user_court.value?.id ?? 0
@@ -401,6 +399,27 @@ async function addBoking() {
         detail_boking.value.endTime = formattedTimeEnd
         detail_boking.value.price = 0
         detail_boking.value.status = 1
+        try {
+            const response = await apiCreateBoking(detail_boking.value);
+            console.log("API Response:", response);
+            // Kiểm tra nếu API trả về thành công
+            if (response && response.status === 200) {
+                console.log('response', response.data);
+
+                pay_detail.value.bookingId = response.data.id
+
+                pay_detail.value.userId = user_court.value?.id ?? 0
+
+
+                router.push('/detail')
+
+
+            } else {
+                toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
+            }
+        } catch (error) {
+            console.error("API Error:", error);
+        }
     }
     else {
 
@@ -409,33 +428,32 @@ async function addBoking() {
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
         detail_boking.value.price = totalRentCostRaw.value
-    }
+        // tạo nhưng trạng thái là 4 : chưa thanh toán
+        detail_boking.value.status = 4 
+        try {
+            const response = await apiCreateBoking(detail_boking.value);
+            console.log("API Response:", response);
+            // Kiểm tra nếu API trả về thành công
+            if (response && response.status === 200) {
+                console.log('response', response.data);
 
-    try {
-        const response = await apiCreateBoking(detail_boking.value);
-        console.log("API Response:", response);
-        // Kiểm tra nếu API trả về thành công
-        if (response && response.status === 200) {
-            console.log('response', response.data);
+                pay_detail.value.bookingId = response.data.id
 
-            pay_detail.value.bookingId = response.data.id
+                pay_detail.value.userId = user_court.value?.id ?? 0
 
-            pay_detail.value.userId = user_court.value?.id ?? 0
 
-            payBooking()
+                payBooking()
 
-            // toast("Đặt lịch thành công!", { autoClose: 2000 });
 
-            // setTimeout(() => {
-            //     router.push('/detail');
-            // }, 3000); // Delay 100ms để đảm bảo watch chạy trước
-
-        } else {
-            toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
+            } else {
+                toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
+            }
+        } catch (error) {
+            console.error("API Error:", error);
         }
-    } catch (error) {
-        console.error("API Error:", error);
     }
+
+
 
 }
 
@@ -454,12 +472,6 @@ async function payBooking() {
             console.log('response', response.data);
 
             payVNpay(response.data.id)
-
-            // toast("Đặt lịch thành công!", { autoClose: 2000 });
-
-            // setTimeout(() => {
-            //     router.push('/detail');
-            // }, 3000); // Delay 100ms để đảm bảo watch chạy trước
 
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!2", { autoClose: 5000 });
@@ -489,12 +501,6 @@ async function payVNpay(id: number) {
             } else {
                 toast("Không lấy được link thanh toán!", { autoClose: 3000 });
             }
-
-            // toast("Đặt lịch thành công!", { autoClose: 2000 });
-
-            // setTimeout(() => {
-            //     router.push('/detail');
-            // }, 3000); // Delay 100ms để đảm bảo watch chạy trước
 
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!3", { autoClose: 5000 });

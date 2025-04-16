@@ -51,7 +51,7 @@
             <div
                 class="flex-shrink-0 flex justify-end px-7 text-xl shadow-sm gap-1.5 text-green-900 font-bold pt-2 pb-4 text">
                 <CurrencyDollarIcon class="w-7 h-7 text-yellow-700"></CurrencyDollarIcon>
-                <p>Tổng doanh thu: <span class="font-bold">100.000.000 đ</span></p>
+                <p>Tổng doanh thu: <span class="font-bold"> {{ formatCurrency(totalPriceAllCourts) }}</span></p>
             </div>
         </main>
 
@@ -94,6 +94,8 @@ import Modal from "@/components/Modal/Modal.vue"
 import { apiGetChillCourt } from "@/service/api/apiChillCourt";
 /**api*/
 import { apiGetListBooking } from "@/service/api/apiBoking";
+/**api*/
+import {apiGetPayment} from "@/service/api/apiPayment" 
 
 /**kiểu dữ liệu*/
 import type {CourtEvent } from '@/interface'
@@ -116,7 +118,6 @@ onMounted(async () => {
     await getChillCourt()
 
     await getListBoking()
-
 
 })
 
@@ -151,6 +152,13 @@ const courtsWithBookingInfo = computed(() => {
     };
   });
 });
+
+const totalPriceAllCourts = computed(() => {
+  return courtsWithBookingInfo.value.reduce((sum, court) => sum + court.total_price, 0);
+});
+
+
+
 
 
 /**hàm đóng modal*/
@@ -201,6 +209,14 @@ async function getListBoking() {
         console.error("API Error:", error);
     }
 }
+
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND',
+  }).format(value);
+};
+
 
 
 </script>

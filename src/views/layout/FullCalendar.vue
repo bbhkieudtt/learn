@@ -176,8 +176,8 @@ function transformToFullCalendar(eventsData: any) {
       const classList = event.status === 0
         ? ['bg-green-500', 'text-white']            
         : event.status === 1
-          ? ['bg-bg-red-500', 'text-white']            
-          : ['bg-blue-400', 'text-yellow-400'];    
+          ? ['bg-slate-400', 'text-white']            
+          : ['bg-slate-400', 'text-yellow-400'];    
 
       return {
         id: event.id,

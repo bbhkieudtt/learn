@@ -81,3 +81,23 @@ export const apiCreatePaymentVNpay = async (params: { paymentId: number; moneyTo
   }
 }; 
 
+/**api tạo thanh toán*/
+export const apiGetPayment = async () => {
+  try {
+    return await apiRequest({
+     // Phương thức
+     method: "GET",
+      // endpoint API
+      end_point: "Payment/get-list",
+      // payload được truyền từ giao diện
+      // body: payload,
+    });
+  } catch (e) {
+    // Log lỗi nếu có
+   //  console.error("Error:", e);
+   console.log(e);
+   
+    throw e;
+  }
+}; 
+

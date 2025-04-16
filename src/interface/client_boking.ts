@@ -13,9 +13,14 @@ export interface Booking {
     childCourtId: number;
     startTime: string; // ISO 8601 datetime string
     endTime: string;   // ISO 8601 datetime string
-    // trạng thái 0: lịch thành công , 1: lịch khóa sân, 2: lịch bị hủy ,3 : hủy thành công
-    status: number;    // 0 = pending, 1 = confirmed, etc. (tùy vào logic hệ thống)
-    price: number;     // giá tiền, đơn vị có thể là VND hoặc USD tùy hệ thống
+    // trạng thái 
+    // 0: lịch thành công 
+    // 1: lịch khóa sân, 
+    // 2: lịch bị hủy 
+    // 3 : hủy thành công,
+    // 4 :chưa thanh toán
+    status: number;    
+    price: number;     
   }
 
   export  interface CourtEvent {

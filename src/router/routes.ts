@@ -37,6 +37,8 @@ import ListBoking from '@/views/layout/YourBoking/ListBoking.vue';
 import Revenue from '@/views/layout/Revenue/Revenue.vue';
 import Forget from '@/views/Forget.vue';
 import ListBokingCout from '@/views/layout/DatailYard/ListBokingCout.vue';
+import Success from '@/components/StatusPayment/Success.vue';
+import Failure from '@/components/StatusPayment/Failure.vue';
 
 
 // Định nghĩa routes
@@ -53,6 +55,10 @@ export const routes = [
   { path: '/yourboking', component: ListBoking },
   { path: '/revenue', component: Revenue },
   { path: '/bokingCout', component: ListBokingCout },
+  { path: '/success', component: Success },
+  { path: '/failure', component: Failure },
+
+
 ];
 
 // Tạo Vue Router với các routes đã định nghĩa

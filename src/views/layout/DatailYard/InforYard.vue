@@ -697,7 +697,8 @@ async function createComment() {
             console.log('response', response);
             toast("Bình luận thành công!", { autoClose: 2000 });
 
-
+            getListComment()
+            
             showModal()
 
 
