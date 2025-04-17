@@ -52,28 +52,28 @@ const menu_list = ref([
         value: 5
     },
     {
-        key: 2,
-        name_menu: 'Khóa sân',
+        key: 3,
+        name_menu: 'Lịch thanh toán',
+        active: false,
+        value:2
+    },
+    {
+        key: 4,
+        name_menu: 'Lịch chưa thanh toán ',
         active: false,
         value: 1
     },
     {
-        key: 3,
-        name_menu: 'Lịch đã đặt ',
-        active: false,
-        value:0
-    },
-    {
         key: 4,
-        name_menu: 'Lịch đã bị hủy ',
+        name_menu: ' Lịch đã hủy(Cần hoàn tiền)',
         active: false,
-        value: 2
+        value: 3
     },
     {
         key: 4,
         name_menu: ' Hủy thành công ',
         active: false,
-        value: 3
+        value: 4
     }
 ])
 

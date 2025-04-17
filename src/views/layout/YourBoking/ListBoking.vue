@@ -435,8 +435,8 @@ function getStatusColor(booking: CourtEvent) {
 }
 
 function getStatusColors(booking: CourtEvent) {
-    if (booking.status === 3) return 'border-r-gray-500'  // Lịch đã bị hủy, màu xám
-    if (booking.status === 4) return 'border-r-gray-500'  // Hủy thành công, màu xám
+    if (booking.status === 3) return 'border-r-red-500'  // Lịch đã bị hủy, màu xám
+    if (booking.status === 4) return 'border-r-red-500'  // Hủy thành công, màu xám
     if (booking.status === 1) {
         const startTime = new Date(booking.startTime)
         const now = new Date()
