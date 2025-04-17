@@ -161,6 +161,15 @@
                                 {{ calculate75PercentFormatted(cancel_bokings.price) }}
                             </p>
                         </div>
+                        <div class="flex gap-3 text-sm text-green-800">
+                            <ExclamationCircleIcon class="w-5 h-5 text-red-500"></ExclamationCircleIcon>
+                            <p>
+                                Chủ sân sẽ liên lạc với bạn để hoàn lại tiền!
+                            </p>
+                            <p v-if="cancel_bokings?.price" class="font-bold">
+                                {{ calculate75PercentFormatted(cancel_bokings.price) }}
+                            </p>
+                        </div>
                     </div>
                 </body>
                 <!--  -->
@@ -270,8 +279,8 @@ onMounted(async () => {
     // 1: đã đặt, 
     // 2: chưa thanh toán 
     // 3 : đã thanh toán
-    // 5: Đã hủy
-    // 6: đã hoàn tiền
+    // 4: Đã hủy
+    // 5: đã hoàn tiền
 
 
     const list_bookings = computed(() => {

@@ -18,10 +18,8 @@ const HOST = api_host[import.meta.env.VITE_APP_ENV || "production"] || {};
 /** Request api */
 async function apiRequest({ end_point, body, method }: InputRequestApi) {
   try {
-    const store = useAppStore(); // ✅ Đặt ở đây
-
-    const token = store.business_token;
-    console.log("Gửi token:", token);
+    const token = localStorage.getItem("token");
+    
     let response = await requestAxios({
       uri: `${HOST["pickleyard"]}/${end_point}`,
       method: method || 'POST',
