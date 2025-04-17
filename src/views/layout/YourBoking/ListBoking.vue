@@ -54,7 +54,7 @@
                                 {{ boking.courtName }}
                             </p>
                             <!--  -->
-                            <button @click="openModel(boking)" v-if="isMoreThanOneDayAway(boking.startTime) && boking.status === 3 "
+                            <button @click="openModel(boking)" v-if="isMoreThanOneDayAway(boking.startTime) && boking.status === 2 "
                                 class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
                                 Hủy lịch
                                 <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>
