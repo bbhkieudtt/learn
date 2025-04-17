@@ -2,7 +2,7 @@
     <div class="h-dvh w-dvw bg-green flex flex-col overflow-hidden pt-5 px-5 pb-2 ">
         <header>
             <ArrowLeftIcon @click="goHome" class=" flex-shrink-0 w-6 h-6 cursor-pointer text-white"></ArrowLeftIcon>
-            <div class="flex-shrink-0 w-full grid grid-cols-4">
+            <div class="flex-shrink-0 w-full grid grid-cols-5">
                 <div @click="clickMenu(menu.key)" v-for="menu in menu_list" :key="menu.key"
                     :class="{ 'text-yellow-400 border-b-2': menu.active, 'text-white ': !menu.active }"
                     class="text-center border-yellow-400 py-2  cursor-pointer font-semibold text-lg">
@@ -30,7 +30,7 @@
                         transition duration-200 hover:brightness-90 hover:rounded-lg hover:bg-green-800">
                         <div class="flex items-center space-x-0">
                             <!-- Đơn ngày -->
-                            <span class="bg-green-500 text-white px-6 py-1 text-sm relative">
+                            <span class="bg-purple-500 text-white px-6 py-1 text-sm relative">
                                 Lịch
 
                             </span>
@@ -54,11 +54,18 @@
                                 {{ boking.courtName }}
                             </p>
                             <!--  -->
-                            <button @click="openModel(boking)" v-if="isMoreThanOneDayAway(boking.startTime) && boking.status != 2 && boking.status != 3 "
+                            <button @click="openModel(boking)" v-if="isMoreThanOneDayAway(boking.startTime) && boking.status === 3 "
                                 class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
                                 Hủy lịch
                                 <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>
                             </button>
+                            <!--  -->
+                            <button v-if="boking.status === 2 "
+                                class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-yellow-500">
+                                Thanh toán 
+                                <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>
+                            </button>
+                            
                         </div>
 
                         <div class="flex gap-1 items-center">
@@ -232,11 +239,16 @@ const menu_list = ref([
     },
     {
         key: 3,
-        name_menu: 'Lịch sắp tới ',
+        name_menu: 'Lịch chưa thanh toán',
         active: false
     },
     {
         key: 4,
+        name_menu: 'Lịch sắp tới ',
+        active: false
+    },
+    {
+        key: 5,
         name_menu: 'Lịch đã bị hủy ',
         active: false
     }
@@ -253,7 +265,16 @@ onMounted(async () => {
     await getListBoking()
 })
 
-const list_bookings = computed(() => {
+    // trạng thái 
+    // 0: chờ xác nhận
+    // 1: đã đặt, 
+    // 2: chưa thanh toán 
+    // 3 : đã thanh toán
+    // 5: Đã hủy
+    // 6: đã hoàn tiền
+
+
+    const list_bookings = computed(() => {
   return list_bokings.value.filter((booking) => {
     const statusText = getStatusText(booking)
 
@@ -263,8 +284,10 @@ const list_bookings = computed(() => {
       case 2:
         return statusText === 'Đã hoàn thành'
       case 3:
-        return statusText === 'Lịch sắp tới'
+        return statusText === 'Chưa thanh toán'
       case 4:
+        return statusText === 'Lịch sắp tới'
+      case 5:
         return statusText === 'Đã hủy' || statusText === 'Hủy thành công'
       default:
         return false
@@ -345,37 +368,92 @@ function isMoreThanOneDayAway(timeStr: string) {
     return diffMs > oneDayMs
 }
 
+// trạng thái 
+    // 0: đã đặt, 
+    // 1: chưa thanh toán 
+    // 2: đã thanh toán
+    // 3: Đã hủy
+    // 4: đã hoàn tiền
 
-function getStatusText(booking: CourtEvent) {
-    if (booking.status === 2) return 'Đã hủy'
-    if (booking.status === 3) return 'Hủy thành công'
+    function getStatusText(booking: CourtEvent) {
+    if (booking.status === 3) return 'Đã hủy' // Đã hủy
+    if (booking.status === 4) return 'Hủy thành công' // Hủy thành công
+    if (booking.status === 1) {
+        const startTime = new Date(booking.startTime)
+        const now = new Date()
+
+        // Nếu startTime đã qua thời gian hiện tại, trả về "Lịch hết hạn"
+        return startTime < now ? 'Lịch hết hạn' : 'Chưa thanh toán'
+    }
+    if (booking.status === 2) {
+        const startTime = new Date(booking.startTime)
+        const now = new Date()
+
+        // Nếu startTime trong quá khứ, là "Đã hoàn thành"
+        return startTime <= now ? 'Đã hoàn thành' : 'Lịch sắp tới'
+    }
     const startTime = new Date(booking.startTime)
     const now = new Date()
+
+    // Các trạng thái khác, xác định "Đã hoàn thành" hoặc "Lịch sắp tới"
     return startTime <= now ? 'Đã hoàn thành' : 'Lịch sắp tới'
 }
 
 function getStatusColor(booking: CourtEvent) {
-    if (booking.status === 2) return 'bg-red-500 '
-     if (booking.status === 3) return 'bg-red-500 '
+    if (booking.status === 3) return 'bg-red-500'  // Lịch đã bị hủy, màu xám
+    if (booking.status === 4) return 'bg-red-500'  // Hủy thành công, màu xám
+    if (booking.status === 1) {
+        const startTime = new Date(booking.startTime)
+        const now = new Date()
+
+        // Nếu startTime đã qua thời gian hiện tại, trả về "Lịch hết hạn", màu xám
+        return startTime < now ? 'bg-gray-500' : 'bg-yellow-500' // Lịch hết hạn màu xám, chưa thanh toán màu vàng
+    }
+    
+    if (booking.status === 2) {
+        const startTime = new Date(booking.startTime)
+        const now = new Date()
+
+        // Nếu startTime trong quá khứ, là "Đã hoàn thành", màu xanh dương, nếu chưa thì màu xanh lá
+        return startTime <= now ? 'bg-blue-500' : 'bg-green-500'
+    }
+
     const startTime = new Date(booking.startTime)
     const now = new Date()
-    return startTime <= now ? 'bg-blue-500 ' : 'bg-yellow-500 '
+
+    // Các trạng thái khác, xác định màu xanh dương hoặc xanh lá
+    return startTime <= now ? 'bg-blue-500' : 'bg-green-500'
 }
 
 function getStatusColors(booking: CourtEvent) {
-    if (booking.status === 2) return 'border-r-red-500 '
-     if (booking.status === 3) return 'border-r-red-500 '
+    if (booking.status === 3) return 'border-r-gray-500'  // Lịch đã bị hủy, màu xám
+    if (booking.status === 4) return 'border-r-gray-500'  // Hủy thành công, màu xám
+    if (booking.status === 1) {
+        const startTime = new Date(booking.startTime)
+        const now = new Date()
+
+        // Nếu startTime đã qua thời gian hiện tại, trả về "Lịch hết hạn", màu xám
+        return startTime < now ? 'border-r-gray-500' : 'border-r-yellow-500' // Lịch hết hạn màu xám, chưa thanh toán màu vàng
+    }
+    
+    if (booking.status === 2) {
+        const startTime = new Date(booking.startTime)
+        const now = new Date()
+
+        // Nếu startTime trong quá khứ, là "Đã hoàn thành", màu xanh dương, nếu chưa thì màu xanh lá
+        return startTime <= now ? 'border-r-blue-500' : 'border-r-green-500'
+    }
+
     const startTime = new Date(booking.startTime)
     const now = new Date()
-    return startTime <= now ? 'border-r-blue-500 ' : 'border-r-yellow-500 '
+
+    // Các trạng thái khác, xác định màu xanh dương hoặc xanh lá
+    return startTime <= now ? 'border-r-blue-500' : 'border-r-green-500'
 }
 
 function openModel(boking: CourtEvent) {
 
     cancel_bokings.value = boking
-
-
-
     //*Mở modal
     show_modals.value = true;
 }
@@ -391,7 +469,7 @@ function calculate75PercentFormatted(number: number) {
 /**Hàm hủy lịch*/
 async function cancelBokings() {
     if (cancel_bokings.value) {
-        cancel_bokings.value.status = 2
+        cancel_bokings.value.status = 3
     }
     try {
         const response = await apiUpdateBoking(cancel_bokings.value);
@@ -399,6 +477,7 @@ async function cancelBokings() {
         if (response && response.status === 200) {
             toast("Hủy lịch thành công!", { autoClose: 3000 });
             getListBoking()
+            showModal()
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
         }

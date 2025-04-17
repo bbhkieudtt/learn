@@ -14,11 +14,12 @@ export interface Booking {
     startTime: string; // ISO 8601 datetime string
     endTime: string;   // ISO 8601 datetime string
     // trạng thái 
-    // 0: lịch thành công 
-    // 1: lịch khóa sân, 
-    // 2: lịch bị hủy 
-    // 3 : hủy thành công,
-    // 4 :chưa thanh toán
+    // 0: chờ xác nhận
+    // 1: đã đặt, 
+    // 2: chưa thanh toán 
+    // 3 : đã thanh toán
+    // 5: Đã hủy
+    // 6: đã hoàn tiền
     status: number;    
     price: number;     
   }

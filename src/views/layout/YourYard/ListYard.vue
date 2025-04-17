@@ -513,24 +513,18 @@ const uploadImage = async (event: any) => {
 async function createCourt() {
     // Khôi phục và sử dụng thông tin từ localStorage
     infor_yard.value.userId = JSON.parse(localStorage.getItem("userInfo") ?? '{}')?.id || 0;
+
     infor_yard.value.maxPrice = 999999999999999
     infor_yard.value.minPrice = 10000
 
     if (!validateCourtData()) {
         return;
     }
-
     try {
         const response = await apiCreateCourt(infor_yard.value);
-        console.log("API Response:", response);
         // Kiểm tra nếu API trả về thành công
         if (response && response.status === 200) {
-
-
-
             const response = await apiGetCourt();
-            console.log("API Response:", response);
-
             store_court.list_court = response.data.filter((court: Court) =>
                 court.courtName.trim() !== "" &&
                 court.street.trim() !== "" &&
@@ -548,14 +542,16 @@ async function createCourt() {
     } catch (error) {
         console.error("API Error:", error);
     }
-
-
 }
 
 // Validation function
 function validateCourtData() {
     if (!infor_yard.value.courtName) {
         toast("Tên sân không được để trống!", { autoClose: 5000 });
+        return false;
+    }
+    if (infor_yard.value.courtName.length > 25) {
+        toast("Tên sân không được dài quá 25 ký tự!", { autoClose: 5000 });
         return false;
     }
     if (!infor_yard.value.courtDescription) {
@@ -574,12 +570,21 @@ function validateCourtData() {
         toast("Người liên hệ không được để trống!", { autoClose: 5000 });
         return false;
     }
+    if (infor_yard.value.contactPerson.length > 35) {
+        toast("Tên người liên hệ không được dài quá 35 ký tự!", { autoClose: 5000 });
+        return false;
+    }
     if (!infor_yard.value.contactPhone || !/^\d{10,11}$/.test(infor_yard.value.contactPhone)) {
         toast("Số điện thoại không hợp lệ!", { autoClose: 5000 });
         return false;
     }
+    if (infor_yard.value.images.length === 0) {
+        toast("Vui lòng tải lên ít nhất một hình ảnh!", { autoClose: 5000 });
+        return false;
+    }
     return true;
 }
+
 
 function isValidImage(image: string) {
     // Kiểm tra xem image có phải là một URL hợp lệ hay không (bắt đầu với http:// hoặc https://)
@@ -590,7 +595,6 @@ function isValidImage(image: string) {
 function formatHour(timeStr: string): string {
     return timeStr?.slice(0, 5) // Lấy 5 ký tự đầu: "08:00"
 }
-
 
 
 </script>

@@ -49,34 +49,31 @@
                                 </span>
                                 <!-- Mũi tên -->
                                 <span class="text-white pl-2 pr-7 py-1 text-sm relative" :class="{
-                                    'bg-blue-500': boking.status === 0,
-                                    'bg-gray-500': boking.status === 1,
-                                    'bg-red-500': boking.status === 2,
-                                    'bg-yellow-500': boking.status === 3
+                                    'bg-blue-500': boking.status === 2,
+                                    'bg-slate-500': boking.status === 3,
+                                    'bg-red-500': boking.status === 4,
+                                    'bg-yellow-500': boking.status === 1
                                 }">
                                     {{
-                                        boking.status === 0 ? 'Đã Đặt' :
-                                            boking.status === 1 ? 'Đã Khóa' :
-                                                boking.status === 2 ? 'Đã hủy' :
-                                                    boking.status === 3 ? 'Hủy thành công' :
+                                        boking.status === 1 ? 'Chưa thanh toán' :
+                                            boking.status === 2 ? 'Đã thanh toán' :
+                                                boking.status === 3 ? 'Đã hủy' :
+                                                    boking.status === 4 ? 'Hủy thành công' :
                                                         'Không xác định'
                                     }}
                                     <div class="absolute left-[-14px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent"
                                         :class="{
-                                            'border-r-blue-500': boking.status === 0,
-                                            'border-r-gray-500': boking.status === 1,
-                                            'border-r-red-500': boking.status === 2,
-                                            'border-r-yellow-500': boking.status === 3
+                                            'border-r-blue-500': boking.status === 2,
+                                            'border-r-slate-500': boking.status === 3,
+                                            'border-r-red-500': boking.status === 4,
+                                            'border-r-yellow-500': boking.status === 1
                                         }"></div>
                                 </span>
 
 
                             </div>
                             <!--  -->
-                             <!--  -->
-                             <button
-                            v-if="boking.status === 2"
-                            @click="openModal(boking)"
+                            <button v-if="boking.status === 4" @click="openModal(boking)"
                                 class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
                                 Hoàn tiền
                                 <DocumentCurrencyDollarIcon class="w-4 h-4 text-white"></DocumentCurrencyDollarIcon>
@@ -169,7 +166,7 @@
                             </p>
                             <p class="font-bold">
                                 {{ cancel_bokings?.courtStreet }}, {{ cancel_bokings?.courtWard }},{{
-                                cancel_bokings?.courtDistrict }}, Hà Nội
+                                    cancel_bokings?.courtDistrict }}, Hà Nội
                             </p>
                         </div>
                         <div class="flex gap-3 text-sm text-green-800">
@@ -229,12 +226,12 @@ import FilterBokingStatus from './FilterBokingStatus.vue';
 import image9 from '@/assets/imgs/image9.png'
 
 /**icon*/
-import { ArrowLeftIcon, ExclamationCircleIcon,DocumentCurrencyDollarIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, ExclamationCircleIcon, DocumentCurrencyDollarIcon } from "@heroicons/vue/24/solid";
 
 import { CalendarDateRangeIcon } from "@heroicons/vue/24/solid";
 
 /**api*/
-import { apiGetListBooking,apiUpdateBoking } from "@/service/api/apiBoking";
+import { apiGetListBooking, apiUpdateBoking } from "@/service/api/apiBoking";
 
 /**kiểu dữ liệu*/
 import type { CourtEvent } from '@/interface'
@@ -279,7 +276,6 @@ const cancel_bokings = ref<CourtEvent>()
 
 // hiện những lịch đặt thuộc sân này thôi 
 const filteredBookings = computed(() => {
-
 
     return list_bokings.value.filter((booking) => {
         const isSameCourt = booking.childCourtId === store_court.chill_detail?.id;
@@ -372,7 +368,7 @@ function formatCurrency(amount: number): string {
 
 
 /**Hoàn tiền*/
-function openModal(boking: CourtEvent){
+function openModal(boking: CourtEvent) {
     is_modal.value = false
     show_modals.value = true;
     cancel_bokings.value = boking
@@ -389,14 +385,17 @@ function calculate75PercentFormatted(number: number) {
 /**Hàm hủy lịch*/
 async function refundBokings() {
     if (cancel_bokings.value) {
-        cancel_bokings.value.status = 3
+        cancel_bokings.value.status = 4
     }
     try {
         const response = await apiUpdateBoking(cancel_bokings.value);
-     
+
         if (response && response.status === 200) {
+            
             toast("Hoàn tiền thành công!", { autoClose: 3000 });
             getListBoking()
+            showModal()
+
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
         }

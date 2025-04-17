@@ -8,7 +8,6 @@
             </p>
             <!--  -->
             <p>
-
             </p>
         </header>
         <!--  -->
@@ -391,45 +390,12 @@ const pay_detail = ref({
 async function addBoking() {
     // hàm thanh toán
 
-    // khi khóa sân 
-    if (key.value) {
-        detail_boking.value.userId = user_court.value?.id ?? 0
-        detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
-        detail_boking.value.startTime = formattedTimeStart
-        detail_boking.value.endTime = formattedTimeEnd
-        detail_boking.value.price = 0
-        detail_boking.value.status = 1
-        try {
-            const response = await apiCreateBoking(detail_boking.value);
-            console.log("API Response:", response);
-            // Kiểm tra nếu API trả về thành công
-            if (response && response.status === 200) {
-                console.log('response', response.data);
-
-                pay_detail.value.bookingId = response.data.id
-
-                pay_detail.value.userId = user_court.value?.id ?? 0
-
-
-                router.push('/detail')
-
-
-            } else {
-                toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
-            }
-        } catch (error) {
-            console.error("API Error:", error);
-        }
-    }
-    else {
-
         detail_boking.value.userId = user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
         detail_boking.value.price = totalRentCostRaw.value
-        // tạo nhưng trạng thái là 4 : chưa thanh toán
-        detail_boking.value.status = 4 
+        detail_boking.value.status = 1
         try {
             const response = await apiCreateBoking(detail_boking.value);
             console.log("API Response:", response);
@@ -451,10 +417,6 @@ async function addBoking() {
         } catch (error) {
             console.error("API Error:", error);
         }
-    }
-
-
-
 }
 
 function goToDetail() {
@@ -497,7 +459,7 @@ async function payVNpay(id: number) {
             const paymentUrl = response.data; // hoặc response.data.url nếu API trả về như vậy
 
             if (paymentUrl) {
-                window.open(paymentUrl, '_blank'); // Mở liên kết trong tab mới
+                window.location.href = paymentUrl; // Mở liên kết trong tab mới
             } else {
                 toast("Không lấy được link thanh toán!", { autoClose: 3000 });
             }

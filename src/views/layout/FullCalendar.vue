@@ -137,6 +137,8 @@ async function getListBoking() {
      
       // Biến đổi dữ liệu thành định dạng phù hợp với FullCalendar
       const events = transformToFullCalendar(response.data);
+  
+      
 
       console.log('events', events);
 
@@ -162,7 +164,7 @@ function transformToFullCalendar(eventsData: any) {
   return eventsData
   .filter((event: any) =>
       event.childCourtId === store_court.chill_detail?.id &&
-      (event.status === 0 || event.status === 1) // Chỉ lấy status 0 và 1
+      (event.status === 2 || event.status === 3) // Chỉ lấy status 0 và 1
     )
     .map((event: any) => {
       // Tìm user từ userId trong danh sách user
@@ -173,10 +175,10 @@ function transformToFullCalendar(eventsData: any) {
       const end = event.endTime;
 
       // Lớp CSS dựa vào status
-      const classList = event.status === 0
+      const classList = event.status === 2
         ? ['bg-green-500', 'text-white']            
-        : event.status === 1
-          ? ['bg-slate-400', 'text-white']            
+        : event.status === 3
+          ? ['bg-yellow-400', 'text-white']            
           : ['bg-slate-400', 'text-yellow-400'];    
 
       return {
