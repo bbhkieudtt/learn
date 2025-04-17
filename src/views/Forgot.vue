@@ -10,7 +10,7 @@
           </p>
         </div>
         <!--  -->
-        <div class="sm:w-96 bg-white drop-shadow-2xl rounded-3xl p-2 ">
+        <div class="sm:w-96 bg-white flex-shrink-0 drop-shadow-2xl rounded-3xl p-2 ">
           <div class="text-center flex flex-col gap-1">
             <img src="@/assets/imgs/logoPick.png" class="h-[100px] w-[100px] mx-auto" alt="" />
             <h1 class="text-2xl font-semibold text-black">
@@ -21,7 +21,7 @@
           </div>
           <!--  -->
           <div>
-            <div class="px-0 py-2" v-if="!status_login">
+            <div class="px-5 py-2" v-if="!status_login">
               <div class="group relative z-0 mb-5 w-full">
                 <input v-model="account_login.username" type="text"
                   class="peer block w-full appearance-none rounded-xl border border-slate-300 bg-transparent pt-4 pb-2 pl-4 text-sm font-medium text-gray-900 ring-orange-200 focus:border-orange-600 focus:outline-none focus:ring-4"

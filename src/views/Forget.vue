@@ -10,7 +10,7 @@
             </p>
           </div>
           <!--  -->
-          <div class="sm:w-96 bg-white drop-shadow-2xl rounded-3xl p-12">
+          <div class="sm:w-96 bg-white flex-shrink-0 drop-shadow-2xl rounded-3xl p-12">
             <div class="text-center flex flex-col gap-4">
               <img src="@/assets/imgs/logoPick.png" class="h-[100px] w-[100px] mx-auto" alt="" />
               <h1 class="text-2xl font-semibold text-black">

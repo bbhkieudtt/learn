@@ -134,6 +134,8 @@ async function getListBoking() {
 
     // Kiểm tra nếu API trả về thành công
     if (response && response.status === 200) {
+      console.log('response',response.data);
+      
      
       // Biến đổi dữ liệu thành định dạng phù hợp với FullCalendar
       const events = transformToFullCalendar(response.data);
@@ -168,8 +170,10 @@ function transformToFullCalendar(eventsData: any) {
     )
     .map((event: any) => {
       // Tìm user từ userId trong danh sách user
-      const user = store.list_user.find(user => user.id === event.userId);
-      const title = user ? `${user.fullname} sđt: ${user.phoneNumber} giá: ${event.price}` : 'No User';
+    
+      console.log();
+      
+      const title = event ? `${event.userFullName} sđt: ${event.userPhoneNumber} giá: ${event.price}` : 'No User';
 
       const start = event.startTime;
       const end = event.endTime;
