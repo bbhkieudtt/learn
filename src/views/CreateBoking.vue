@@ -390,43 +390,13 @@ const pay_detail = ref({
 /**Hàm tạo lịch đặt sân*/
 async function addBoking() {
 
-if(is_key.value){
-    detail_boking.value.userId = user_court.value?.id ?? 0
-        detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
-        detail_boking.value.startTime = formattedTimeStart
-        detail_boking.value.endTime = formattedTimeEnd
-        detail_boking.value.price = totalRentCostRaw.value
-        detail_boking.value.status = 2
-        try {
-            const response = await apiCreateBoking(detail_boking.value);
-            console.log("API Response:", response);
-            // Kiểm tra nếu API trả về thành công
-            if (response && response.status === 200) {
-                console.log('response', response.data);
-
-                pay_detail.value.bookingId = response.data.id
-
-                pay_detail.value.userId = user_court.value?.id ?? 0
-
-                router.push('/detail')
-
-            } else {
-                toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
-            }
-        } catch (error) {
-            console.error("API Error:", error);
-        }
-
-}
-else{
-     // hàm thanh toán
 
      detail_boking.value.userId = user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
         detail_boking.value.price = totalRentCostRaw.value
-        detail_boking.value.status = 1
+        detail_boking.value.status = 0
         try {
             const response = await apiCreateBoking(detail_boking.value);
             console.log("API Response:", response);
@@ -437,11 +407,8 @@ else{
                 pay_detail.value.bookingId = response.data.id
 
                 pay_detail.value.userId = user_court.value?.id ?? 0
-
-
                 payBooking()
-
-
+                
             } else {
                 toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
             }
@@ -449,7 +416,6 @@ else{
             console.error("API Error:", error);
         }
 
-}
 
    
 }
@@ -461,6 +427,24 @@ function goToDetail() {
 
 /**Hàm tạo thanh toán*/
 async function payBooking() {
+    if(key.value){
+    try {
+        const response = await apiCreatePayment(pay_detail.value);
+
+        // Kiểm tra nếu API trả về thành công
+        if (response && response.status === 200) {
+            console.log('response', response.data);
+
+            // payVNpay(response.data.id)
+
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!2", { autoClose: 5000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
+else{
     try {
         const response = await apiCreatePayment(pay_detail.value);
 
@@ -476,6 +460,7 @@ async function payBooking() {
     } catch (error) {
         console.error("API Error:", error);
     }
+}
 }
 
 /**hàm thanh toán vnpay*/
