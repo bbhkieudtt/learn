@@ -51,6 +51,7 @@
 
 <script lang="ts" setup>
 import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 /**Biến router */
 const router = useRouter()
