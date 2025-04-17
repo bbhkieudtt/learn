@@ -60,7 +60,7 @@
                                 <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>
                             </button>
                             <!--  -->
-                            <button v-if="boking.status === 2 "
+                            <button v-if="boking.status === 1 "
                                 class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-yellow-500">
                                 Thanh toán 
                                 <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>

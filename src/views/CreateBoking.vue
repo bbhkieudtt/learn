@@ -99,10 +99,10 @@
                         <p class="font-semibold">{{ key ? 0 : totalRentCost }}</p>
                     </div>
                     <!-- khóa thời gian  -->
-                    <!-- <div v-if="is_key" class="flex text-xl text-white items-center gap-5">
+                    <div v-if="is_key" class="flex text-xl text-white items-center gap-5">
                         <input v-model="key" type="checkbox" class="w-6 h-6">
-                        <p class="font-semibold">Khóa</p>
-                    </div> -->
+                        <p class="font-semibold">Đặt sân cho khách</p>
+                    </div>
                 </div>
             </div>
         </main>
@@ -389,9 +389,39 @@ const pay_detail = ref({
 
 /**Hàm tạo lịch đặt sân*/
 async function addBoking() {
-    // hàm thanh toán
 
-        detail_boking.value.userId = user_court.value?.id ?? 0
+if(is_key.value){
+    detail_boking.value.userId = user_court.value?.id ?? 0
+        detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
+        detail_boking.value.startTime = formattedTimeStart
+        detail_boking.value.endTime = formattedTimeEnd
+        detail_boking.value.price = totalRentCostRaw.value
+        detail_boking.value.status = 2
+        try {
+            const response = await apiCreateBoking(detail_boking.value);
+            console.log("API Response:", response);
+            // Kiểm tra nếu API trả về thành công
+            if (response && response.status === 200) {
+                console.log('response', response.data);
+
+                pay_detail.value.bookingId = response.data.id
+
+                pay_detail.value.userId = user_court.value?.id ?? 0
+
+                router.push('/detail')
+
+            } else {
+                toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
+            }
+        } catch (error) {
+            console.error("API Error:", error);
+        }
+
+}
+else{
+     // hàm thanh toán
+
+     detail_boking.value.userId = user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
@@ -418,6 +448,10 @@ async function addBoking() {
         } catch (error) {
             console.error("API Error:", error);
         }
+
+}
+
+   
 }
 
 function goToDetail() {
