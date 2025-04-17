@@ -69,7 +69,7 @@ import { CheckIcon } from "@heroicons/vue/24/solid";
 const router = useRouter()
 
 function backHome(){
-    router.push('/Boking')
+    router.push('/yourboking')
 }
 
 </script>

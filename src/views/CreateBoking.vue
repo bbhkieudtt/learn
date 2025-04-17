@@ -99,10 +99,10 @@
                         <p class="font-semibold">{{ key ? 0 : totalRentCost }}</p>
                     </div>
                     <!-- khóa thời gian  -->
-                    <div v-if="is_key" class="flex text-xl text-white items-center gap-5">
+                    <!-- <div v-if="is_key" class="flex text-xl text-white items-center gap-5">
                         <input v-model="key" type="checkbox" class="w-6 h-6">
                         <p class="font-semibold">Khóa</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </main>
