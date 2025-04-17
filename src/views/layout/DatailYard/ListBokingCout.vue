@@ -104,6 +104,19 @@
                             </p>
 
                         </div>
+                        <div class="flex gap-1 items-center">
+                            <p>
+                                Thông tin người đặt:
+                            </p>
+                            <p class="font-medium">
+                                {{ boking.userFullName }}
+                            </p>
+                            <p class="font-medium  ">
+                                {{ boking.userPhoneNumber }}
+                            </p>
+                            
+
+                        </div>
                         <div class="flex items-center gap-2 ">
                             <p class="flex-shrink-0">Thanh toán:</p>
                             <p class="font-medium">
@@ -155,21 +168,13 @@
                         <!-- Thông tin sân -->
                         <div class="flex gap-3 text-sm text-green-800">
                             <p>
-                                Sân con:
+                                Thông tin người đặt :
                             </p>
                             <p class="font-bold">
-                                {{ cancel_bokings?.childCourtName }}
+                                {{ cancel_bokings?.userFullName }},   {{ cancel_bokings?.userPhoneNumber }}
                             </p>
                         </div>
-                        <div class="flex gap-3 text-sm text-green-800">
-                            <p>
-                                Địa chỉ:
-                            </p>
-                            <p class="font-bold">
-                                {{ cancel_bokings?.courtStreet }}, {{ cancel_bokings?.courtWard }},{{
-                                    cancel_bokings?.courtDistrict }}, Hà Nội
-                            </p>
-                        </div>
+                       
                         <div class="flex gap-3 text-sm text-green-800">
                             <p>
                                 Tiền đã thanh toán
@@ -186,6 +191,13 @@
                             <p v-if="cancel_bokings?.price" class="font-bold">
                                 {{ calculate75PercentFormatted(cancel_bokings.price) }}
                             </p>
+                        </div>
+                        <div class="flex gap-3 text-sm text-green-800">
+                            <ExclamationCircleIcon class="w-5 h-5 text-red-500"></ExclamationCircleIcon>
+                            <p>
+                                Hãy liên lạc với người đặt để hoàn tiền!
+                            </p>
+                           
                         </div>
                     </div>
                 </body>
