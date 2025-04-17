@@ -275,12 +275,11 @@ onMounted(async () => {
 })
 
     // trạng thái 
-    // 0: chờ xác nhận
-    // 1: đã đặt, 
-    // 2: chưa thanh toán 
-    // 3 : đã thanh toán
-    // 4: Đã hủy
-    // 5: đã hoàn tiền
+    // 0: đã đặt, 
+    // 1: chưa thanh toán 
+    // 2 : đã thanh toán
+    // 3: Đã hủy
+    // 4: đã hoàn tiền
 
 
     const list_bookings = computed(() => {

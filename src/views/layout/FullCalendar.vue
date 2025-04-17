@@ -164,7 +164,7 @@ function transformToFullCalendar(eventsData: any) {
   return eventsData
   .filter((event: any) =>
       event.childCourtId === store_court.chill_detail?.id &&
-      (event.status === 2 || event.status === 3) // Chỉ lấy status 0 và 1
+      (event.status === 1 || event.status === 2) // Chỉ lấy status 0 và 1
     )
     .map((event: any) => {
       // Tìm user từ userId trong danh sách user
@@ -177,7 +177,7 @@ function transformToFullCalendar(eventsData: any) {
       // Lớp CSS dựa vào status
       const classList = event.status === 2
         ? ['bg-green-500', 'text-white']            
-        : event.status === 3
+        : event.status === 1
           ? ['bg-yellow-400', 'text-white']            
           : ['bg-slate-400', 'text-yellow-400'];    
 
