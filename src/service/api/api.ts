@@ -117,6 +117,26 @@ export const login = async (payload: {
  }
 };
 
+ /**api lấy danh sách tài khoản*/
+ export const Logout = async () => {
+  try {
+    return await apiRequests({
+       // Phương thức
+       method: "GET",
+      // endpoint API
+      end_point: "User/Logout",
+      // payload được truyền từ giao diện
+     //  body: payload,
+    });
+  } catch (e) {
+    // Log lỗi nếu có
+   //  console.error("Error:", e);
+   console.log(e);
+   
+    throw e;
+  }
+ };
+
 /**api lấy danh sách tài khoản*/
 export const forgotPasswword = async (payload: {
   "email": string,
