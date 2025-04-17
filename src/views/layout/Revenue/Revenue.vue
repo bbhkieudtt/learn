@@ -2,7 +2,8 @@
     <div class="h-dvh w-dvw  flex flex-col overflow-hidden  ">
         <header class="bg-green px-3 py-4 flex flex-col gap-5">
             <div class="flex  justify-between text-xl font-medium text-white">
-                <ArrowLeftIcon @click="goHome" class=" flex-shrink-0 w-6 h-6 cursor-pointer text-white"></ArrowLeftIcon>
+              
+                <img  @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
                 <p>
                     Thống kê doanh thu
                 </p>
@@ -76,6 +77,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/appStore'
+import logoPick from"@/assets/imgs/logoPick.png"
 
 /**icon*/
 import { ArrowLeftIcon, CurrencyDollarIcon } from "@heroicons/vue/24/solid";

@@ -1,7 +1,7 @@
 <template>
     <div class="h-dvh w-dvw flex flex-col gap-3 px-3 py-2 bg-green ">
         <header class="flex justify-between items-center py-2">
-            <ArrowLeftIcon @click='goToDetail' class="w-7 h-7 cursor-pointer text-white"></ArrowLeftIcon>
+            <img  @click="goToDetail" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
             <!--  -->
             <p class=" text-2xl font-semibold text-white">
                 Đặt lịch ngay

@@ -2,8 +2,7 @@
     <div class="flex overflow-hidden h-dvh flex-col  ">
         <header class="h-40 w-full">
             <img class="w-full h-auto object-cover" :src="Img2" alt="">
-            <ArrowLeftIcon @click="goToDetail" class="w-7 absolute top-4 left-4 cursor-pointer h-7 text-white">
-            </ArrowLeftIcon>
+            <img  @click="goToDetail" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
         </header>
         <main class="h-full relative bg-green w-full">
             <div class="flex absolute top-[-40px] left-5 items-center gap-2">
@@ -323,6 +322,7 @@ import { ref, onMounted, nextTick, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
 import { useAppStore } from "@/stores/appStore";
+import logoPick from"@/assets/imgs/logoPick.png"
 
 
 /**api*/

@@ -1,7 +1,8 @@
 <template>
     <div class="h-dvh w-dvw bg-green flex flex-col overflow-hidden pt-5 px-5 pb-2 ">
         <header>
-            <ArrowLeftIcon @click="goHome" class=" flex-shrink-0 w-6 h-6 cursor-pointer text-white"></ArrowLeftIcon>
+            <img  @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
+
             <!-- Hàng 2 -->
             <div class="grid grid-cols-3 gap-3 ">
                 <!--  -->
@@ -235,6 +236,7 @@ import { apiGetListBooking, apiUpdateBoking } from "@/service/api/apiBoking";
 
 /**kiểu dữ liệu*/
 import type { CourtEvent } from '@/interface'
+import logoPick from"@/assets/imgs/logoPick.png"
 
 /**toast*/
 import { toast } from 'vue3-toastify';

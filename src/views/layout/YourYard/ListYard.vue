@@ -1,7 +1,7 @@
 <template>
     <div class="h-dvh w-dvw bg-green flex flex-col overflow-hidden pt-5 px-5 pb-2 ">
         <header>
-            <ArrowLeftIcon @click="goHome" class=" flex-shrink-0 w-6 h-6 cursor-pointer text-white"></ArrowLeftIcon>
+            <img  @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
             <div class="flex-shrink-0 w-full grid grid-cols-3">
                 <div @click="clickMenu(menu.key)" v-for="menu in menu_list" :key="menu.key"
                     :class="{ 'text-yellow-400 border-b-2': menu.active, 'text-white ': !menu.active }"

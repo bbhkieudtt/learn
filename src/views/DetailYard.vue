@@ -3,7 +3,7 @@
     <header class="bg-green flex-shrink-0 flex flex-col gap-3 px-3 py-3">
       <!--  -->
       <div class="flex justify-between items-center">
-        <IconBack @click="goToBack" class="w-6 cursor-pointer h-6 text-white"></IconBack>
+        <img  @click="goToBack" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
         <!--  -->
         <h3 class="text-2xl font-semibold text-white">Trạng thái sân</h3>
         <div class="flex gap-5">
