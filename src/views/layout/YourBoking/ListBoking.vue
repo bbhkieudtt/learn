@@ -195,6 +195,7 @@
 import { ref, onMounted,computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from "@/stores/appStore";
+import logoPick from"@/assets/imgs/logoPick.png"
 
 /**Modal*/
 import Modal from "@/components/Modal/Modal.vue"

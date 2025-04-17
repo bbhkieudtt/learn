@@ -201,6 +201,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from "axios";
+import logoPick from"@/assets/imgs/logoPick.png"
 
 /**api*/
 import { apiCreateCourt, apiGetCourt } from "@/service/api/apiCourt";

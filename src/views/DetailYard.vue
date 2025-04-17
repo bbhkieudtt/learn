@@ -209,6 +209,8 @@ import { useAppStore } from '@/stores/appStore'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
 import { useRouter } from 'vue-router'
 
+import logoPick from"@/assets/imgs/logoPick.png"
+
 /**api*/
 import { apiGetChillCourt, apiCreateChillCourt } from "@/service/api/apiChillCourt";
 

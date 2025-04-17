@@ -67,6 +67,8 @@ const list_menu = ref([
 
 /**Hàm chuyển hướng đến các trang*/
 function goItem(id:number){
+    console.log('id',id);
+    
     if(id===1){
         router.push('/main');
     }
@@ -85,7 +87,9 @@ function goItem(id:number){
     }
     // 
     if(id===5){
-        router.push('/main');
+        router.push('/inforUse');
+        console.log('11111');
+        
     }
 
 } 
