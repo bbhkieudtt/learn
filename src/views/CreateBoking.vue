@@ -477,7 +477,6 @@ async function payVNpay(id: number) {
         if (response && response.status === 201) {
             console.log('response', response.data);
             const paymentUrl = response.data; // hoặc response.data.url nếu API trả về như vậy
-
             if (paymentUrl) {
                 window.location.href = paymentUrl; // Mở liên kết trong tab mới
             } else {

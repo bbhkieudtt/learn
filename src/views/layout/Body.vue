@@ -165,7 +165,9 @@ const list_court = computed(() => {
   return courts.filter(court => {
     const matchDistrict = yard.district ? court.district === yard.district : true;
     const matchWard = yard.ward ? court.ward === yard.ward : true;
-    const matchStreet = yard.street ? court.street === yard.street : true;
+    const matchStreet = yard.street
+      ? court.street?.toLowerCase().includes(yard.street.toLowerCase())
+      : true;
     const matchCourtName = yard.courtName
       ? court.courtName?.toLowerCase().includes(yard.courtName.toLowerCase())
       : true;
