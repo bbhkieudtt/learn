@@ -74,7 +74,7 @@
 
                             </div>
                             <!--  -->
-                            <button v-if="boking.status === 4" @click="openModal(boking)"
+                            <button v-if="boking.status === 3" @click="openModal(boking)"
                                 class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
                                 Hoàn tiền
                                 <DocumentCurrencyDollarIcon class="w-4 h-4 text-white"></DocumentCurrencyDollarIcon>
