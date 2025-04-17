@@ -77,7 +77,7 @@
 
     </main>
 
-    <button v-if="list_child && list_child.length === 0" @click="goToBocking"
+    <button v-if="list_child && list_child.length > 0" @click="goToBocking"
       class=" text-lg items-center z-50 font-semibold flex-shrink-0 absolute bottom-5 right-5 w-fit py-2 px-3 flex gap-1 rounded-lg bg-green-800 text-white">
       <ClipboardDocumentCheckIcon class="w-5 h-5 text-white"></ClipboardDocumentCheckIcon>
       Đặt sân
@@ -367,7 +367,9 @@ function showModal() {
 
 /**hàm hiển thị đặt lịch*/
 function goToBocking() {
-  if(store.selectInfo?.start){
+  console.log();
+  
+  if(!store.selectInfo?.start){
     toast("Chưa chọn thời gian đặt lịch", { autoClose: 3000 });
     
     return
