@@ -41,7 +41,7 @@
         <h1 class="text-2xl font-semibold mb-2">Thanh toán không thành công!</h1>
         <p class="text-gray-500 mb-6">Đã xảy ra lỗi trong quá trình thanh toán. Vui lòng thử lại sau.</p>
         <div class="flex space-x-4">
-            <button class="bg-[#fbbf24] text-white px-6 py-2 rounded-full font-semibold hover:bg-[#f59e0b]">
+            <button @click="backHome" class="bg-[#fbbf24] text-white px-6 py-2 rounded-full font-semibold hover:bg-[#f59e0b]">
                 Quay lại
             </button>
         </div>
@@ -51,5 +51,17 @@
 </template>
 
 <script setup lang="ts">
-   
+   /**Router*/
+import { useRouter } from 'vue-router'
+
+/**icon*/
+import { } from "@heroicons/vue/24/outline";
+
+
+/**Biến router */
+const router = useRouter()
+
+function backHome(){
+    router.push('/yourboking')
+}
 </script>
