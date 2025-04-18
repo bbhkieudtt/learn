@@ -96,10 +96,10 @@
                     <!-- Tổng tiền-->
                     <div class="flex text-lg text-white items-center gap-3">
                         <p class="text-lg">Tổng tiền phải thanh toán:</p>
-                        <p class="font-semibold">{{ key ? 0 : totalRentCost }}</p>
+                        <p class="font-semibold">{{  totalRentCost }}</p>
                     </div>
                     <!-- khóa thời gian  -->
-                    <div  class="flex text-xl text-white items-center gap-5">
+                    <div v-if="is_key" class="flex text-xl text-white items-center gap-5">
                         <input v-model="key" type="checkbox" class="w-6 h-6">
                         <p class="font-semibold">Đặt sân cho khách</p>
                     </div>
@@ -177,6 +177,8 @@ import { apiCreateBoking } from "@/service/api/apiBoking";
 import { apiCreatePayment, apiCreatePaymentVNpay } from "@/service/api/apiPayment";
 import { apiCreateUser } from "@/service/api/api";
 import { getListUser } from "@/service/api/api";
+/**api*/
+import {  apiUpdateBoking } from "@/service/api/apiBoking";
 
 
 
@@ -389,9 +391,34 @@ const pay_detail = ref({
 
 /**Hàm tạo lịch đặt sân*/
 async function addBoking() {
-
-
+    if(key.value){
      detail_boking.value.userId = user_court.value?.id ?? 0
+        detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
+        detail_boking.value.startTime = formattedTimeStart
+        detail_boking.value.endTime = formattedTimeEnd
+        detail_boking.value.price = totalRentCostRaw.value
+        detail_boking.value.status = 0
+        try {
+            const response = await apiCreateBoking(detail_boking.value);
+            console.log("API Response:", response);
+            // Kiểm tra nếu API trả về thành công
+            if (response && response.status === 200) {
+                console.log('response', response.data);
+
+                pay_detail.value.bookingId = response.data.id
+
+                pay_detail.value.userId = user_court.value?.id ?? 0
+                UpdateBoking(response.data)
+                
+            } else {
+                toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
+            }
+        } catch (error) {
+            console.error("API Error:", error);
+        }
+    }
+    else{
+        detail_boking.value.userId = user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
@@ -415,6 +442,7 @@ async function addBoking() {
         } catch (error) {
             console.error("API Error:", error);
         }
+    }
 
 
    
@@ -574,6 +602,26 @@ function removeVietnameseTones(str: any) {
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/đ/g, "d")
         .replace(/Đ/g, "D");
+}
+
+/**Hàm hủy lịch*/
+async function UpdateBoking(repon:Booking) {
+    if (repon) {
+        repon.status = 2
+    }
+    try {
+        const response = await apiUpdateBoking(repon);
+     
+        if (response) {
+            toast("Tạo lịch cho khách thành công!", { autoClose: 3000 });
+            router.push('/detail')
+           
+        } else {
+            toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
 }
 
 
