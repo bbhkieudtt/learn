@@ -1,7 +1,7 @@
 <template>
     <div class="h-dvh w-dvw flex flex-col gap-3 px-3 py-2 bg-green ">
         <header class="flex justify-between items-center py-2">
-            <img  @click="goToDetail" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
+            <ChevronLeftIcon @click="goToDetail" class="w-6 h-6 text-white"></ChevronLeftIcon>
             <!--  -->
             <p class=" text-2xl font-semibold text-white">
                 Đặt lịch ngay
@@ -96,7 +96,7 @@
                     <!-- Tổng tiền-->
                     <div class="flex text-lg text-white items-center gap-3">
                         <p class="text-lg">Tổng tiền phải thanh toán:</p>
-                        <p class="font-semibold">{{  totalRentCost }}</p>
+                        <p class="font-semibold">{{ totalRentCost }}</p>
                     </div>
                     <!-- khóa thời gian  -->
                     <div v-if="is_key" class="flex text-xl text-white items-center gap-5">
@@ -163,7 +163,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import logoPick from"@/assets/imgs/logoPick.png"
+import logoPick from "@/assets/imgs/logoPick.png"
 
 /**Router*/
 import { useRouter } from 'vue-router'
@@ -178,13 +178,13 @@ import { apiCreatePayment, apiCreatePaymentVNpay } from "@/service/api/apiPaymen
 import { apiCreateUser } from "@/service/api/api";
 import { getListUser } from "@/service/api/api";
 /**api*/
-import {  apiUpdateBoking } from "@/service/api/apiBoking";
+import { apiUpdateBoking } from "@/service/api/apiBoking";
 
 
 
 /**icon*/
 import { } from "@heroicons/vue/24/outline";
-import { ArrowLeftIcon, PlusCircleIcon, StarIcon, ClipboardDocumentListIcon } from "@heroicons/vue/24/solid";
+import { ChevronLeftIcon, PlusCircleIcon, StarIcon, ClipboardDocumentListIcon } from "@heroicons/vue/24/solid";
 
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -391,8 +391,24 @@ const pay_detail = ref({
 
 /**Hàm tạo lịch đặt sân*/
 async function addBoking() {
-    if(key.value){
-     detail_boking.value.userId = user_court.value?.id ?? 0
+    const phone = user_court.value?.phoneNumber?.trim() || '';
+    const name = user_court.value?.fullname?.trim() || '';
+
+    // Regex kiểm tra số điện thoại Việt Nam đơn giản: bắt đầu bằng 0, 10 chữ số
+    const isValidPhone = /^0\d{9}$/.test(phone);
+
+    if (!name || !phone) {
+        toast("Vui lòng nhập đầy đủ họ tên và số điện thoại!", { autoClose: 5000 });
+        return;
+    }
+
+    if (!isValidPhone) {
+        toast("Số điện thoại không hợp lệ! Vui lòng nhập đúng định dạng.", { autoClose: 5000 });
+        return;
+    }
+
+    if (key.value) {
+        detail_boking.value.userId = user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
         detail_boking.value.endTime = formattedTimeEnd
@@ -409,15 +425,15 @@ async function addBoking() {
 
                 pay_detail.value.userId = user_court.value?.id ?? 0
                 UpdateBoking(response.data)
-                
+
             } else {
-                toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
+                toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
             }
         } catch (error) {
             console.error("API Error:", error);
         }
     }
-    else{
+    else {
         detail_boking.value.userId = user_court.value?.id ?? 0
         detail_boking.value.childCourtId = store_court.chill_detail?.id ?? 0
         detail_boking.value.startTime = formattedTimeStart
@@ -435,7 +451,7 @@ async function addBoking() {
 
                 pay_detail.value.userId = user_court.value?.id ?? 0
                 payBooking()
-                
+
             } else {
                 toast("Đăng ký thất bại, vui lòng thử lại!1", { autoClose: 5000 });
             }
@@ -445,50 +461,55 @@ async function addBoking() {
     }
 
 
-   
+
 }
 
 function goToDetail() {
-    router.push('/detail')
+
+    if (window.history.length > 1) {
+        router.back();
+    } else {
+        router.push('/detail'); // hoặc về trang danh sách sân
+    }
 }
 
 
 /**Hàm tạo thanh toán*/
 async function payBooking() {
-    if(key.value){
-    try {
-        const response = await apiCreatePayment(pay_detail.value);
+    if (key.value) {
+        try {
+            const response = await apiCreatePayment(pay_detail.value);
 
-        // Kiểm tra nếu API trả về thành công
-        if (response && response.status === 200) {
-            console.log('response', response.data);
+            // Kiểm tra nếu API trả về thành công
+            if (response && response.status === 200) {
+                console.log('response', response.data);
 
-            // payVNpay(response.data.id)
+                // payVNpay(response.data.id)
 
-        } else {
-            toast("Đăng ký thất bại, vui lòng thử lại!2", { autoClose: 5000 });
+            } else {
+                toast("Đăng ký thất bại, vui lòng thử lại!2", { autoClose: 5000 });
+            }
+        } catch (error) {
+            console.error("API Error:", error);
         }
-    } catch (error) {
-        console.error("API Error:", error);
     }
-}
-else{
-    try {
-        const response = await apiCreatePayment(pay_detail.value);
+    else {
+        try {
+            const response = await apiCreatePayment(pay_detail.value);
 
-        // Kiểm tra nếu API trả về thành công
-        if (response && response.status === 200) {
-            console.log('response', response.data);
+            // Kiểm tra nếu API trả về thành công
+            if (response && response.status === 200) {
+                console.log('response', response.data);
 
-            payVNpay(response.data.id)
+                payVNpay(response.data.id)
 
-        } else {
-            toast("Đăng ký thất bại, vui lòng thử lại!2", { autoClose: 5000 });
+            } else {
+                toast("Đăng ký thất bại, vui lòng thử lại!2", { autoClose: 5000 });
+            }
+        } catch (error) {
+            console.error("API Error:", error);
         }
-    } catch (error) {
-        console.error("API Error:", error);
     }
-}
 }
 
 /**hàm thanh toán vnpay*/
@@ -605,17 +626,17 @@ function removeVietnameseTones(str: any) {
 }
 
 /**Hàm hủy lịch*/
-async function UpdateBoking(repon:Booking) {
+async function UpdateBoking(repon: Booking) {
     if (repon) {
         repon.status = 2
     }
     try {
         const response = await apiUpdateBoking(repon);
-     
+
         if (response) {
             toast("Tạo lịch cho khách thành công!", { autoClose: 3000 });
             router.push('/detail')
-           
+
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
         }

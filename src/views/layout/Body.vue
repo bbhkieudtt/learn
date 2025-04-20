@@ -171,8 +171,10 @@ const list_court = computed(() => {
     const matchCourtName = yard.courtName
       ? court.courtName?.toLowerCase().includes(yard.courtName.toLowerCase())
       : true;
+
+      const matchStatus = court.status === 0;  // Kiểm tra điều kiện status = 0
       
-    return matchDistrict && matchWard && matchStreet && matchCourtName;
+    return matchDistrict && matchWard && matchStreet && matchCourtName && matchStatus;
   });
 });
 
@@ -247,7 +249,7 @@ const getStreets = () => {
 
 /**Khi xem một sân*/
 function goToDetail(yard: Court) {
-  router.push('/detail');
+  router.push({ path: '/detail', query: { id: yard.id } });
   /**Lưu sân được bấm vào store*/
   store_court.court_detail = yard
 }

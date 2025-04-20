@@ -5,7 +5,8 @@
                 <p>
 
                 </p>
-                <p>{{time_selected }}</p>
+                <p>  {{ formatDate(store.storeDate?.[0]) }} -
+                    {{ formatDate(store.storeDate?.[1]) }}</p>
                 <CalendarDateRangeIcon class="w-5 h-5 text-white"></CalendarDateRangeIcon>
             </button>
 
@@ -15,17 +16,9 @@
             <div v-show ="store.filter_time" class="px-2 py-1 bg-[#faf2ac] absolute  top-2 z-50  rounded-xl w-full">
                 <ul class="flex flex-col gap-1 text-sm  ">
                     <li @click="openModal" class="py-1.5 text-center  font-medium text-green-900 border-b border-[#9d8d58]">
-                        Chọn Ngày
+                        Chọn thời gian
                     </li>
-                    <li class="py-1.5 text-center  font-medium text-green-900 border-b border-[#9d8d58]">
-                        Chọn khoảng thời gian
-                    </li>
-                    <li class="py-1.5 text-center  font-medium text-green-900 border-b border-[#9d8d58]">
-                        Chọn Tháng
-                    </li>
-                    <li class="py-1.5 text-center  font-medium text-green-900 ">
-                        Chọn Năm
-                    </li>
+                  
                 </ul>
             </div>
 
@@ -60,6 +53,16 @@ function openListSelected(){
 /**Mở modal*/
 function openModal(){
     store.show_modal = true
+    store.filter_time = false
 } 
+
+function formatDate(date: Date | undefined) {
+  if (!date) return '';
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
 
 </script>

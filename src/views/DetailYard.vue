@@ -3,12 +3,11 @@
     <header class="bg-green flex-shrink-0 flex flex-col gap-3 px-3 py-3">
       <!--  -->
       <div class="flex justify-between items-center">
-        <img  @click="goToBack" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
+        <img @click="goToBack" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
         <!--  -->
-        <h3 class="text-2xl font-semibold text-white">Trạng thái sân</h3>
+        <h3 class="text-2xl font-semibold text-white">Trạng thái sân: {{ store_court.court_detail?.courtName }}</h3>
         <div class="flex gap-5">
-          <IconSearch class="w-5 h-5 text-white"></IconSearch>
-          <IconFilter class="w-5 h-5 text-white"></IconFilter>
+
         </div>
       </div>
       <!--  -->
@@ -16,14 +15,16 @@
         <div class="flex items-center justify-between text-lg cursor-pointer button rounded-md ">
           <p></p>
           <p>{{ formatCurrency(store_court.chill_detail?.rentCost) }}đ / 1giờ</p>
+
           <CurrencyDollarIcon class="w-5 h-5 text-white"></CurrencyDollarIcon>
         </div>
         <!--  -->
         <div class="flex cursor-pointer gap-2 button rounded-md  ">
           <ListYardSmall></ListYardSmall>
         </div>
-         <!--  -->
-         <div @click="goToListBoking" class="flex items-center justify-between text-lg cursor-pointer button rounded-md ">
+        <!--  -->
+        <div @click="goToListBoking"
+          class="flex items-center justify-between text-lg cursor-pointer button rounded-md ">
           <p></p>
           <p>
             Danh sách lịch đặt sân
@@ -119,8 +120,13 @@
 
             <el-form :size="formSize" label-position="top">
               <!-- Nhập giá tối thiểu -->
-              <el-form-item label="Giá thuê sân từ (VNĐ/giờ)">
-                <el-input v-model.number="chill_court.rentCost" placeholder="Nhập giá tối thiểu"
+              <el-form-item label="Giá thuê sân vãng lại (VNĐ/giờ)">
+                <el-input v-model.number="chill_court.rentCost" placeholder="Nhập giá thuê vãng lai"
+                  :formatter="formatCurrency" :parser="parseCurrency" size="large" />
+              </el-form-item>
+              <!-- Nhập giá tối thiểu -->
+              <el-form-item label="Giá thuê sân cố định (VNĐ/giờ)">
+                <el-input v-model.number="chill_court.fixedRentCost" placeholder="Nhập giá thuê cố định"
                   :formatter="formatCurrency" :parser="parseCurrency" size="large" />
               </el-form-item>
 
@@ -208,11 +214,14 @@ import { ref, computed, onMounted } from "vue";
 import { useAppStore } from '@/stores/appStore'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
 import { useRouter } from 'vue-router'
+import { useRoute } from 'vue-router';
 
-import logoPick from"@/assets/imgs/logoPick.png"
+import logoPick from "@/assets/imgs/logoPick.png"
 
 /**api*/
 import { apiGetChillCourt, apiCreateChillCourt } from "@/service/api/apiChillCourt";
+import { apiGetCourt } from "@/service/api/apiCourt";
+
 
 /**Modal*/
 import Modal from "@/components/Modal/Modal.vue"
@@ -223,14 +232,11 @@ import FullCalendar from "./layout/FullCalendar.vue";
 /**filter*/
 import ListYardSmall from "./layout/DatailYard/ListYardSmall.vue";
 
-/**icon*/
-import { } from "@heroicons/vue/24/outline";
-// 
-import { ClipboardDocumentCheckIcon, XMarkIcon, CalendarDateRangeIcon, HeartIcon, CurrencyDollarIcon } from "@heroicons/vue/24/solid";
-import IconBack from "@/components/Icons/IconBack.vue";
-import IconSearch from "@/components/Icons/IconSearch.vue";
-import IconFilter from "@/components/Icons/IconFilter.vue";
 
+import { ClipboardDocumentCheckIcon, XMarkIcon, CalendarDateRangeIcon, HeartIcon, CurrencyDollarIcon } from "@heroicons/vue/24/solid";
+
+/**kiểu dữ liệu*/
+import type { Court } from '@/interface'
 /**icon menu*/
 import IconPhone from "@/components/Icons/IconPhone.vue";
 
@@ -251,6 +257,8 @@ const id_Court = store_court.court_detail?.id ?? 0
 const customDayNames = [
   'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'
 ];
+
+const list_court = ref<Court[]>([]);
 
 
 
@@ -283,7 +291,8 @@ const chill_court = ref({
   childCourtName: '',
   childCourtDescription: '',
   position: '',
-  rentCost: 0
+  rentCost: 0,
+  fixedRentCost: 0
 })
 
 /**Loại sân*/
@@ -323,17 +332,27 @@ const list_child = computed(() => {
   return store_court.list_chill_court.filter(child => child.courtId === id_Court)
 })
 
-
+const route = useRoute();
+const id = route.query.id;
 
 onMounted(async () => {
+  await getListCourt()
   //  Lấy danh sách sân con thuộc sân này
   await getChillCourt()
-  console.log('list_child', list_child);
 
+  // Nếu store chưa có dữ liệu court_detail, thì tìm từ danh sách
+  if (!store_court.court_detail && id) {
+    const court = list_court.value.find(c => String(c.id) === String(id));
+
+    if (court) {
+      store_court.court_detail = court;
+    } else {
+      // Nếu không tìm thấy thì có thể redirect hoặc báo lỗi
+      console.warn("Không tìm thấy sân với ID:", id);
+    }
+  }
 
   store_court.chill_detail = list_child.value[0];
-  console.log(list_child.value[0]);
-
 })
 
 
@@ -369,16 +388,16 @@ function showModal() {
 function goToBocking() {
   console.log(store.selectInfo?.start);
   console.log(new Date());
-  
-  
-  if(!store.selectInfo?.start){
+
+
+  if (!store.selectInfo?.start) {
     toast("Chưa chọn thời gian đặt lịch", { autoClose: 3000 });
-    
+
     return
   }
-  if(store.selectInfo?.start < new Date()){
+  if (store.selectInfo?.start < new Date()) {
     toast("Thời gian này đã qua, vui lòng chọn khoảng thời gian khác", { autoClose: 3000 });
-    
+
     return
   }
   router.push('/Boking')
@@ -423,23 +442,52 @@ function createChillCourt() {
 
 /***/
 async function createCourtChill() {
+  // Kiểm tra trùng tên sân con
+
+  const childList = store_court?.court_detail?.childLst;
+
+  const isDuplicate = Array.isArray(childList) && childList.length > 0
+    ? childList.some(
+      item => item.childCourtName.trim().toLowerCase() === chill_court.value.childCourtName.trim().toLowerCase()
+    )
+    : false;
+
+  if (isDuplicate) {
+    toast("Tên sân con đã tồn tại. Vui lòng chọn tên khác!", { autoClose: 5000 });
+    return;
+  }
+
+  // Kiểm tra giá fixedRentCost phải nhỏ hơn rentCost
+  const fixedCost = Number(chill_court.value.fixedRentCost);
+  const rentCost = Number(chill_court.value.rentCost);
+
+  if (isNaN(fixedCost) || isNaN(rentCost)) {
+    toast("Giá thuê phải là số hợp lệ!", { autoClose: 5000 });
+    return;
+  }
+
+  if (fixedCost >= rentCost) {
+    toast("Giá thuê cố định phải nhỏ hơn giá thuê gốc!", { autoClose: 5000 });
+    return;
+  }
+
+  // Nếu tất cả điều kiện hợp lệ, gọi API
   try {
     const response = await apiCreateChillCourt(chill_court.value);
 
-    // Kiểm tra nếu API trả về thành công
     if (response && response.status === 200) {
-      await getChillCourt()
+      await getChillCourt();
       toast("Tạo sân con thành công!", { autoClose: 5000 });
-      showModal()
-
-
+      showModal();
     } else {
       toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
     }
   } catch (error) {
     console.error("API Error:", error);
+    toast("Đã xảy ra lỗi trong quá trình tạo sân con!", { autoClose: 5000 });
   }
 }
+
 
 
 function handleDate() {
@@ -465,10 +513,25 @@ async function getChillCourt() {
     // Kiểm tra nếu API trả về thành công
     if (response && response.status === 200) {
       console.log('ktra', response.data);
-      
+
       store_court.list_chill_court = response.data
       console.log('ktra', store_court.list_chill_court);
 
+    } else {
+      // toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+    }
+  } catch (error) {
+    console.error("API Error:", error);
+  }
+}
+
+async function getListCourt() {
+  try {
+    const response = await apiGetCourt();
+
+    // Kiểm tra nếu API trả về thành công
+    if (response && response.status === 200) {
+      list_court.value = response.data
     } else {
       // toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
     }

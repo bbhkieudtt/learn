@@ -1,7 +1,7 @@
 <template>
     <div class="h-dvh w-dvw bg-green flex flex-col overflow-hidden pt-5 px-5 pb-2 ">
         <header>
-            <img  @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
+            <img @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
             <div class="flex-shrink-0 w-full grid grid-cols-3">
                 <div @click="clickMenu(menu.key)" v-for="menu in menu_list" :key="menu.key"
                     :class="{ 'text-yellow-400 border-b-2': menu.active, 'text-white ': !menu.active }"
@@ -25,7 +25,10 @@
                 <div class="grid h-full overflow-y-auto grid-cols-4  gap-15">
                     <!-- sân -->
                     <div @click="goToDetail(yard)" v-for="yard in list_yards" :key="yard.id"
-                        class="flex items-center h-fit w-60  border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
+                        class="flex relative  items-center h-fit w-60  border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
+                        <!-- Overlay phủ nếu sân ngừng hoạt động -->
+                        <div v-if="yard.status === 1"
+                            class="absolute inset-0 bg-gray-200 bg-opacity-60 z-10 rounded-lg"></div>
                         <img class="w-60 rounded-t-lg  h-50" :src="isValidImage(yard.images[0]) ? yard.images[0] : anh1"
                             alt="ảnh sân" />
                         <div class="flex w-full  flex-shrink-0 flex-col  gap-0.5 p-1 py-2">
@@ -34,10 +37,11 @@
                             </h3>
                             <p class="text-sm flex-shrink-0 text-slate-500 truncate">{{ yard.street + ', ' + yard.ward +
                                 ', ' + yard.district }}</p>
-                            <div class="flex items-center gap-2"> <span
+                            <div v-if="yard.status === 0" class="flex items-center gap-2"> <span
                                     class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + '  - ' + formatHour(yard.endTime) : '24/7' }}</p>
+                                <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + '- ' + formatHour(yard.endTime) : '24/7' }}</p>
                             </div>
+                            <p v-else class="text-red-500">Ngừng hoạt động</p>
 
                             <div class="flex items-center justify-between">
                                 <vue3-star-ratings v-if="store_review.list_review[yard.id]"
@@ -147,7 +151,7 @@
                             <label class="font-semibold text-green-900" for="">Tên chủ sân</label>
                             <input v-model="infor_yard.contactPerson" placeholder="Nhập tên sân  "
                                 class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
-                                @focus="setActive('address')" @blur="removeActive" />
+                                @focus="setActive('address')" @blur="removeActive" readonly />
                         </div>
 
                         <!-- Nhập số điện thoại -->
@@ -158,7 +162,7 @@
                             <input v-model="infor_yard.contactPhone" placeholder="Nhập số điện thoại"
                                 class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="tel"
                                 inputmode="numeric" pattern="\d*" @input="validatePhoneNumber"
-                                @focus="setActive('addressss')" @blur="removeActive" />
+                                @focus="setActive('addressss')" @blur="removeActive" readonly />
                         </div>
                         <!--Ảnh sân -->
                         <div class="w-full flex flex-col mt-5 gap-1.5">
@@ -201,7 +205,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from "axios";
-import logoPick from"@/assets/imgs/logoPick.png"
+import logoPick from "@/assets/imgs/logoPick.png"
 
 /**api*/
 import { apiCreateCourt, apiGetCourt } from "@/service/api/apiCourt";
@@ -219,7 +223,7 @@ import Modal from "@/components/Modal/Modal.vue"
 import image9 from '@/assets/imgs/image9.png'
 
 /**icon*/
-import { PlusIcon, ArrowLeftIcon, XMarkIcon, CloudArrowUpIcon } from "@heroicons/vue/24/solid";
+import { PlusIcon, XMarkIcon, CloudArrowUpIcon } from "@heroicons/vue/24/solid";
 import IconComment from '@/components/Icons/IconComment.vue'
 
 /**ảnh sân*/
@@ -232,12 +236,9 @@ import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
 /**kiểu dữ liệu*/
-import type { Court, Division, Location } from '@/interface'
+import type { Court, Location } from '@/interface'
 
 const start = 5
-
-/**Danh sách sân đã lọc theo địa chỉ , tên sân */
-
 /**Biến router */
 const router = useRouter()
 
@@ -249,7 +250,9 @@ const store_review = useAppStoreReview()
 /**biến store*/
 const store_court = useAppStoreCourt()
 
+/**Lọc sân*/
 
+const filter_court = ref(3)
 
 // Lấy thông tin user từ localStorage
 const userInfoStr = localStorage.getItem("userInfo")
@@ -258,9 +261,20 @@ const userId = userInfo?.id || null
 
 // Computed: Lọc danh sách sân theo userId
 const list_yards = computed(() => {
-    if (!store_court || !store_court.list_court) return []
-    return store_court.list_court.filter((court: Court) => court.userId === userId)
+  if (!store_court || !store_court.list_court) return []
+
+  return store_court.list_court
+    .filter((court: Court) => court.userId === userId) // Filter by userId
+    .filter((court: Court) => court.status !== 3) // Explicitly exclude courts with status 3
+    .filter((court: Court) => {
+      if (filter_court.value === 3) return true       // Hiển thị tất cả
+      if (filter_court.value === 0) return court.status === 0  // Chỉ sân đang hoạt động
+      if (filter_court.value === 1) return court.status === 1  // Chỉ sân ngừng hoạt động
+      return false // Trường hợp khác không hiển thị gì
+    })
 })
+
+
 
 
 const timeRange = ref([
@@ -311,77 +325,26 @@ const formattedTime = computed(() => {
 
 
 
-// Định dạng số thành tiền VND
-const formatCurrency = (value: any) => {
-    if (value === null || value === undefined || value === "") return ""; // Cho phép xóa hết số
-    return new Intl.NumberFormat("vi-VN").format(value);
-};
-
-// Chuyển chuỗi tiền tệ về số khi nhập
-const parseCurrency = (value: any) => {
-    const cleanedValue = value.replace(/[^\d]/g, ""); // Xóa tất cả ký tự không phải số
-    return cleanedValue ? Number(cleanedValue) : null; // Nếu xóa hết, trả về null
-};
-
 
 const selectedDistrict = ref("");      // Mã quận/huyện
 const selectedWard = ref("");          // Mã phường/xã
 const selectedStreet = ref("");        // Tên đường
 
-const districts = ref<Division[]>([]);
 const wards = ref<Location[]>([]);
 
 const fileInput = ref<HTMLInputElement | null>(null);
 
 
 onMounted(() => {
-    if (store.UserInfo) {
-        infor_yard.value.contactPerson = store.UserInfo?.fullname || 'Chưa có tên'
-        infor_yard.value.contactPhone = store.UserInfo?.phoneNumber || 'Chưa có số điện thoại'
-    }
+    if (localStorage.getItem("userInfo")) {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
+    infor_yard.value.contactPerson = userInfo.fullname || 'Chưa có tên';
+    infor_yard.value.contactPhone = userInfo.phoneNumber || 'Chưa có số điện thoại';
+}
+
 
 });
 
-// // Lấy danh sách quận/huyện Hà Nội
-// const getDistricts = async () => {
-//     try {
-//         const response = await axios.get("https://provinces.open-api.vn/api/d/");
-//         districts.value = response.data.filter((d: any) => d.province_code === 1); // 1 là mã của Hà Nội
-//     } catch (error) {
-//         console.error("Lỗi khi lấy quận/huyện:", error);
-//     }
-// };
-
-// const getDistricts = async () => {
-//     try {
-//         const response = await axios.get("https://provinces.open-api.vn/api/p/1?depth=2");
-//         districts.value = response.data.districts;
-//     } catch (error) {
-//         console.error("Lỗi khi lấy quận/huyện Hà Nội:", error);
-//     }
-// };
-
-
-// // Khi chọn quận/huyện
-// const getWards = async () => {
-//     const district = districts.value.find(d => d.code === selectedDistrict.value);
-//     infor_yard.value.district = district ? district.name : ""; // Lưu tên quận/huyện
-
-
-//     selectedStreet.value = "";
-
-//     try {
-
-//         const response = await axios.get("https://provinces.open-api.vn/api/w/");
-//         console.log("Lấy phường/xã cho quận/huyện:", response);
-
-//         // Lọc danh sách phường/xã theo quận/huyện đã chọn
-//         wards.value = response.data.filter((ward: any) => ward.district_code === selectedDistrict.value);
-
-//     } catch (error) {
-//         console.error("Lỗi khi lấy phường/xã:", error);
-//     }
-// };
 
 const getWards = async () => {
     const district = store.districts.find(d => d.code === selectedDistrict.value);
@@ -409,21 +372,21 @@ const show_modal = ref(false);
 
 /**Danh sách menu*/
 const menu_list = ref([
-    {
-        key: 1,
-        name_menu: 'Sân hoạt động',
+{
+        key: 3,
+        name_menu: 'Danh sách sân ',
         active: true
     },
     {
-        key: 2,
-        name_menu: 'Sân ngừng hoạt động',
+        key: 0,
+        name_menu: 'Sân hoạt động',
         active: false
     },
     {
-        key: 3,
-        name_menu: 'Sân bị xóa',
+        key: 1,
+        name_menu: 'Sân ngừng hoạt động',
         active: false
-    }
+    },
 ])
 
 
@@ -460,6 +423,8 @@ function clickMenu(key: number) {
             item.active = true
         }
     });
+
+    filter_court.value = key
 }
 
 /**hàm đóng modal*/

@@ -75,6 +75,26 @@ export const apiCreateUser = async (payload: any) => {
  };
 
  /**api tạo tài khoản*/
+export const apiUpdateUser = async (payload: any) => {
+  try {
+    return await apiRequests({
+      // Phương thức
+      method: "PUT",
+      // endpoint API
+      end_point: "User/update",
+      // payload được truyền từ giao diện
+      body: payload,
+    });
+  } catch (e) {
+    // Log lỗi nếu có
+   //  console.error("Error:", e);
+   console.log(e);
+   
+    throw e;
+  }
+};
+
+ /**api tạo tài khoản*/
 export const login = async (payload: {
    "username": string,
   "password": string

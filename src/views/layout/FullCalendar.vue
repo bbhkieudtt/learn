@@ -21,6 +21,10 @@ import viLocale from "@fullcalendar/core/locales/vi";
 import { apiGetListBooking } from "@/service/api/apiBoking";
 import { log } from "async";
 
+/**toast*/
+import { toast } from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+
 
 /**biến store*/
 const store = useAppStore()
@@ -32,10 +36,24 @@ const calendarRef = ref<InstanceType<typeof FullCalendar> | null>(null);
 
 // Xử lý khi chọn ngày để thêm sự kiện
 const handleDateSelect = (selectInfo: DateSelectArg) => {
-  
-  store.add_boking = false
-  store.selectInfo = selectInfo
+  const startTime = selectInfo.start;
+  const endTime = selectInfo.end;
+
+  // Tính toán khoảng thời gian đã chọn (đơn vị: phút)
+  const durationInMinutes = (endTime.getTime() - startTime.getTime()) / 60000;
+
+  // Cho phép chọn tối thiểu 60 phút, và phải là bội số của 30 phút (30, 60, 90, 120, ...)
+  if (durationInMinutes >= 60 && durationInMinutes % 30 === 0) {
+    store.add_boking = false;
+    store.selectInfo = selectInfo;
+  } else {
+    toast("Vui lòng chọn khoảng thời gian từ 1 tiếng trở lên và theo khung nửa giờ (ví dụ: 1 tiếng, 1 tiếng rưỡi...)", {
+      autoClose: 5000,
+    });
+  }
 };
+
+
 
 // 
 const calendarOptions: CalendarOptions = {

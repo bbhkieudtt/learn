@@ -2,7 +2,8 @@
     <div class="flex overflow-hidden h-dvh flex-col  ">
         <header class="h-40 w-full">
             <img class="w-full h-auto object-cover" :src="Img2" alt="">
-            <img  @click="goToDetail" :src="logoPick" alt="Logo" class="w-10 h-10 flex-shrink-0 z-50 absolute top-2 left-3 rounded-full">
+            <img @click="goToDetail" :src="logoPick" alt="Logo"
+                class="w-10 h-10 flex-shrink-0 z-50 absolute top-2 left-3 rounded-full">
             <!-- <ArrowLeftIcon  @click="goToDetail" class="w-5 h-5 z-50 text-white absolute top-2 left-3 flex-shrink-0 "></ArrowLeftIcon> -->
         </header>
         <main class="h-full relative bg-green w-full">
@@ -54,13 +55,24 @@
                         {{ store_court.court_detail?.contactPhone }}
                     </p>
                 </div>
-                <button v-if="isOwner" @click="editCourtModal"
-                    class="flex px-3 absolute bottom-4 right-5 py-2 rounded-lg text-sm text-white gap-1 bg-yellow-500">
-                    <IconEdit class="w-5 h-5 text-white"></IconEdit>
-                    <p class="font-medium">
-                        Chỉnh sửa thông tin sân
-                    </p>
-                </button>
+                <div class="flex w-full px-5 justify-between absolute bottom-4">
+                    <button v-if="isOwner" @click="editCourtModal"
+                        class="flex px-3  py-2 rounded-lg text-sm text-white gap-1 bg-yellow-500">
+                        <IconEdit class="w-5 h-5 text-white"></IconEdit>
+                        <p class="font-medium">
+                            Chỉnh sửa thông tin sân
+                        </p>
+                    </button>
+                    <!--  -->
+                    <button v-if="isOwner && store_court.court_detail?.status === 1 " @click="confirmDelete"
+                        class="flex px-3  py-2 rounded-lg text-sm text-white gap-1 bg-red-500">
+                        <EyeSlashIcon class="w-5 h-5 text-white"></EyeSlashIcon>
+                        <p class="font-medium">
+                            Xóa sân
+                        </p>
+                    </button>
+
+                </div>
             </div>
             <!-- Bảng giá sân -->
             <div v-if="yarf_select === 2" class="overflow-x-auto p-4">
@@ -74,7 +86,9 @@
                         <tr class="text-green-900">
                             <th class="border border-green-700 p-2">Sân con</th>
                             <th class="border border-green-700 p-2">Loại sân</th>
-                            <th class="border border-green-700 p-2">Giá</th>
+                            <th class="border border-green-700 p-2">Giá lịch vãng lai</th>
+                            <th class="border border-green-700 p-2">Giá lịch cố định</th>
+
                         </tr>
                     </thead>
                     <!-- Nội dung bảng -->
@@ -87,6 +101,7 @@
                             </td>
                             <td class="border border-green-700 p-2">{{ time.position }}</td>
                             <td class="border border-green-700 p-2">{{ formatCurrency(time.rentCost) + 'đ /giờ' }}</td>
+                            <td class="border border-green-700 p-2">{{ formatCurrency(time.fixedRentCost) + 'đ /giờ' }}</td>
                         </tr>
 
                     </tbody>
@@ -114,7 +129,7 @@
                     </div>
                 </div>
                 <!-- v-if="is_comment" -->
-                <button  @click="openComment"
+                <button @click="openComment"
                     class="flex px-3 absolute bottom-4 right-5 py-2 rounded-lg text-sm text-white gap-1 bg-yellow-500">
                     <IconEdit class="w-5 h-5 text-white"></IconEdit>
                     <p class="font-medium">
@@ -203,8 +218,8 @@
                             <el-form-item label="Chọn Quận/Huyện">
                                 <el-select v-model="selectedDistrict" placeholder="Chọn quận/huyện" @change="getWards"
                                     size="large">
-                                    <el-option v-for="district in store.districts" :key="district.code" :label="district.name"
-                                        :value="district.code" />
+                                    <el-option v-for="district in store.districts" :key="district.code"
+                                        :label="district.name" :value="district.code" />
                                 </el-select>
                             </el-form-item>
 
@@ -270,8 +285,8 @@
                             :class="{ 'opacity-50': activeInput !== 'address' && !store_court.court_detail.contactPerson }">
                             <label class="font-semibold text-green-900">Tên chủ sân</label>
                             <input v-model="store_court.court_detail.contactPerson" placeholder="Nhập tên chủ sân"
-                                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
-                                @focus="setActive('address')" @blur="removeActive" />
+                                class="w-full px-3 py-2 outline-none rounded-md border  border-green-600" type="text"
+                                @focus="setActive('address')" @blur="removeActive" readonly />
                         </div>
 
                         <!-- Số điện thoại -->
@@ -281,7 +296,7 @@
                             <input v-model="store_court.court_detail.contactPhone" placeholder="Nhập số điện thoại"
                                 class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="tel"
                                 inputmode="numeric" pattern="\d*" @input="validatePhoneNumber"
-                                @focus="setActive('addressss')" @blur="removeActive" />
+                                @focus="setActive('addressss')" @blur="removeActive" readonly />
                         </div>
 
                         <!-- Ảnh sân -->
@@ -302,6 +317,12 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!--  -->
+                        <Toggle v-model="active" class="mt-5" :label="active ? 'Hoạt động' : 'Ngừng hoạt động'"
+                            :color="'green'">
+                        </Toggle>
+
                     </div>
                 </div>
 
@@ -323,7 +344,8 @@ import { ref, onMounted, nextTick, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'
 import { useAppStore } from "@/stores/appStore";
-import logoPick from"@/assets/imgs/logoPick.png"
+import logoPick from "@/assets/imgs/logoPick.png"
+import { ElMessageBox, ElMessage } from 'element-plus'
 
 
 /**api*/
@@ -344,7 +366,8 @@ import Iconphones from '@/components/Icons/Iconphones.vue'
 import IconClock from '@/components/Icons/IconClock.vue'
 import IconLocation from '@/components/Icons/IconLocation.vue'
 import IconEdit from '@/components/Icons/IconEdit.vue'
-import { ArrowLeftIcon, XMarkIcon, UserCircleIcon } from "@heroicons/vue/24/solid";
+import { ArrowLeftIcon, XMarkIcon, UserCircleIcon, EyeSlashIcon } from "@heroicons/vue/24/solid";
+import Toggle from '@/components/Toggle.vue';
 
 /**modal*/
 import Modal from '@/components/Modal/Modal.vue';
@@ -358,12 +381,15 @@ import { apiCreateReview, apiGetListReview } from "@/service/api/apiReview";
 
 /**kiểu dữ liệu*/
 
-import type { Review, Division, Location } from '@/interface'
+import type { Review, Division, Location, Court } from '@/interface'
 
 /**toast*/
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import axios from "axios";
+
+/**Biến lưu hoạt động của sân*/
+const active = ref(true)
 
 
 const store = useAppStore()
@@ -371,6 +397,8 @@ const store = useAppStore()
 const selectedDistrict = ref("");      // Mã quận/huyện
 const selectedWard = ref<number | null>(null);       // Mã phường/xã
 const selectedStreet = ref("");
+
+const stop_court = ref(true)
 
 const timeRange = ref([
     { hours: 6, minutes: 0, seconds: 0 },
@@ -386,8 +414,8 @@ watch(timeRange, (newVal) => {
 
 // ẩn hiện nút chỉnh sửa sân 
 const isOwner = computed(() => {
-  const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
-  return store_court.court_detail?.userId === userInfo.id;
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
+    return store_court.court_detail?.userId === userInfo.id;
 });
 
 
@@ -494,9 +522,22 @@ const list_child = computed(() => {
 const wards = ref<Location[]>([]);
 
 onMounted(async () => {
+
     await getListComment()
     await getListBoking()
     getDistricts();
+
+
+    if (Number(store_court?.court_detail?.status) === 0) {
+        active.value = true
+        console.log('ktra');
+
+    }
+    else {
+        active.value = false
+        console.log('okii');
+
+    }
 })
 
 // Lấy danh sách quận/huyện Hà Nội
@@ -699,7 +740,7 @@ async function createComment() {
             toast("Bình luận thành công!", { autoClose: 2000 });
 
             getListComment()
-            
+
             showModal()
 
 
@@ -745,13 +786,26 @@ async function getListBoking() {
                 item.userId === userInfo.id
             );
 
-            console.log('filteredData', filteredData);
 
             // kiểm tra trong lịch thuê có sân này không
             check_comment.value = filteredData.some((item: any) =>
-                item.courtId === store_court.court_detail?.id
+                item.courtName === store_court.court_detail?.courtName
             );
-            console.log('is_comment', is_comment.value);
+
+
+
+            // kiểm tra xem sân này có lịch thuê nào trong tương lai không
+            const now = new Date();
+            const hasFutureBooking = response.data.some((item: any) =>
+                item.courtName === store_court.court_detail?.courtName &&
+                new Date(item.startTime) > now
+            );
+
+
+
+            stop_court.value = !hasFutureBooking; // nếu có lịch => false, không có => true
+
+            console.log(' stop_court.value', stop_court.value);
 
         }
 
@@ -762,6 +816,11 @@ async function getListBoking() {
 
 /**hàm cập nhân sân*/
 async function editCourt() {
+    if (!active.value && !stop_court.value) {
+        toast.error("Sân vẫn còn lịch đặt nên không thể ngừng hoạt động được!", { autoClose: 2000 });
+        return
+    }
+
 
     const selectedDistrictObj = store.districts.find(item => item.code === selectedDistrict.value);
     const selectedWardObj = wards.value.find(item => item.code === selectedWard.value);
@@ -769,7 +828,41 @@ async function editCourt() {
     if (selectedDistrictObj && store_court.court_detail) store_court.court_detail.district = selectedDistrictObj.name;
     if (selectedWardObj && store_court.court_detail) store_court.court_detail.ward = selectedWardObj.name;
 
+    // Kiểm tra tính hợp lệ của dữ liệu sân
+    if (!validateCourtDetail()) {
+        return; // Nếu validate không thành công, không tiếp tục gọi API
+    }
+    if (store_court.court_detail) {
+        store_court.court_detail.status = active.value ? 0 : 1;
+    }
+
     try {
+
+        const response = await apiUpdateCourt(store_court.court_detail);
+
+
+        if (response && response.status === 200) {
+
+
+            apiGetCourt()
+            toast("Cập nhật sân thành công!", { autoClose: 3000 });
+
+            showModal()
+        }
+
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
+
+async function deleteCourt() {
+   
+    if (store_court.court_detail) {
+        store_court.court_detail.status = 3;
+    }
+
+    try {
+
         const response = await apiUpdateCourt(store_court.court_detail);
 
 
@@ -793,6 +886,86 @@ const validatePhoneNumber = (event: any) => {
     if (store_court.court_detail)
         store_court.court_detail.contactPhone = event.target.value; // Cập nhật giá trị đã lọc vào biến v-model
 };
+
+/** Hàm kiểm tra các thuộc tính của store_court.court_detail */
+function validateCourtDetail() {
+    const courtDetail = store_court.court_detail;
+
+    if (!courtDetail) {
+        toast.error("Chi tiết sân không hợp lệ!", { autoClose: 2000 });
+        return false;
+    }
+
+    // Kiểm tra courtDescription
+    if (!courtDetail.courtDescription || courtDetail.courtDescription.trim() === "") {
+        toast.error("Mô tả sân không được để trống!", { autoClose: 2000 });
+        return false;
+    }
+
+    // Kiểm tra courtDescription
+    if (!courtDetail.courtName || courtDetail.courtName.trim() === "") {
+        toast.error("Mô tả sân không được để trống!", { autoClose: 2000 });
+        return false;
+    }
+
+    // Kiểm tra district
+    if (!courtDetail.district || courtDetail.district.trim() === "") {
+        toast.error("Khu vực không được để trống!", { autoClose: 2000 });
+        return false;
+    }
+
+    // Kiểm tra ward
+    if (!courtDetail.ward || courtDetail.ward.trim() === "") {
+        toast.error("Phường không được để trống!", { autoClose: 2000 });
+        return false;
+    }
+
+    // Kiểm tra street
+    if (!courtDetail.street || courtDetail.street.trim() === "") {
+        toast.error("Đường không được để trống!", { autoClose: 2000 });
+        return false;
+    }
+
+    // Kiểm tra images (đảm bảo có ít nhất một ảnh)
+    if (!courtDetail.images || courtDetail.images.length === 0) {
+        toast.error("Vui lòng tải lên ít nhất một bức ảnh!", { autoClose: 2000 });
+        return false;
+    }
+
+    return true; // Nếu tất cả điều kiện trên đều hợp lệ
+}
+
+
+const confirmDelete = () => {
+  ElMessageBox.confirm(
+    'Bạn có chắc chắn muốn xóa không?',
+    'Xác nhận xóa',
+    {
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Hủy',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      // Thực hiện xóa
+      deleteCourt()
+      ElMessage({
+        type: 'success',
+        message: 'Đã xóa thành công!',
+      })
+      router.push('/YourYard');
+    })
+    .catch(() => {
+      // Người dùng bấm Hủy
+      ElMessage({
+        type: 'info',
+        message: 'Đã hủy xóa',
+      })
+    })
+}
+
+
+
 
 
 </script>

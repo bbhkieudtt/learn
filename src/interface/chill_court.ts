@@ -5,4 +5,6 @@ export interface ChildCourt {
     childCourtDescription: string;
     position: string;
     rentCost: number;
+    fixedRentCost: number;
+
   }

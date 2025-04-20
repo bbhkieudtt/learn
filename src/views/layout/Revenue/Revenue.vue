@@ -26,11 +26,14 @@
         <!--  -->
         <main class="flex flex-col h-full pt-7 gap-5">
             <h4 class="items-center flex justify-center text-xl font-semibold text-green-900">
-                Thống kê sân (31/03/2025)
+                Thống kê sân 
+  từ ngày {{ formatDate(store.storeDate?.[0]) }} 
+  đến ngày {{ formatDate(store.storeDate?.[1]) }}
+
             </h4>
             <!--  -->
 
-            <table class="min-w-full h-full bg-white border-separate border border-green-800 rounded-lg shadow-lg">
+            <table v-if="list_chill" class="min-w-full h-full bg-white border-separate border border-green-800 rounded-lg shadow-lg">
                 <thead>
                     <tr class="bg-green-800 text-white">
                         <th class="py-3 px-6 text-left border-r border-gray-200">Sân</th>
@@ -62,9 +65,8 @@
     <Modal v-if="store.show_modal" :close="showModal">
         <template #content>
             <div class="w-[300px] h-[300px]">
-                <!-- @update:model-value="handleDate" -->
-                <!-- :day-names="customDayNames" -->
-                <VueDatePicker class="w-full h-full" v-model="store.date" :inline="true" auto-apply locale="vi">
+               
+                <VueDatePicker class="w-full h-full" v-model="store.storeDate" :inline="true" auto-apply locale="vi" range  >
                 </VueDatePicker>
             </div>
         </template>
@@ -96,8 +98,6 @@ import Modal from "@/components/Modal/Modal.vue"
 import { apiGetChillCourt } from "@/service/api/apiChillCourt";
 /**api*/
 import { apiGetListBooking } from "@/service/api/apiBoking";
-/**api*/
-import {apiGetPayment} from "@/service/api/apiPayment" 
 
 /**kiểu dữ liệu*/
 import type {CourtEvent } from '@/interface'
@@ -121,6 +121,12 @@ onMounted(async () => {
 
     await getListBoking()
 
+    const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0); // ngày cuối tháng
+
+  store.storeDate = [startOfMonth, endOfMonth];
+
 })
 
 const list_chill = computed(() => {
@@ -128,24 +134,35 @@ const list_chill = computed(() => {
   return store_court.list_chill_court ? store_court.list_chill_court.filter(court => court.courtId === store_court.court_detail?.id) : [];
 });
 
-
-
-// tính toán tổng số lượng và tổng giá tiền cho mỗi sân
+// 
 const courtsWithBookingInfo = computed(() => {
-  // Truy cập vào giá trị mảng từ computed
-  const listChillArray = list_chill.value || [];  // Nếu list_chill.value là undefined, dùng mảng rỗng
-  const listBokingArray = list_boking.value || [];  // Nếu list_boking.value là undefined, dùng mảng rỗng
+  const listChillArray = list_chill.value || [];
+  const listBokingArray = list_boking.value || [];
+  const dateRange = store.storeDate || []; // store.date = [start, end]
 
-  if (listChillArray.length === 0) {
-    return [];  // Nếu list_chill là mảng rỗng, trả về mảng rỗng
-  }
+  const today = new Date(); // ngày hôm nay
+
+  if (listChillArray.length === 0) return [];
 
   return listChillArray.map(child => {
-    // Kiểm tra nếu list_boking có giá trị hợp lệ
-    const bookingsForCourt = listBokingArray.filter(booking => booking.childCourtId === child.id);
+    const bookingsForCourt = listBokingArray.filter(booking => {
+      const bookingTime = new Date(booking.startTime);
+      
+      // Điều kiện lọc
+      const isCorrectCourt = booking.childCourtId === child.id;
+      const isStatus2 = booking.status === 2;
+      const isAfterToday = bookingTime <= today;
 
-    const total_boking = bookingsForCourt.length;  // Tổng số booking cho sân
-    const total_price = bookingsForCourt.reduce((sum, booking) => sum + booking.price, 0);  // Tổng giá tiền cho sân
+      // Kiểm tra có chọn khoảng ngày không
+      const inDateRange = Array.isArray(dateRange) && dateRange.length === 2
+        ? bookingTime >= new Date(dateRange[0]) && bookingTime <= new Date(dateRange[1])
+        : true; // nếu không chọn ngày thì lấy tất
+
+      return isCorrectCourt && isStatus2 && isAfterToday && inDateRange;
+    });
+
+    const total_boking = bookingsForCourt.length;
+    const total_price = bookingsForCourt.reduce((sum, booking) => sum + booking.price, 0);
 
     return {
       name: child.childCourtName,
@@ -154,6 +171,7 @@ const courtsWithBookingInfo = computed(() => {
     };
   });
 });
+
 
 const totalPriceAllCourts = computed(() => {
   return courtsWithBookingInfo.value.reduce((sum, court) => sum + court.total_price, 0);
@@ -218,6 +236,16 @@ const formatCurrency = (value: number) => {
     currency: 'VND',
   }).format(value);
 };
+
+function formatDate(date: Date | undefined) {
+  if (!date) return '';
+  return date.toLocaleDateString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+
 
 
 

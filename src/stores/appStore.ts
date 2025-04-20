@@ -44,6 +44,8 @@ export const useAppStore = defineStore("app", () => {
     const business_token = ref<string>("");
     // ** danh sách quận huyện
     const districts = ref<Division[]>([]);
+    const storeDate = ref<Date[]>([]);
+
    
    
     
@@ -66,6 +68,7 @@ export const useAppStore = defineStore("app", () => {
         status,
         business_token,
         districts,
+        storeDate
       
     }
 

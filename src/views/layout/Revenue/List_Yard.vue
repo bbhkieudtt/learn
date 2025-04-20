@@ -63,9 +63,13 @@ const userId = userInfo?.id || null
 
 // Computed: Lọc danh sách sân theo userId
 const list_yards = computed(() => {
-    if (!store_court || !store_court.list_court) return []
-    return store_court.list_court.filter((court: Court) => court.userId === userId)
-})
+  if (!store_court || !store_court.list_court) return [];
+  
+  return store_court.list_court.filter((court: Court) => 
+    court.userId === userId && court.status === 0
+  );
+});
+
 
 onMounted(()=>{
     store_court.court_detail = list_yards.value[0]
