@@ -18,15 +18,11 @@
   
   /**img icon*/ 
   import ban from '@/assets/imgs/icon/ban.png'
-  import doanhthu from '@/assets/imgs/icon/doanhthu.png'
   import lichthue from '@/assets/imgs/icon/lichthue.png'
   import listsan from '@/assets/imgs/icon/listsan.png'
-  import sancuaban from '@/assets/imgs/icon/sancuaban.png'
-  import employee from '@/assets/imgs/icon/employee.png'
   import lich from '@/assets/imgs/icon/lich.png'
+  import sancuaban from '@/assets/imgs/icon/sancuaban.png'
 
-  
-  
   /**Biến router */
   const router = useRouter()
   
@@ -42,12 +38,18 @@
       },
       {
           id: 2,
+          name_menu: "Danh sách lịch đặt",
+          icon_menu: sancuaban,
+          active_menu: false,
+      },
+      {
+          id: 3,
           name_menu: "Doanh sách thanh toán",
           icon_menu: lich,
           active_menu: false,
       },
       {
-          id: 3,
+          id: 4,
           name_menu: "Danh sách báo cáo",
           icon_menu: lichthue,
           active_menu: false,
@@ -70,8 +72,8 @@
       }
       // 
       if(id===2){
-          router.push('/YourYard');
-          store_court.is_court = 'YourYard'
+          router.push('/totalboking');
+       
       }
       // 
       if(id===3){

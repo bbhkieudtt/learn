@@ -60,6 +60,33 @@ div .fc-view-harness .fc-view-harness-active{
     background: #555;
 }
 
+/* Tùy chỉnh màu sắc cho VueDatePicker */
+.dp__theme_light {
+    --dp-primary-color: #15803d; /* Xanh lá cây đậm */
+    --dp-secondary-color: #facc15; /* Vàng */
+}
+.dp__action_button {
+    background-color: #15803d;
+    color: white;
+}
+.dp__action_button:hover {
+    background-color: #166d3b;
+}
+/* Đảm bảo vùng scroll có thanh cuộn đẹp */
+.scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+.scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+    background: #15803d;
+    border-radius: 4px;
+}
+.scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #166d3b;
+}
+
 
 
 

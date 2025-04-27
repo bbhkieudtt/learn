@@ -1,11 +1,13 @@
 <template>
     <div class="flex overflow-hidden h-dvh flex-col  ">
+        <!--  -->
         <header class="h-40 w-full">
             <img class="w-full h-auto object-cover" :src="Img2" alt="">
             <img @click="goToDetail" :src="logoPick" alt="Logo"
                 class="w-10 h-10 flex-shrink-0 z-50 absolute top-2 left-3 rounded-full">
-            <!-- <ArrowLeftIcon  @click="goToDetail" class="w-5 h-5 z-50 text-white absolute top-2 left-3 flex-shrink-0 "></ArrowLeftIcon> -->
+            
         </header>
+        <!--  -->
         <main class="h-full relative bg-green w-full">
             <div class="flex absolute top-[-40px] left-5 items-center gap-2">
                 <img :src="validImageSrc" class="w-25 h-25 rounded-full" alt="">
@@ -339,7 +341,6 @@
 </template>
 
 <script setup lang="ts">
-
 import { ref, onMounted, nextTick, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStoreCourt } from '@/stores/appStoreCourt'

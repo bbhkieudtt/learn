@@ -9,20 +9,27 @@ export interface ClientBoking {
 }
 
 export interface Booking {
-    userId: number;
-    childCourtId: number;
-    startTime: string; // ISO 8601 datetime string
-    endTime: string;   // ISO 8601 datetime string
-    // trạng thái 
-    // 0: chờ xác nhận
-    // 1: đã đặt, 
-    // 2: chưa thanh toán 
-    // 3 : đã thanh toán
-    // 5: Đã hủy
-    // 6: đã hoàn tiền
-    status: number;    
-    price: number;     
-  }
+  childCourtId: number;
+  childCourtName: string;
+  courtDistrict: string;
+  courtId: number;
+  courtName: string;
+  courtStreet: string;
+  courtWard: string;
+  createDate: string;
+  endTime: string;
+  id: number;
+  price: number;
+  quantity: number;
+  startTime: string;
+  status: number;
+  type: number;
+  userFullName: string;
+  userId: number;
+  userPhoneNumber: string;
+}
+
+  type BookingType = 0 | 1 | 2 | 3;
 
   export  interface CourtEvent {
     childCourtId: number;
@@ -41,5 +48,9 @@ export interface Booking {
     userFullName: string;
     userId: number;
     userPhoneNumber: string;
+      // 0: Ngày ,1 Tuần, 2Tháng, 3 năm 
+      type:BookingType ;
+      // Số lượng cho type 
+      quantity:number;
   }
   

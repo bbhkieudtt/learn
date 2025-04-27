@@ -37,7 +37,8 @@
                             </h3>
                             <p class="text-sm flex-shrink-0 text-slate-500 truncate">{{ yard.street + ', ' + yard.ward +
                                 ', ' + yard.district }}</p>
-                            <div v-if="yard.status === 0" class="flex items-center gap-2"> <span
+                            <div v-if="yard.status === 0" class="flex items-center gap-2">
+                                 <span
                                     class="w-2 h-2 bg-green-500 rounded-full"></span>
                                 <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + '- ' + formatHour(yard.endTime) : '24/7' }}</p>
                             </div>

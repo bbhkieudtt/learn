@@ -2,7 +2,7 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 
 /**kiểu dữ liệu*/
-import type {ClientBoking, event_booking,UserInfo,Event,Division,Location } from '@/interface'
+import type {ClientBoking, event_booking,UserInfo,Event,Division,Booking } from '@/interface'
 import type {  DateSelectArg } from "@fullcalendar/core";
 /***/ 
 export const useAppStore = defineStore("app", () => {
@@ -16,7 +16,7 @@ export const useAppStore = defineStore("app", () => {
     /**Lưu thông tin thời gian để tạo lịch*/
     const selectInfo = ref<DateSelectArg>()
     /**Mảng sự kiện*/
-    const list_event =ref<event_booking>()
+    const list_event =ref<event_booking[]>([])
     /**Biển mở DropBox chọn sân con*/
     const filter_yard =  ref(false)
     /**Ngày muốn xem lịch*/ 
@@ -45,6 +45,9 @@ export const useAppStore = defineStore("app", () => {
     // ** danh sách quận huyện
     const districts = ref<Division[]>([]);
     const storeDate = ref<Date[]>([]);
+    const bookings = ref<Booking[]>([]);
+
+    const events_list = ref({})
 
    
    
@@ -68,7 +71,9 @@ export const useAppStore = defineStore("app", () => {
         status,
         business_token,
         districts,
-        storeDate
+        storeDate,
+        bookings,
+        events_list
       
     }
 

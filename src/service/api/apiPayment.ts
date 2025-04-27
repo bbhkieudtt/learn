@@ -55,29 +55,53 @@ export const apiCreatePayment = async (payload: any) => {
    }
  }; 
 
- /**api tạo thanh toán*/
-export const apiCreatePaymentVNpay = async (params: { paymentId: number; moneyToPay: number }) => {
-  const query = new URLSearchParams({
-    paymentId: params.paymentId.toString(),
-    moneyToPay: params.moneyToPay.toString()
-  });
+//  /**api tạo thanh toán*/
+// export const apiCreatePaymentVNpay = async (params: { paymentId: number; moneyToPay: number }) => {
+//   const query = new URLSearchParams({
+//     paymentId: params.paymentId.toString(),
+//     moneyToPay: params.moneyToPay.toString()
+//   });
+//   try {
+//     return await apiRequest({
+//      // Phương thức
+//      method: "GET",
+//       // endpoint API
+//       end_point: `Payment/CreatePaymentUrlForList?${query.toString()}`,
+//       // payload được truyền từ giao diện
+      
+//     });
+//   } catch (e) {
+//     // Log lỗi nếu có
+//    //  console.error("Error:", e);
+//    console.log(e);
+   
+//     throw e;
+//   }
+// }; 
+
+/**api tạo thanh toán*/
+export const apiCreatePaymentVNpay = async (paymentIds: number[]) => {
+
+  console.log('paymentIds',paymentIds);
+  
+  // Tạo query string từ danh sách paymentIds
+  const query = new URLSearchParams();
+  paymentIds.forEach(id => query.append('paymentIds', id.toString()));
+
   try {
     return await apiRequest({
-     // Phương thức
-     method: "GET",
+      // Phương thức
+      method: "GET",
       // endpoint API
-      end_point: `Payment/CreatePaymentUrl?${query.toString()}`,
-      // payload được truyền từ giao diện
-      
+      end_point: `Payment/CreatePaymentUrlForList?${query.toString()}`,
+      // Không cần payload vì tham số đã được truyền qua query string
     });
   } catch (e) {
     // Log lỗi nếu có
-   //  console.error("Error:", e);
-   console.log(e);
-   
+    console.log(e);
     throw e;
   }
-}; 
+};
 
 /**api tạo thanh toán*/
 export const apiGetPayment = async () => {

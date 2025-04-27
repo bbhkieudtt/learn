@@ -25,6 +25,9 @@ import { log } from "async";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
+import type {event_booking,Booking } from '@/interface'
+
+
 
 /**biến store*/
 const store = useAppStore()
@@ -157,14 +160,14 @@ async function getListBoking() {
      
       // Biến đổi dữ liệu thành định dạng phù hợp với FullCalendar
       const events = transformToFullCalendar(response.data);
-  
-      
 
+      store.events_list = events
+ 
       console.log('events', events);
 
       if (calendarRef.value) {
 
-        store.list_event = events;
+        store.list_event = events 
 
       }
 
@@ -180,39 +183,140 @@ async function getListBoking() {
 
 /** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
 /** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
-function transformToFullCalendar(eventsData: any) {
-  return eventsData
-  .filter((event: any) =>
+function transformToFullCalendar(eventsData: Booking[]): event_booking[] {
+  const result: event_booking[] = [];
+
+  const filteredEvents = eventsData.filter(
+    (event) =>
       event.childCourtId === store_court.chill_detail?.id &&
-      (event.status === 1 || event.status === 2) // Chỉ lấy status 0 và 1
-    )
-    .map((event: any) => {
-      // Tìm user từ userId trong danh sách user
-    
-      console.log();
-      
-      const title = event ? `${event.userFullName} sđt: ${event.userPhoneNumber} giá: ${event.price}` : 'No User';
+      (event.status === 1 || event.status === 2)
+  );
 
-      const start = event.startTime;
-      const end = event.endTime;
+  console.log('Filtered Events:', filteredEvents);
 
-      // Lớp CSS dựa vào status
-      const classList = event.status === 2
-        ? ['bg-green-500', 'text-white']            
+  filteredEvents.forEach((event) => {
+    const title = event.userFullName
+      ? `${event.userFullName} sđt: ${event.userPhoneNumber || 'N/A'} giá: ${event.price || 0}`
+      : 'No User';
+
+    const classNames =
+      event.status === 2
+        ? ['bg-green-500', 'text-white']
         : event.status === 1
-          ? ['bg-yellow-400', 'text-white']            
-          : ['bg-slate-400', 'text-yellow-400'];    
+        ? ['bg-yellow-400', 'text-white']
+        : ['bg-slate-400', 'text-yellow-400'];
 
-      return {
-        id: event.id,
-        start,
-        end,
-        title,
-        classNames: classList,
-      };
-    });
+    if (event.type === 0) {
+      for (let i = 0; i < event.quantity; i++) {
+        console.log('event ngày', event);
+
+        const start = new Date(event.startTime);
+        const end = new Date(event.endTime);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          console.warn(`Invalid date for event ${event.id}`);
+          return;
+        }
+
+        start.setDate(start.getDate() + i);
+        end.setDate(end.getDate() + i);
+
+        result.push({
+          id: `${event.id}-${i}`,
+          start: start.toISOString(),
+          end: end.toISOString(),
+          title,
+          classNames,
+          description: `Booking ID: ${event.id}`,
+          allDay: false,
+        });
+      }
+    } else if (event.type === 1) {
+      for (let i = 0; i < event.quantity; i++) {
+        const start = new Date(event.startTime);
+        const end = new Date(event.endTime);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          console.warn(`Invalid date for event ${event.id}`);
+          return;
+        }
+
+        start.setDate(start.getDate() + i * 7);
+        end.setDate(end.getDate() + i * 7);
+
+        result.push({
+          id: `${event.id}-${i}`,
+          start: start.toISOString(),
+          end: end.toISOString(),
+          title,
+          classNames,
+          description: `Booking ID: ${event.id}`,
+          allDay: false,
+        });
+      }
+    } else if (event.type === 2) {
+      const startDate = new Date(event.startTime);
+      const endDate = new Date(event.endTime);
+      const dayOfWeek = startDate.getDay();
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        console.warn(`Invalid date for event ${event.id}`);
+        return;
+      }
+
+      const endLimit = new Date(startDate);
+      endLimit.setMonth(endLimit.getMonth() + event.quantity);
+
+      let currentDate = new Date(startDate);
+
+      while (currentDate <= endLimit) {
+        if (currentDate.getDay() === dayOfWeek) {
+          result.push({
+            id: `${event.id}-${currentDate.getTime()}`,
+            start: new Date(currentDate).toISOString(),
+            end: new Date(currentDate.getTime() + (endDate.getTime() - startDate.getTime())).toISOString(),
+            title,
+            classNames,
+            description: `Booking ID: ${event.id}`,
+            allDay: false,
+          });
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    } else if (event.type === 3) {
+      const startDate = new Date(event.startTime);
+      const endDate = new Date(event.endTime);
+      const dayOfWeek = startDate.getDay();
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        console.warn(`Invalid date for event ${event.id}`);
+        return;
+      }
+
+      const endLimit = new Date(startDate);
+      endLimit.setFullYear(endLimit.getFullYear() + event.quantity);
+
+      let currentDate = new Date(startDate);
+
+      while (currentDate <= endLimit) {
+        if (currentDate.getDay() === dayOfWeek) {
+          result.push({
+            id: `${event.id}-${currentDate.getTime()}`,
+            start: new Date(currentDate).toISOString(),
+            end: new Date(currentDate.getTime() + (endDate.getTime() - startDate.getTime())).toISOString(),
+            title,
+            classNames,
+            description: `Booking ID: ${event.id}`,
+            allDay: false,
+          });
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+  });
+
+  return result;
 }
-
 
 /**Hàm xử lý khi bấm vào một sự kiện*/
 function handleEventClick(info: any) {

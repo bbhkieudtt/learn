@@ -386,22 +386,24 @@ function showModal() {
 
 /**hàm hiển thị đặt lịch*/
 function goToBocking() {
-  console.log(store.selectInfo?.start);
-  console.log(new Date());
+  // console.log(store.selectInfo?.start);
+  // console.log(new Date());
 
 
-  if (!store.selectInfo?.start) {
-    toast("Chưa chọn thời gian đặt lịch", { autoClose: 3000 });
+  // if (!store.selectInfo?.start) {
+  //   toast("Chưa chọn thời gian đặt lịch", { autoClose: 3000 });
 
-    return
-  }
-  if (store.selectInfo?.start < new Date()) {
-    toast("Thời gian này đã qua, vui lòng chọn khoảng thời gian khác", { autoClose: 3000 });
+  //   return
+  // }
+  // if (store.selectInfo?.start < new Date()) {
+  //   toast("Thời gian này đã qua, vui lòng chọn khoảng thời gian khác", { autoClose: 3000 });
 
-    return
-  }
-  router.push('/Boking')
+  //   return
+  // }
+  // router.push('/Boking')
   // 
+  router.push('/infobooking')
+
 
 }
 

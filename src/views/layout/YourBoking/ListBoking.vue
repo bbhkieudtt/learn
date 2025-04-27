@@ -1,7 +1,7 @@
 <template>
     <div class="h-dvh w-dvw bg-green flex flex-col overflow-hidden pt-5 px-5 pb-2 ">
         <header>
-            <img  @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
+            <img @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
             <div class="flex-shrink-0 w-full grid grid-cols-5">
                 <div @click="clickMenu(menu.key)" v-for="menu in menu_list" :key="menu.key"
                     :class="{ 'text-yellow-400 border-b-2': menu.active, 'text-white ': !menu.active }"
@@ -30,9 +30,10 @@
                         transition duration-200 hover:brightness-90 hover:rounded-lg hover:bg-green-800">
                         <div class="flex items-center space-x-0">
                             <!-- Đơn ngày -->
+                            <!-- Booking type label -->
                             <span class="bg-purple-500 text-white px-6 py-1 text-sm relative">
-                                Lịch
-
+                                {{ boking.type === 0 ? 'Lịch ngày' : boking.type === 1 ? 'Lịch tuần' : boking.type === 2
+                                ? 'Lịch tháng' : 'Lịch năm' }}
                             </span>
 
                             <span :class="[
@@ -54,18 +55,19 @@
                                 {{ boking.courtName }}
                             </p>
                             <!--  -->
-                            <button @click="openModel(boking)" v-if="isMoreThanOneDayAway(boking.startTime) && boking.status === 2 "
+                            <button @click="openModel(boking)"
+                                v-if="isMoreThanOneDayAway(boking.startTime) && boking.status === 2"
                                 class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
                                 Hủy lịch
                                 <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>
                             </button>
                             <!--  -->
-                            <button v-if="boking.status === 1 "
+                            <button v-if="boking.status === 1"
                                 class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-yellow-500">
-                                Thanh toán 
+                                Thanh toán
                                 <ArchiveBoxXMarkIcon class="w-4 h-4 text-white"></ArchiveBoxXMarkIcon>
                             </button>
-                            
+
                         </div>
 
                         <div class="flex gap-1 items-center">
@@ -141,7 +143,7 @@
                             </p>
                             <p class="font-bold">
                                 {{ cancel_bokings?.courtStreet }}, {{ cancel_bokings?.courtWard }},{{
-                                cancel_bokings?.courtDistrict }}, Hà Nội
+                                    cancel_bokings?.courtDistrict }}, Hà Nội
                             </p>
                         </div>
                         <div class="flex gap-3 text-sm text-green-800">
@@ -192,10 +194,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted,computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from "@/stores/appStore";
-import logoPick from"@/assets/imgs/logoPick.png"
+import logoPick from "@/assets/imgs/logoPick.png"
 
 /**Modal*/
 import Modal from "@/components/Modal/Modal.vue"
@@ -222,7 +224,7 @@ import 'vue3-toastify/dist/index.css';
 const list_bokings = ref<CourtEvent[]>([])
 
 //* biến lọc danh sách lịch
-const statusList= ref(1) 
+const statusList = ref(1)
 
 /**Biến router */
 const router = useRouter()
@@ -249,7 +251,7 @@ const menu_list = ref([
     },
     {
         key: 3,
-        name_menu: 'Lịch chưa thanh toán',
+        name_menu: 'Lịch cần thanh toán',
         active: false
     },
     {
@@ -266,8 +268,6 @@ const menu_list = ref([
 
 
 
-
-
 const cancel_bokings = ref<CourtEvent>()
 
 
@@ -275,33 +275,31 @@ onMounted(async () => {
     await getListBoking()
 })
 
-    // trạng thái 
-    // 0: đã đặt, 
-    // 1: chưa thanh toán 
-    // 2 : đã thanh toán
-    // 3: Đã hủy
-    // 4: đã hoàn tiền
+// trạng thái 
+// 0: đã đặt, 
+// 1: chưa thanh toán 
+// 2 : đã thanh toán
+// 3: Đã hủy
+// 4: đã hoàn tiền
+const list_bookings = computed(() => {
+    return list_bokings.value.filter((booking) => {
+        const statusText = getStatusText(booking)
 
-
-    const list_bookings = computed(() => {
-  return list_bokings.value.filter((booking) => {
-    const statusText = getStatusText(booking)
-
-    switch (statusList.value) {
-      case 1:
-        return true
-      case 2:
-        return statusText === 'Đã hoàn thành'
-      case 3:
-        return statusText === 'Chưa thanh toán'
-      case 4:
-        return statusText === 'Lịch sắp tới'
-      case 5:
-        return statusText === 'Đã hủy' || statusText === 'Hủy thành công'
-      default:
-        return false
-    }
-  })
+        switch (statusList.value) {
+            case 1:
+                return true
+            case 2:
+                return statusText === 'Đã hoàn thành'
+            case 3:
+                return statusText === 'Chưa thanh toán'
+            case 4:
+                return statusText === 'Lịch sắp tới'
+            case 5:
+                return statusText === 'Đã hủy' || statusText === 'Hủy thành công'
+            default:
+                return false
+        }
+    })
 })
 
 // Hàm chuyển đổi startTime thành ngày/tháng/năm
@@ -378,13 +376,13 @@ function isMoreThanOneDayAway(timeStr: string) {
 }
 
 // trạng thái 
-    // 0: đã đặt, 
-    // 1: chưa thanh toán 
-    // 2: đã thanh toán
-    // 3: Đã hủy
-    // 4: đã hoàn tiền
+// 0: đã đặt, 
+// 1: chưa thanh toán 
+// 2: đã thanh toán
+// 3: Đã hủy
+// 4: đã hoàn tiền
 
-    function getStatusText(booking: CourtEvent) {
+function getStatusText(booking: CourtEvent) {
     if (booking.status === 3) return 'Đã hủy' // Đã hủy
     if (booking.status === 4) return 'Hủy thành công' // Hủy thành công
     if (booking.status === 1) {
@@ -418,7 +416,7 @@ function getStatusColor(booking: CourtEvent) {
         // Nếu startTime đã qua thời gian hiện tại, trả về "Lịch hết hạn", màu xám
         return startTime < now ? 'bg-gray-500' : 'bg-yellow-500' // Lịch hết hạn màu xám, chưa thanh toán màu vàng
     }
-    
+
     if (booking.status === 2) {
         const startTime = new Date(booking.startTime)
         const now = new Date()
@@ -444,7 +442,7 @@ function getStatusColors(booking: CourtEvent) {
         // Nếu startTime đã qua thời gian hiện tại, trả về "Lịch hết hạn", màu xám
         return startTime < now ? 'border-r-gray-500' : 'border-r-yellow-500' // Lịch hết hạn màu xám, chưa thanh toán màu vàng
     }
-    
+
     if (booking.status === 2) {
         const startTime = new Date(booking.startTime)
         const now = new Date()
@@ -482,7 +480,7 @@ async function cancelBokings() {
     }
     try {
         const response = await apiUpdateBoking(cancel_bokings.value);
-     
+
         if (response && response.status === 200) {
             toast("Hủy lịch thành công!", { autoClose: 3000 });
             getListBoking()

@@ -15,6 +15,9 @@ import ListBokingCout from '@/views/layout/DatailYard/ListBokingCout.vue';
 import Success from '@/components/StatusPayment/Success.vue';
 import Failure from '@/components/StatusPayment/Failure.vue';
 import InforUse from '@/views/InforUse.vue';
+import InfoBooking from '@/views/InfoBooking.vue';
+import ListBokings from '@/views/layoutAdmin/ListBoking.vue';
+
 
 
 // Định nghĩa routes
@@ -34,6 +37,11 @@ export const routes = [
   { path: '/success', component: Success },
   { path: '/failure', component: Failure },
   { path: '/inforUse', component: InforUse },
+  { path: '/infobooking', component: InfoBooking },
+  { path: '/totalboking', component: ListBokings },
+
+  
+
 
 
 
