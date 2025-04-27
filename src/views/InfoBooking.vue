@@ -666,18 +666,7 @@ const confirmBooking = () => {
     }
   }
 
-  alert(
-    'Đặt lịch thành công! Dữ liệu: ' +
-      JSON.stringify(
-        {
-          courtName: store_court.court_detail?.courtName,
-          childCourt: selectedChildCourt.value,
-          bookings: bookings.value,
-        },
-        null,
-        2
-      )
-  );
+
 
   console.log('DEBUG: Final bookings:', bookings.value);
   store.bookings = bookings.value;
