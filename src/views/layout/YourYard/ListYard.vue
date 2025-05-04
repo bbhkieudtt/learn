@@ -1,13 +1,13 @@
 <template>
-    <div class="h-dvh w-dvw bg-green flex flex-col overflow-hidden pt-5 px-5 pb-2 ">
-        <header>
-            <img @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
-            <div class="flex-shrink-0 w-full grid grid-cols-3">
+    <div class="h-dvh w-dvw bg-green flex flex-col overflow-hidden pt-5 px-5 pb-2">
+        <header class="flex items-center mb-4">
+            <img @click="goHome" :src="logoPick" alt="Logo"
+                class="w-10 h-10 rounded-full shadow-md hover:scale-105 transition-transform duration-300 mr-4">
+            <div class="flex-1 grid grid-cols-3 gap-2">
                 <div @click="clickMenu(menu.key)" v-for="menu in menu_list" :key="menu.key"
-                    :class="{ 'text-yellow-400 border-b-2': menu.active, 'text-white ': !menu.active }"
-                    class="text-center border-yellow-400 py-2  cursor-pointer font-semibold text-lg">
+                    :class="{ 'text-yellow-400 border-b-2 border-yellow-400': menu.active, 'text-white': !menu.active }"
+                    class="text-center py-3 cursor-pointer font-semibold text-lg bg-green-600 bg-opacity-20 rounded-lg hover:bg-opacity-40 hover:text-yellow-300 transition-all duration-200">
                     {{ menu.name_menu }}
-
                 </div>
             </div>
         </header>
@@ -16,38 +16,47 @@
             <!-- Chưa có sân -->
             <div v-if="list_yards && list_yards.length === 0" class="w-full h-full flex justify-center items-center">
                 <div class="flex-col">
-                    <img :src="image9" class="justify-center items-center" alt="">
+                    <img :src="image9" class="mx-auto w-32 h-32" alt="">
                     <p class="text-lg text-white font-semibold text-center">Bạn chưa có sân nào</p>
                 </div>
             </div>
             <!-- Đã có sân -->
-            <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 py-2 ">
-                <div class="grid h-full overflow-y-auto grid-cols-4  gap-15">
+            <div v-else class="w-full h-full flex justify-center overflow-y-auto items-center px-5 py-2">
+                <div class="grid h-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-15">
                     <!-- sân -->
                     <div @click="goToDetail(yard)" v-for="yard in list_yards" :key="yard.id"
-                        class="flex relative  items-center h-fit w-60  border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
+                        class="flex relative items-center h-fit w-60 border border-white flex-shrink-0 rounded-lg cursor-pointer flex-col bg-white shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+                        <!-- Badge hiển thị số báo cáo -->
+                        <div  title="Số lượt báo cáo của sân" v-if="reportCountByCourt[yard.id] > 0"
+                            class="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold rounded-full h-6 w-6 flex items-center justify-center z-20">
+                            {{ reportCountByCourt[yard.id] }}
+                        </div>
                         <!-- Overlay phủ nếu sân ngừng hoạt động -->
                         <div v-if="yard.status === 1"
-                            class="absolute inset-0 bg-gray-200 bg-opacity-60 z-10 rounded-lg"></div>
-                        <img class="w-60 rounded-t-lg  h-50" :src="isValidImage(yard.images[0]) ? yard.images[0] : anh1"
-                            alt="ảnh sân" />
-                        <div class="flex w-full  flex-shrink-0 flex-col  gap-0.5 p-1 py-2">
-                            <h3 class="text-sm font-medium text-back truncate">
+                            class="absolute inset-0 bg-gray-200 bg-opacity-60 z-10 rounded-lg flex items-center justify-center">
+                            <p class="text-red-500 font-semibold">Ngừng hoạt động</p>
+                        </div>
+                        <img class="w-60 rounded-t-lg h-50 object-cover"
+                            :src="isValidImage(yard.images[0]) ? yard.images[0] : anh1" alt="ảnh sân" />
+                        <div class="flex w-full flex-shrink-0 flex-col gap-0.5 p-1 py-2">
+                            <h3 class="text-sm font-medium text-black truncate">
                                 {{ yard.courtName }}
                             </h3>
-                            <p class="text-sm flex-shrink-0 text-slate-500 truncate">{{ yard.street + ', ' + yard.ward +
-                                ', ' + yard.district }}</p>
+                            <p class="text-sm flex-shrink-0 text-slate-500 truncate">
+                                {{ yard.street + ', ' + yard.ward + ', ' + yard.district }}
+                            </p>
                             <div v-if="yard.status === 0" class="flex items-center gap-2">
-                                 <span
-                                    class="w-2 h-2 bg-green-500 rounded-full"></span>
-                                <p class="text-xs "> {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + '- ' + formatHour(yard.endTime) : '24/7' }}</p>
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                <p class="text-xs">
+                                    {{ yard.startTime && yard.endTime ? formatHour(yard.startTime) + '- ' +
+                                    formatHour(yard.endTime) : '24/7' }}
+                                </p>
                             </div>
                             <p v-else class="text-red-500">Ngừng hoạt động</p>
 
                             <div class="flex items-center justify-between">
                                 <vue3-star-ratings v-if="store_review.list_review[yard.id]"
                                     v-model="store_review.list_review[yard.id].averageRatingStar" />
-
                                 <vue3-star-ratings v-else v-model="start" />
                                 <div class="flex items-center gap-1">
                                     <IconComment class="w-4 h-4 text-slate-500"></IconComment>
@@ -56,18 +65,16 @@
                                     </p>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
             </div>
-            <!--  -->
+            <!-- Nút tạo sân -->
             <button @click="addYard"
-                class="flex absolute bottom-8 right-7  text-lg font-medium text-white items-center gap-2 px-6 py-3 rounded-xl bg-yellow-500">
+                class="flex absolute bottom-8 right-7 items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-lg font-semibold rounded-xl shadow-lg hover:from-yellow-500 hover:to-yellow-700 hover:shadow-xl transition-all duration-300">
                 <PlusIcon class="w-5 h-5 text-white"></PlusIcon>
                 <p>Tạo sân</p>
             </button>
-
         </main>
     </div>
     <!-- Tạo mới sân -->
@@ -210,6 +217,7 @@ import logoPick from "@/assets/imgs/logoPick.png"
 
 /**api*/
 import { apiCreateCourt, apiGetCourt } from "@/service/api/apiCourt";
+import { apiGetListReport } from "@/service/api/apiReport";
 
 
 /**Kho lưu trữ*/
@@ -237,7 +245,8 @@ import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
 /**kiểu dữ liệu*/
-import type { Court, Location } from '@/interface'
+import type { Court, Location, RePorts } from '@/interface'
+
 
 const start = 5
 /**Biến router */
@@ -262,31 +271,34 @@ const userId = userInfo?.id || null
 
 // Computed: Lọc danh sách sân theo userId
 const list_yards = computed(() => {
-  if (!store_court || !store_court.list_court) return []
+    if (!store_court || !store_court.list_court) return []
 
-  return store_court.list_court
-    .filter((court: Court) => court.userId === userId) // Filter by userId
-    .filter((court: Court) => court.status !== 3) // Explicitly exclude courts with status 3
-    .filter((court: Court) => {
-      if (filter_court.value === 3) return true       // Hiển thị tất cả
-      if (filter_court.value === 0) return court.status === 0  // Chỉ sân đang hoạt động
-      if (filter_court.value === 1) return court.status === 1  // Chỉ sân ngừng hoạt động
-      return false // Trường hợp khác không hiển thị gì
-    })
+    return store_court.list_court
+        .filter((court: Court) => court.userId === userId) // Filter by userId
+        .filter((court: Court) => court.status !== 3) // Explicitly exclude courts with status 3
+        .filter((court: Court) => {
+            if (filter_court.value === 3) return true       // Hiển thị tất cả
+            if (filter_court.value === 0) return court.status === 0  // Chỉ sân đang hoạt động
+            if (filter_court.value === 1) return court.status === 1  // Chỉ sân ngừng hoạt động
+            return false // Trường hợp khác không hiển thị gì
+        })
 })
 
+const list_reports = ref<RePorts[]>([]);
 
+const reportCountByCourt = computed(() => {
+    const counts: { [key: number]: number } = {};
+    list_reports.value.forEach((report: RePorts) => {
+        counts[report.courtId] = (counts[report.courtId] || 0) + 1;
+    });
+    return counts;
+});
 
 
 const timeRange = ref([
     { hours: 6, minutes: 0, seconds: 0 },
     { hours: 22, minutes: 0, seconds: 0 },
 ]);
-
-
-
-
-
 
 /**Biến thông tin sân tạo mới*/
 
@@ -317,6 +329,7 @@ function formatTime(time: { hours: number; minutes: number; seconds: number }): 
     const pad = (n: number) => n.toString().padStart(2, '0')
     return `${pad(time.hours)}:${pad(time.minutes)}:${pad(time.seconds)}`
 }
+
 const formattedTime = computed(() => {
     if (timeRange.value.length === 2) {
         return `${formatTime(timeRange.value[0])} - ${formatTime(timeRange.value[1])}`
@@ -325,23 +338,25 @@ const formattedTime = computed(() => {
 })
 
 
-
-
 const selectedDistrict = ref("");      // Mã quận/huyện
 const selectedWard = ref("");          // Mã phường/xã
 const selectedStreet = ref("");        // Tên đường
 
 const wards = ref<Location[]>([]);
 
+
+
 const fileInput = ref<HTMLInputElement | null>(null);
 
 
-onMounted(() => {
+onMounted(async () => {
+
+    await getListReport()
     if (localStorage.getItem("userInfo")) {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
-    infor_yard.value.contactPerson = userInfo.fullname || 'Chưa có tên';
-    infor_yard.value.contactPhone = userInfo.phoneNumber || 'Chưa có số điện thoại';
-}
+        const userInfo = JSON.parse(localStorage.getItem("userInfo") || '{}');
+        infor_yard.value.contactPerson = userInfo.fullname || 'Chưa có tên';
+        infor_yard.value.contactPhone = userInfo.phoneNumber || 'Chưa có số điện thoại';
+    }
 
 
 });
@@ -373,7 +388,7 @@ const show_modal = ref(false);
 
 /**Danh sách menu*/
 const menu_list = ref([
-{
+    {
         key: 3,
         name_menu: 'Danh sách sân ',
         active: true
@@ -407,13 +422,13 @@ const removeActive = () => {
 };
 /**Khi xem một sân*/
 function goToDetail(yard: Court) {
-    router.push('/detail');
+    router.push('/Info');
     /**Lưu sân được bấm vào store*/
     store_court.court_detail = yard
     console.log('store_court.court_detail?.id', store_court.court_detail?.id);
-
-
 }
+
+
 
 
 /**Bấm chọn danh sách*/
@@ -561,6 +576,21 @@ function isValidImage(image: string) {
 
 function formatHour(timeStr: string): string {
     return timeStr?.slice(0, 5) // Lấy 5 ký tự đầu: "08:00"
+}
+
+/**Lấy danh sách báo cáo*/
+async function getListReport() {
+    try {
+        const response = await apiGetListReport();
+        if (response && response.status === 200) {
+            console.log('response', response);
+            list_reports.value = response.data.filter((report:any) => report.status === 1); // Lọc client-side
+        } else {
+            toast("Lấy danh sách báo cáo thất bại, vui lòng thử lại!", { autoClose: 3000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
 }
 
 

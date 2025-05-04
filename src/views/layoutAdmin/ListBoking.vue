@@ -9,13 +9,7 @@
                 <div class="flex cursor-pointer gap-2 button rounded-md">
                     <FilterBokingStatus></FilterBokingStatus>
                 </div>
-                <!-- Time Selection -->
-                <div @click="selectedTime"
-                     class="flex items-center justify-between text-lg cursor-pointer button rounded-md">
-                    <p></p>
-                    <p>{{ time_selected }}</p>
-                    <CalendarDateRangeIcon class="w-5 h-5 text-white"></CalendarDateRangeIcon>
-                </div>
+              
                 <!-- Search Input by Court Name -->
                 <div class="relative">
                     <input v-model="searchCourtName" placeholder="Tìm kiếm theo tên sân"
@@ -27,6 +21,16 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
+                </div>
+                <div class="flex items-center button justify-between bg-green-600 bg-opacity-30 rounded-md p-3 hover:bg-opacity-50 transition-all duration-200">
+                    <input
+                        v-model="phoneNumber"
+                        type="tel"
+                        inputmode="numeric"
+                        placeholder="Nhập số điện thoại của lịch đặt"
+                        class="w-full bg-transparent  text-white text-sm outline-none placeholder-white/70"
+                        @input="validatePhoneNumber"
+                    />
                 </div>
             </div>
         </header>
@@ -179,9 +183,9 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAppStore } from '@/stores/appStore';
 import { useAppStoreCourt } from '@/stores/appStoreCourt';
-import FilterBokingStatus from '@/views/layout/DatailYard/FilterBokingStatus.vue';
+import FilterBokingStatus from './FilterBokingStatus.vue';
 import image9 from '@/assets/imgs/image9.png';
-import { ExclamationCircleIcon, DocumentCurrencyDollarIcon, CalendarDateRangeIcon } from '@heroicons/vue/24/solid';
+import { ExclamationCircleIcon, DocumentCurrencyDollarIcon } from '@heroicons/vue/24/solid';
 import { apiGetListBooking, apiUpdateBoking } from '@/service/api/apiBoking';
 import type { CourtEvent } from '@/interface';
 import logoPick from '@/assets/imgs/logoPick.png';
@@ -215,12 +219,22 @@ const time_selected = computed(() => {
     }).format(store.date);
 });
 
+// Biến để lưu số điện thoại
+const phoneNumber = ref('');
+
+// Hàm kiểm tra số điện thoại
+const validatePhoneNumber = (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    input.value = input.value.replace(/\D/g, ''); // Chỉ cho phép số
+    phoneNumber.value = input.value;
+    if (input.value.length > 11) {
+        input.value = input.value.slice(0, 11); // Giới hạn 11 số
+        phoneNumber.value = input.value;
+    }
+};
+
 // Filtered bookings
 const filteredBookings = computed(() => {
-    console.log('searchCourtName:', searchCourtName.value); // Debug: Log search input
-    console.log('list_bokings:', list_bokings.value); // Debug: Log bookings data
-    console.log('store.status:', store.status); // Debug: Log current status
-
     const filtered = list_bokings.value.filter((booking) => {
         // Ensure courtName exists and is a string
         const courtName = booking.courtName && typeof booking.courtName === 'string' 
@@ -231,6 +245,13 @@ const filteredBookings = computed(() => {
         const matchesCourtName = searchCourtName.value
             ? courtName.includes(searchCourtName.value.toLowerCase())
             : true;
+
+            // Filter by phone number if phoneNumber is not empty
+    const matchesPhoneNumber =
+      phoneNumber.value === '' ||
+      booking.userPhoneNumber.includes(phoneNumber.value);
+
+    if (!matchesPhoneNumber) return false;
 
         // Log each booking's courtName and match result
         console.log(`Booking ID: ${booking.id}, courtName: ${courtName}, matches: ${matchesCourtName}`);
@@ -256,7 +277,7 @@ watch(searchCourtName, (newValue) => {
 // Fetch bookings on mount
 onMounted(async () => {
     await getListBoking();
-    store.status = 5; // Set default status to show all bookings
+    store.status = 3; // Set default status to show all bookings
 });
 
 // Close modal

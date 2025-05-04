@@ -54,7 +54,9 @@
           <span :class="{
             'bg-green-500': item.key === 2,
             'bg-white': item.key === 1,
-            'bg-yellow-400': item.key === 3,
+            'bg-blue-400': item.key === 3,
+            'bg-yellow-400': item.key === 4,
+            'bg-purple-400': item.key === 5,
           }" class="w-7 h-7 rounded-md shadow-sm ">
           </span>
           <p class="text-sm font-medium text-slate-200">
@@ -318,12 +320,20 @@ const list_statistical = ref([
   },
   {
     key: 2,
-    status: "Lịch thành toán"
+    status: "Lịch ngày"
   },
 
   {
     key: 3,
-    status: "Lịch chưa thanh toán"
+    status: "Lịch Tuần"
+  },
+  {
+    key: 4,
+    status: "Lịch Tháng"
+  },
+  {
+    key: 5,
+    status: "Lịch Năm"
   },
 ]);
 

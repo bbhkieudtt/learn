@@ -17,6 +17,8 @@ import Failure from '@/components/StatusPayment/Failure.vue';
 import InforUse from '@/views/InforUse.vue';
 import InfoBooking from '@/views/InfoBooking.vue';
 import ListBokings from '@/views/layoutAdmin/ListBoking.vue';
+import Report from '@/views/layoutAdmin/Report.vue';
+import PayCourt from '@/views/layoutAdmin/PayCourt.vue';
 
 
 
@@ -39,6 +41,11 @@ export const routes = [
   { path: '/inforUse', component: InforUse },
   { path: '/infobooking', component: InfoBooking },
   { path: '/totalboking', component: ListBokings },
+  { path: '/report', component: Report },
+  { path: '/paycourt', component: PayCourt },
+
+
+
 
   
 

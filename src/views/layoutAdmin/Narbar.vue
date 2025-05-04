@@ -77,11 +77,11 @@
       }
       // 
       if(id===3){
-          router.push('/yourboking');
+          router.push('/paycourt');
       }
       // 
       if(id===4){
-          router.push('/revenue');
+          router.push('/Report');
       }
       // 
       if(id===5){

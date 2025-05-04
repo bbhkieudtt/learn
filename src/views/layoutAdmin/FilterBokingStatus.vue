@@ -47,21 +47,15 @@ const time_selected = ref('Lịch đặt sân')
 const menu_list = ref([
     {
         key: 4,
-        name_menu: 'Lịch sắp tới',
-        active: false,
-        value: 1
-    },
-    {
-        key: 4,
-        name_menu: 'Lịch hoàn thành ',
-        active: false,
-        value: 2
-    },
-    {
-        key: 4,
-        name_menu: 'Lịch bị hủy ',
+        name_menu: ' Lịch đã hủy(Cần hoàn tiền)',
         active: false,
         value: 3
+    },
+    {
+        key: 4,
+        name_menu: ' Hủy thành công ',
+        active: false,
+        value: 4
     }
 ])
 

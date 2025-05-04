@@ -125,7 +125,7 @@ import timezone from 'dayjs/plugin/timezone';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 import Modal from "@/components/Modal/Modal.vue"
-import type { ClientBoking, UserInfo, Booking } from '@/interface'
+import type { UserInfo, Booking } from '@/interface'
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
@@ -190,18 +190,6 @@ const info_clien = ref({
   role: 0,
 });
 
-// const formattedTimeStart = dayjs(store.selectInfo?.startStr).format("YYYY-MM-DDTHH:mm:ss.SSS");
-// const formattedTimeEnd = dayjs(store.selectInfo?.endStr).format("YYYY-MM-DDTHH:mm:ss.SSS");
-
-// const detail_boking = ref<Booking>({
-//   userId: 0,
-//   childCourtId: 0,
-//   startTime: '',
-//   endTime: '',
-//   status: 0,
-//   price: 0
-// });
-
 const is_key = computed(() => {
   const userInfo = JSON.parse(localStorage.getItem("userInfo") || "{}");
   return store_court.court_detail?.userId === userInfo.id;
@@ -254,21 +242,27 @@ async function addBoking() {
     return;
   }
 
-  // Danh sách lưu các payment IDs
+  // Danh sách lưu các payment IDs (chỉ dùng khi key = false)
   const paymentIds = [];
+  let allBookingsUpdated = true; // Biến để kiểm tra xem tất cả booking có cập nhật thành công không
 
   try {
     // Lặp qua store.bookings để gọi apiCreateBoking lần lượt
     for (const booking of store.bookings) {
+      console.log('store_court.court_detail?.id',store_court.court_detail?.id);
+      
       // Tạo object booking mới cho mỗi lần gọi API
       const bookingData = {
         ...booking, // Copy các thuộc tính từ booking
+
+        
         userId: user_court.value?.id ?? 0, // Gán userId
         childCourtId: store_court.chill_detail?.id ?? 0, // Gán childCourtId
         status: 0, // Mặc định status là 0 (chờ xác nhận)
         price: booking.price || 0, // Giá của booking hiện tại
+        courtId: store_court.court_detail?.id 
       };
-
+      console.log('store_court.court_detail?.id111',bookingData);
       // Gọi API tạo booking
       const bookingResponse = await apiCreateBoking(bookingData);
       console.log("API Response for booking:", bookingResponse);
@@ -285,24 +279,40 @@ async function addBoking() {
         const paymentResponse = await payBooking();
         if (paymentResponse && paymentResponse.status === 200) {
           console.log('Payment response data:', paymentResponse.data);
-          paymentIds.push(paymentResponse.data.id); // Thu thập payment ID
-        } else {
-          toast(`Tạo thanh toán thất bại cho booking ${booking.id || ''}, vui lòng thử lại!`, { autoClose: 5000 });
-        }
 
-        // Xử lý UpdateBoking nếu có key
-        if (key.value) {
-          await UpdateBoking(bookingResponse.data);
+          // Thu thập payment ID nếu key = false
+          if (!key.value) {
+            paymentIds.push(paymentResponse.data.id);
+          }
+
+          // Nếu key = true, gọi UpdateBoking ngay lập tức
+          if (key.value) {
+            await UpdateBoking(bookingResponse.data);
+            // Nếu UpdateBoking thất bại, đánh dấu allBookingsUpdated = false
+            // (Cần kiểm tra response trong UpdateBoking nếu muốn chính xác hơn)
+          }
+        } else {
+          toast(`Tạo thanh toán thất bại cho booking , vui lòng thử lại!`, { autoClose: 5000 });
+          allBookingsUpdated = false;
         }
       } else {
-        toast(`Đăng ký thất bại cho booking ${booking.id || ''}, vui lòng thử lại!`, { autoClose: 5000 });
+        toast(`Đăng ký thất bại cho booking , vui lòng thử lại!`, { autoClose: 5000 });
+        allBookingsUpdated = false;
       }
     }
 
-    // Sau khi thu thập tất cả paymentIds, gọi payVNpay
-    if (paymentIds.length > 0) {
+    // Nếu key = true và tất cả booking được cập nhật thành công, hiển thị thông báo và chuyển hướng
+    if (key.value && allBookingsUpdated) {
+      toast("Tạo lịch cho khách thành công!", { autoClose: 3000 });
+      router.push('/detail');
+    }
+
+    // Nếu key = false, gọi payVNpay với danh sách paymentIds
+    if (!key.value && paymentIds.length > 0) {
+ 
+      
       await payVNpay(paymentIds);
-    } else {
+    } else if (!key.value && paymentIds.length === 0) {
       toast("Không có thanh toán nào được tạo thành công!", { autoClose: 5000 });
     }
 
@@ -344,100 +354,6 @@ async function payVNpay(paymentIds :any) {
   }
 }
 
-
-// async function addBoking() {
-//   const phone = user_court.value?.phoneNumber?.trim() || '';
-//   const name = user_court.value?.fullname?.trim() || '';
-
-//   // Validate phone và name
-//   if (!name || !phone) {
-//     toast("Vui lòng nhập đầy đủ họ tên và số điện thoại!", { autoClose: 5000 });
-//     return;
-//   }
-
-//   const isValidPhone = /^0\d{9}$/.test(phone);
-//   if (!isValidPhone) {
-//     toast("Số điện thoại không hợp lệ! Vui lòng nhập đúng định dạng.", { autoClose: 5000 });
-//     return;
-//   }
-
-//   // Lặp qua store.bookings
-//   try {
-//     for (const booking of store.bookings) {
-//       // Tạo object booking mới cho mỗi lần gọi API
-//       const bookingData = {
-//         ...booking, // Copy các thuộc tính từ booking
-//         userId: user_court.value?.id ?? 0, // Gán userId
-//         childCourtId: store_court.chill_detail?.id ?? 0, // Gán childCourtId
-//         status: 0, // Mặc định status là 0 (chờ xác nhận)
-//         price: booking.price || 0, // Giá của booking hiện tại
-//       };
-
-//       // Gọi API tạo booking
-//       const response = await apiCreateBoking(bookingData);
-//       console.log("API Response for booking:", response);
-
-//       if (response && response.status === 200) {
-//         console.log('Response data:', response.data);
-
-//         // Cập nhật pay_detail cho booking hiện tại
-//         pay_detail.value.bookingId = response.data.id;
-//         pay_detail.value.userId = user_court.value?.id ?? 0;
-//         pay_detail.value.price = bookingData.price;
-
-//         // Xử lý UpdateBoking hoặc payBooking
-//         if (key.value) {
-//           await UpdateBoking(response.data);
-//         } else {
-//           await payBooking();
-//         }
-//       } else {
-//         toast(`Đăng ký thất bại cho booking ${booking.id || ''}, vui lòng thử lại!`, { autoClose: 5000 });
-//       }
-//     }
-//   } catch (error) {
-//     console.error("API Error:", error);
-//     toast("Có lỗi xảy ra, vui lòng thử lại!", { autoClose: 5000 });
-//   }
-// }
-
-
-// async function payBooking() {
-//   try {
-//     const response = await apiCreatePayment(pay_detail.value);
-//     if (response && response.status === 200) {
-//       console.log('response', response.data);
-//       await payVNpay(response.data.id);
-//     } else {
-//       toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
-//     }
-//   } catch (error) {
-//     console.error("API Error:", error);
-//   }
-// }
-
-// async function payVNpay(id: number) {
-//   console.log('id', id);
-//   try {
-//     const response = await apiCreatePaymentVNpay({
-//       paymentId: id,
-//       moneyToPay: pay_detail.value.price
-//     });
-//     if (response && response.status === 201) {
-//       console.log('response', response.data);
-//       const paymentUrl = response.data;
-//       if (paymentUrl) {
-//         window.location.href = paymentUrl;
-//       } else {
-//         toast("Không lấy được link thanh toán!", { autoClose: 3000 });
-//       }
-//     } else {
-//       toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
-//     }
-//   } catch (error) {
-//     console.error("API Error:", error);
-//   }
-// }
 
 function goToDetail() {
   if (window.history.length > 1) {
@@ -534,16 +450,15 @@ async function UpdateBoking(repon: Booking) {
   }
   try {
     const response = await apiUpdateBoking(repon);
-    if (response) {
-      toast("Tạo lịch cho khách thành công!", { autoClose: 3000 });
-      router.push('/detail');
-    } else {
-      toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
+    if (!response) {
+      toast("Cập nhật trạng thái booking thất bại, vui lòng thử lại!", { autoClose: 5000 });
     }
   } catch (error) {
     console.error("API Error:", error);
+    toast("Có lỗi xảy ra khi cập nhật trạng thái booking!", { autoClose: 5000 });
   }
 }
+
 </script>
 
 <style lang="scss" scoped></style>

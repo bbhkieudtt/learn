@@ -131,23 +131,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useAppStoreCourt } from '@/stores/appStoreCourt';
 import { useAppStore } from '@/stores/appStore';
 import { useRouter } from 'vue-router';
 import { ChevronLeftIcon } from '@heroicons/vue/24/solid';
 
-import type {Booking } from '@/interface'
-
+import type { Booking } from '@/interface';
 
 const router = useRouter();
 const store_court = useAppStoreCourt();
 const store = useAppStore();
 
 const selectedChildCourt = ref<number | undefined>();
-  const bookings = ref<Booking[]>([
+const bookings = ref<Booking[]>([
   {
-    id: 99,
+    id:99,
     userId: 1,
     childCourtId: 0,
     childCourtName: '',
@@ -172,17 +171,60 @@ const bookingDayInfo = ref<string[]>(['']);
 const bookingStartTimes = ref<string[]>(['']);
 const bookingEndTimes = ref<string[]>(['']);
 
+// Định nghĩa múi giờ cố định
+const TIMEZONE = 'Asia/Ho_Chi_Minh';
+
 const id_Court = store_court.court_detail?.id ?? 0;
 
+// Hàm hiển thị thời gian (không cần chuyển đổi múi giờ vì lưu giờ địa phương)
+const displayTime = (localTime: string) => {
+  if (!localTime) return '';
+  return new Date(localTime).toLocaleString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
+
+// Hàm lưu thời gian dưới dạng giờ địa phương (không chuyển sang UTC)
+const toLocalString = (localDate: Date): string => {
+  const year = localDate.getFullYear();
+  const month = String(localDate.getMonth() + 1).padStart(2, '0');
+  const day = String(localDate.getDate()).padStart(2, '0');
+  const hours = String(localDate.getHours()).padStart(2, '0');
+  const minutes = String(localDate.getMinutes()).padStart(2, '0');
+  const seconds = String(localDate.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+};
+
+// Hàm chuẩn hóa thời gian từ API (hiểu là giờ địa phương)
+const normalizeTimeFromAPI = (timeStr: string): string => {
+  return timeStr; // Không cần thêm Z vì giờ địa phương
+};
+
 onMounted(() => {
-  console.log('ktra',store.events_list);
-  
+  const browserTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  console.log('Múi giờ trình duyệt:', browserTimeZone);
+  const validTimeZones = ['Asia/Ho_Chi_Minh', 'Asia/Bangkok', 'Asia/Jakarta'];
+  if (!validTimeZones.includes(browserTimeZone)) {
+    console.warn('Cảnh báo: Múi giờ trình duyệt không nằm trong danh sách UTC+7. Có thể gây lệch giờ.');
+    alert('Hệ thống phát hiện múi giờ của bạn không nằm trong danh sách UTC+7 (Asia/Ho_Chi_Minh, Asia/Bangkok, Asia/Jakarta). Vui lòng kiểm tra cài đặt múi giờ để đảm bảo đặt lịch chính xác.');
+  }
+  console.log('ktra', store.events_list);
   if (store_court.list_chill_court.length > 0) {
     store_court.chill_detail = list_child.value[0];
     selectedChildCourt.value = store_court.chill_detail.id;
     console.log('store_court.chill_detail', store_court.chill_detail);
   }
-  console.log('Múi giờ trình duyệt:', Intl.DateTimeFormat().resolvedOptions().timeZone);
+
+  // Chuẩn hóa thời gian trong store.events_list (hiểu là giờ địa phương)
+  if (Array.isArray(store.events_list)) {
+    store.events_list = store.events_list.map((event: any) => ({
+      ...event,
+      start: normalizeTimeFromAPI(event.start),
+      end: normalizeTimeFromAPI(event.end),
+    }));
+    console.log('Chuẩn hóa store.events_list:', store.events_list);
+  }
 });
 
 const list_child = computed(() => {
@@ -277,14 +319,13 @@ const calculatePrice = (booking: Booking, index: number) => {
   }
 };
 
-// Tạo danh sách các lịch từ booking
+// Tạo danh sách các lịch từ booking (giờ địa phương)
 const generateBookingEvents = (booking: Booking) => {
   const result: { start: string; end: string }[] = [];
   const startDate = new Date(booking.startTime);
   const endDate = new Date(booking.endTime);
 
-  // Đảm bảo startDate và endDate là UTC
-  console.log('Start UTC:', startDate.toISOString(), 'End UTC:', endDate.toISOString());
+  console.log('Start Local:', startDate.toISOString(), 'End Local:', endDate.toISOString());
 
   if (booking.type === 0) {
     for (let i = 0; i < booking.quantity; i++) {
@@ -295,8 +336,8 @@ const generateBookingEvents = (booking: Booking) => {
       end.setDate(end.getDate() + i);
 
       result.push({
-        start: start.toISOString(),
-        end: end.toISOString(),
+        start: toLocalString(start),
+        end: toLocalString(end),
       });
     }
   } else if (booking.type === 1) {
@@ -308,8 +349,8 @@ const generateBookingEvents = (booking: Booking) => {
       end.setDate(end.getDate() + i * 7);
 
       result.push({
-        start: start.toISOString(),
-        end: end.toISOString(),
+        start: toLocalString(start),
+        end: toLocalString(end),
       });
     }
   } else if (booking.type === 2) {
@@ -325,8 +366,8 @@ const generateBookingEvents = (booking: Booking) => {
         const end = new Date(currentDate.getTime() + (endDate.getTime() - startDate.getTime()));
 
         result.push({
-          start: start.toISOString(),
-          end: end.toISOString(),
+          start: toLocalString(start),
+          end: toLocalString(end),
         });
       }
       currentDate.setDate(currentDate.getDate() + 1);
@@ -344,8 +385,8 @@ const generateBookingEvents = (booking: Booking) => {
         const end = new Date(currentDate.getTime() + (endDate.getTime() - startDate.getTime()));
 
         result.push({
-          start: start.toISOString(),
-          end: end.toISOString(),
+          start: toLocalString(start),
+          end: toLocalString(end),
         });
       }
       currentDate.setDate(currentDate.getDate() + 1);
@@ -355,18 +396,10 @@ const generateBookingEvents = (booking: Booking) => {
   return result;
 };
 
-// Kiểm tra trùng lịch
-const checkOverlap = (newEvents :any , childCourtId :any) => {
+// Kiểm tra trùng lịch (giờ địa phương)
+const checkOverlap = (newEvents: any, childCourtId: any) => {
   console.log('DEBUG: Checking overlap for childCourtId:', childCourtId);
   console.log('DEBUG: New Events:', JSON.stringify(newEvents, null, 2));
-
-  // Hàm chuyển đổi thời gian UTC sang giờ địa phương Asia/Ho_Chi_Minh
-  const toLocalTime = (utcDateString :any) => {
-    const utcDate = new Date(utcDateString);
-    // Tạo chuỗi thời gian địa phương mà không để trình duyệt thêm offset
-    const localDate = new Date(utcDate.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-    return localDate;
-  };
 
   if (!Array.isArray(store.events_list)) {
     console.error('ERROR: store.events_list is not an array:', store.events_list);
@@ -376,29 +409,16 @@ const checkOverlap = (newEvents :any , childCourtId :any) => {
   for (const newEvent of newEvents) {
     const newStart = new Date(newEvent.start).getTime();
     const newEnd = new Date(newEvent.end).getTime();
-    const newStartLocal = toLocalTime(newEvent.start).getTime();
-    const newEndLocal = toLocalTime(newEvent.end).getTime();
-    console.log(
-      `DEBUG: New Event (UTC): ${newEvent.start} to ${newEvent.end}`,
-      `| Local: ${toLocalTime(newEvent.start).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })} to ${toLocalTime(newEvent.end).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`
-    );
+    console.log(`DEBUG: New Event (Local): ${newEvent.start} to ${newEvent.end}`);
 
     for (const existingEvent of store.events_list) {
       const eventChildCourtId = existingEvent.childCourtId !== undefined ? existingEvent.childCourtId : childCourtId;
       if (eventChildCourtId === childCourtId) {
-        const existingStartLocal = toLocalTime(existingEvent.start).getTime();
-        const existingEndLocal = toLocalTime(existingEvent.end).getTime();
-        console.log(
-          `DEBUG: Existing Event (UTC): ${existingEvent.start} to ${existingEvent.end}`,
-          `| Local: ${toLocalTime(existingEvent.start).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })} to ${toLocalTime(existingEvent.end).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`,
-          `| childCourtId: ${eventChildCourtId}`
-        );
-        console.log(
-          `DEBUG: Comparing - newStartLocal: ${newStartLocal} < existingEndLocal: ${existingEndLocal} = ${newStartLocal < existingEndLocal}`,
-          `| newEndLocal: ${newEndLocal} > existingStartLocal: ${existingStartLocal} = ${newEndLocal > existingStartLocal}`
-        );
+        const existingStart = new Date(existingEvent.start).getTime();
+        const existingEnd = new Date(existingEvent.end).getTime();
+        console.log(`DEBUG: Existing Event (Local): ${existingEvent.start} to ${existingEvent.end}`);
 
-        if (newStartLocal < existingEndLocal && newEndLocal > existingStartLocal) {
+        if (newStart < existingEnd && newEnd > existingStart) {
           console.log('DEBUG: Overlap found:', JSON.stringify(existingEvent, null, 2));
           return {
             isOverlap: true,
@@ -507,7 +527,7 @@ const updateBookingTimes = (index: number) => {
   let startDate: Date | null = null;
   let endDate: Date | null = null;
 
-  const baseDate = new Date(date);
+  const baseDate = new Date(date.toLocaleString('en-US', { timeZone: TIMEZONE }));
   baseDate.setHours(0, 0, 0, 0);
 
   if (bookingStartTimes.value[index]) {
@@ -524,9 +544,6 @@ const updateBookingTimes = (index: number) => {
     startDate = new Date(baseDate);
     startDate.setHours(parseInt(hours), 0, 0, 0);
 
-    // Chuyển sang UTC: trừ 7 giờ (Asia/Ho_Chi_Minh = +7 giờ)
-    startDate.setHours(startDate.getHours() - 7);
-
     if (startDate.getTime() <= now.getTime()) {
       alert('Thời gian bắt đầu phải muộn hơn thời gian hiện tại!');
       bookingStartTimes.value[index] = '';
@@ -535,10 +552,9 @@ const updateBookingTimes = (index: number) => {
       return;
     }
 
-    bookings.value[index].startTime = startDate.toISOString();
+    bookings.value[index].startTime = toLocalString(startDate);
     console.log(
-      `DEBUG: Giờ bắt đầu đã xử lý [${index}]: ${bookingStartTimes.value[index]} -> ${bookings.value[index].startTime} (UTC)`,
-      `| Local: ${new Date(bookings.value[index].startTime).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`
+      `DEBUG: Giờ bắt đầu đã xử lý [${index}]: ${bookingStartTimes.value[index]} -> ${bookings.value[index].startTime} (Local)`
     );
   } else {
     bookings.value[index].startTime = '';
@@ -557,9 +573,6 @@ const updateBookingTimes = (index: number) => {
 
     endDate = new Date(baseDate);
     endDate.setHours(parseInt(hours), 0, 0, 0);
-
-    // Chuyển sang UTC: trừ 7 giờ
-    endDate.setHours(endDate.getHours() - 7);
 
     if (endDate.getTime() <= now.getTime()) {
       alert('Thời gian kết thúc phải muộn hơn thời gian hiện tại!');
@@ -580,10 +593,9 @@ const updateBookingTimes = (index: number) => {
       }
     }
 
-    bookings.value[index].endTime = endDate.toISOString();
+    bookings.value[index].endTime = toLocalString(endDate);
     console.log(
-      `DEBUG: Giờ kết thúc đã xử lý [${index}]: ${bookingEndTimes.value[index]} -> ${bookings.value[index].endTime} (UTC)`,
-      `| Local: ${new Date(bookings.value[index].endTime).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`
+      `DEBUG: Giờ kết thúc đã xử lý [${index}]: ${bookingEndTimes.value[index]} -> ${bookings.value[index].endTime} (Local)`
     );
   } else {
     bookings.value[index].endTime = '';
@@ -594,25 +606,25 @@ const updateBookingTimes = (index: number) => {
 
 const addBookingRow = () => {
   bookings.value.push({
-  id: 99,
-  userId: 1,
-  childCourtId: 0,
-  childCourtName: '',
-  courtDistrict: '',
-  courtId: 0,
-  courtName: '',
-  courtStreet: '',
-  courtWard: '',
-  createDate: '',
-  startTime: '',
-  endTime: '',
-  status: 0,
-  price: 0,
-  type: 0,
-  quantity: 1,
-  userFullName: '',
-  userPhoneNumber: '',
-});
+    id:99,
+    userId: 1,
+    childCourtId: 0,
+    childCourtName: '',
+    courtDistrict: '',
+    courtId: 0,
+    courtName: '',
+    courtStreet: '',
+    courtWard: '',
+    createDate: '',
+    startTime: '',
+    endTime: '',
+    status: 0,
+    price: 0,
+    type: 0,
+    quantity: 1,
+    userFullName: '',
+    userPhoneNumber: '',
+  });
   bookingDates.value.push(null);
   bookingDayInfo.value.push('');
   bookingStartTimes.value.push('');
@@ -630,14 +642,12 @@ const removeBookingRow = (index: number) => {
 };
 
 const confirmBooking = () => {
-  // Log toàn bộ store.events_list và bookings.value
   console.log('DEBUG: store.events_list:', JSON.stringify(store.events_list, null, 2));
   console.log('DEBUG: bookings.value:', JSON.stringify(bookings.value, null, 2));
 
   for (let i = 0; i < bookings.value.length; i++) {
     const booking = bookings.value[i];
 
-    // Log childCourtId của booking
     console.log(`DEBUG: Booking ${i + 1} childCourtId:`, booking.childCourtId);
 
     if (Number(booking.type) === 1 && booking.quantity <= 2) {
@@ -650,7 +660,6 @@ const confirmBooking = () => {
       return;
     }
 
-    // Log sự kiện được tạo từ generateBookingEvents
     const newEvents = generateBookingEvents(booking);
     console.log(`DEBUG: New Events for Booking ${i + 1}:`, JSON.stringify(newEvents, null, 2));
 
@@ -658,15 +667,11 @@ const confirmBooking = () => {
     if (overlapResult.isOverlap) {
       const conflict = overlapResult.conflictingEvent;
       alert(
-        `Booking ${i + 1}: Lịch bị trùng với lịch hiện có từ ${new Date(conflict.start).toLocaleString(
-          'vi-VN'
-        )} đến ${new Date(conflict.end).toLocaleString('vi-VN')}. Vui lòng chọn thời gian khác.`
+        `Booking ${i + 1}: Lịch bị trùng với lịch hiện có từ ${displayTime(conflict.start)} đến ${displayTime(conflict.end)}. Vui lòng chọn thời gian khác.`
       );
       return;
     }
   }
-
-
 
   console.log('DEBUG: Final bookings:', bookings.value);
   store.bookings = bookings.value;

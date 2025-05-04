@@ -17,7 +17,7 @@
                 <option :value="4">Tất cả</option>
                 <option :value="0">Sân hoạt động</option>
                 <option :value="1">Sân ngừng hoạt động</option>
-                <option :value="3">Sân bị xóa</option>
+               
             </select>
             <!-- Input tìm kiếm -->
             <div class="relative">
@@ -45,7 +45,12 @@
                 <div class="grid h-full overflow-y-auto grid-cols-4  gap-15">
                     <!-- sân -->
                     <div @click="goToDetail(yard)" v-for="yard in list_yards" :key="yard.id"
-                        class="flex items-center h-fit w-60 border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
+                        class="flex items-center relative h-fit w-60 border border-white flex-shrink-0  rounded-lg cursor-pointer flex-col  bg-white">
+                        <!-- Badge hiển thị số báo cáo -->
+                        <div  title="Số lượt báo cáo của sân" v-if="reportCountByCourt[yard.id] > 0"
+                            class="absolute top-1 right-1 bg-red-500 text-white text-xs font-semibold rounded-full h-6 w-6 flex items-center justify-center z-20">
+                            {{ reportCountByCourt[yard.id] }}
+                        </div>
                         <img class="w-60 rounded-t-lg  h-50" :src="isValidImage(yard.images[0]) ? yard.images[0] : anh1"
                             alt="ảnh sân" />
                         <div class="flex w-full  flex-shrink-0 flex-col  gap-0.5 p-1 py-2">
@@ -79,7 +84,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
     <!--  -->
@@ -139,18 +143,6 @@
                             </p>
                         </div>
 
-                        <!-- Giá tiền -->
-                        <!-- <el-form label-position="top" class="w-full grid py-2 grid-cols-2 gap-2">
-                            <el-form-item label="Giá thuê sân từ (VNĐ/giờ)">
-                                <el-input v-if="store_court?.court_detail?.maxPrice" v-model.number="store_court.court_detail.maxPrice" placeholder="Nhập giá tối thiểu"
-                                    :formatter="formatCurrency" :parser="parseCurrency" size="large" />
-                            </el-form-item>
-
-                            <el-form-item label="Giá thuê sân đến (VNĐ/giờ)">
-                                <el-input v-model.number="infor_yard.maxPrice" placeholder="Nhập giá tối đa"
-                                    :formatter="formatCurrency" :parser="parseCurrency" size="large" />
-                            </el-form-item>
-                        </el-form> -->
 
                         <!-- Giờ mở cửa -->
                         <div class="w-full flex flex-col gap-1.5">
@@ -250,9 +242,10 @@ import { useAppStoreReview } from '@/stores/appStoreReview'
 
 /**modal*/
 import Modal from '@/components/Modal/Modal.vue';
+
 /**api*/
-import { apiGetListBooking, } from "@/service/api/apiBoking";
 import { apiUpdateCourt, apiGetCourt } from "@/service/api/apiCourt";
+import { apiGetListReport } from "@/service/api/apiReport";
 
 /**icon*/
 import IconComment from '@/components/Icons/IconComment.vue'
@@ -263,7 +256,7 @@ import anh1 from "@/assets/imgs/bg_san.jpg";
 
 
 /**kiểu dữ liệu*/
-import type { Court, Review, GroupedReview ,Location} from '@/interface'
+import type { Court, Review, GroupedReview ,Location, RePorts} from '@/interface'
 
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
@@ -285,6 +278,7 @@ const router = useRouter()
 const activeInput = ref('');
 
 
+const list_reports = ref<RePorts[]>([]);
 
 const start = ref(5);
 
@@ -325,12 +319,14 @@ const list_yards = computed(() => {
     if (!store_court || !store_court.list_court) return [];
 
     return store_court.list_court.filter((court) => {
+        // Loại bỏ sân đã bị xóa (status === 3)
+        if (court.status === 3) return false;
+
         // Lọc theo trạng thái
         let statusMatch = true;
         if (filter_court.value === 0) statusMatch = court.status === 0; // Sân hoạt động
         else if (filter_court.value === 1) statusMatch = court.status === 1; // Sân ngừng hoạt động
-        else if (filter_court.value === 3) statusMatch = court.status === 3; // Sân bị xóa
-        else if (filter_court.value === 4) statusMatch = true; // Tất cả
+        else if (filter_court.value === 4) statusMatch = true; // Tất cả (trừ sân bị xóa)
 
         // Lọc theo tên sân
         const nameMatch = court.courtName
@@ -355,6 +351,7 @@ onMounted(async () => {
     await getListReview()
     // *lấy danh sách người dùng
     await getListUsers()
+    await getListReport()
 
     getDistricts();
 
@@ -368,7 +365,13 @@ const timeRange = ref([
     { hours: 22, minutes: 0, seconds: 0 },
 ]);
 
-
+const reportCountByCourt = computed(() => {
+    const counts: { [key: number]: number } = {};
+    list_reports.value.forEach((report: RePorts) => {
+        counts[report.courtId] = (counts[report.courtId] || 0) + 1;
+    });
+    return counts;
+});
 
 function formatTime(time: { hours: number; minutes: number; seconds: number }): string {
     const pad = (n: number) => n.toString().padStart(2, '0')
@@ -408,7 +411,6 @@ const uploadImage = async (event: any) => {
 function showModal() {
     show_modal.value = false;
 }
-
 
 /**Khi xem một sân*/
 function goToDetail(yard: Court) {
@@ -638,7 +640,19 @@ function validateCourtDetail() {
     return true; // Nếu tất cả điều kiện trên đều hợp lệ
 }
 
-
-
+/**Lấy danh sách báo cáo có status = 1*/
+async function getListReport() {
+    try {
+        const response = await apiGetListReport();
+        if (response && response.status === 200) {
+            console.log('response', response);
+            list_reports.value = response.data.filter((report:any) => report.status === 1); // Lọc client-side
+        } else {
+            toast("Lấy danh sách báo cáo thất bại, vui lòng thử lại!", { autoClose: 3000 });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}
 
 </script>

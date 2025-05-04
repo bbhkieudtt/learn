@@ -181,7 +181,7 @@ async function getListBoking() {
 
 
 
-/** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
+
 /** Hàm biến đổi dữ liệu từ API thành định dạng FullCalendar */
 function transformToFullCalendar(eventsData: Booking[]): event_booking[] {
   const result: event_booking[] = [];
@@ -189,7 +189,7 @@ function transformToFullCalendar(eventsData: Booking[]): event_booking[] {
   const filteredEvents = eventsData.filter(
     (event) =>
       event.childCourtId === store_court.chill_detail?.id &&
-      (event.status === 1 || event.status === 2)
+      (event.status === 5 || event.status === 2)
   );
 
   console.log('Filtered Events:', filteredEvents);
@@ -200,7 +200,7 @@ function transformToFullCalendar(eventsData: Booking[]): event_booking[] {
       : 'No User';
 
     const classNames =
-      event.status === 2
+      event.status === 2 ||  event.status === 5
         ? ['bg-green-500', 'text-white']
         : event.status === 1
         ? ['bg-yellow-400', 'text-white']
