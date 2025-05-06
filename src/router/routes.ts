@@ -3,6 +3,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Login from '@/views/LogIn.vue';
 import Forgot from '@/views/Forgot.vue';
+import Forget from '@/views/Forget.vue';
 import Main from '@/views/Main.vue';
 import Detail from '@/views/DetailYard.vue';
 import Info from '@/views/layout/DatailYard/InforYard.vue';
@@ -10,7 +11,6 @@ import Boking from '@/views/CreateBoking.vue';
 import ListYard from '@/views/layout/YourYard/ListYard.vue';
 import ListBoking from '@/views/layout/YourBoking/ListBoking.vue';
 import Revenue from '@/views/layout/Revenue/Revenue.vue';
-import Forget from '@/views/Forget.vue';
 import ListBokingCout from '@/views/layout/DatailYard/ListBokingCout.vue';
 import Success from '@/components/StatusPayment/Success.vue';
 import Failure from '@/components/StatusPayment/Failure.vue';

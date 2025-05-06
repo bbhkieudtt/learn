@@ -8,7 +8,7 @@ export interface User {
     role: number;         // Vai trò của người dùng (0 hoặc giá trị khác)
   }
 
- export interface UserInfo {
+  export interface UserInfo {
     id: number;
     username: string;
     fullname: string;
@@ -20,6 +20,11 @@ export interface User {
     createDate: string;
     lastLogin: string;
     token: string;
+  
+    bankNumber: string | null;
+    bankName: string | null;
+    bankAccount: string | null;
   }
+  
   
   

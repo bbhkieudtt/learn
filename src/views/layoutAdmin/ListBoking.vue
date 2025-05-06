@@ -9,28 +9,25 @@
                 <div class="flex cursor-pointer gap-2 button rounded-md">
                     <FilterBokingStatus></FilterBokingStatus>
                 </div>
-              
+
                 <!-- Search Input by Court Name -->
                 <div class="relative">
                     <input v-model="searchCourtName" placeholder="Tìm kiếm theo tên sân"
-                           class="w-full pl-10 pr-3 py-2 bg-green-100 text-green-800 border border-green-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200"
-                           type="text" />
+                        class="w-full pl-10 pr-3 py-2 bg-green-100 text-green-800 border border-green-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-200"
+                        type="text" />
                     <!-- Search Icon -->
-                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600"
-                         fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-green-600" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <div class="flex items-center button justify-between bg-green-600 bg-opacity-30 rounded-md p-3 hover:bg-opacity-50 transition-all duration-200">
-                    <input
-                        v-model="phoneNumber"
-                        type="tel"
-                        inputmode="numeric"
+                <div
+                    class="flex items-center button justify-between bg-green-600 bg-opacity-30 rounded-md p-3 hover:bg-opacity-50 transition-all duration-200">
+                    <input v-model="phoneNumber" type="tel" inputmode="numeric"
                         placeholder="Nhập số điện thoại của lịch đặt"
                         class="w-full bg-transparent  text-white text-sm outline-none placeholder-white/70"
-                        @input="validatePhoneNumber"
-                    />
+                        @input="validatePhoneNumber" />
                 </div>
             </div>
         </header>
@@ -38,7 +35,7 @@
         <main class="h-full py-5 flex-1 w-full overflow-hidden">
             <!-- No Bookings -->
             <div v-if="list_bokings && list_bokings.length === 0"
-                 class="w-full h-full flex justify-center items-center">
+                class="w-full h-full flex justify-center items-center">
                 <div class="flex-col">
                     <img :src="image9" class="justify-center items-center" alt="">
                     <p class="text-lg text-white font-semibold text-center">Sân chưa có lịch đặt</p>
@@ -49,16 +46,16 @@
                 <div class="h-full overflow-y-auto flex flex-col items-start w-full gap-15">
                     <!-- Booking Item -->
                     <div v-for="(boking, index) in filteredBookings" :key="boking.id"
-                         :class="{ 'border-b border-yellow-500': index !== filteredBookings.length - 1 }"
-                         class="flex w-full text-lg px-3 border-b border-slate-400 text-white py-3 flex-col items-start gap-1 
+                        :class="{ 'border-b border-yellow-500': index !== filteredBookings.length - 1 }" class="flex w-full text-lg px-3 border-b border-slate-400 text-white py-3 flex-col items-start gap-1 
                          transition duration-200 hover:brightness-90 hover:rounded-lg hover:bg-green-800">
                         <div class="flex justify-between w-full items-center">
                             <div class="flex items-center space-x-0">
                                 <!-- Booking Label -->
                                 <span class="bg-purple-500 text-white px-6 py-1 text-sm relative">
-                                {{ boking.type === 0 ? 'Lịch ngày' : boking.type === 1 ? 'Lịch tuần' : boking.type === 2
-                                ? 'Lịch tháng' : 'Lịch năm' }}
-                            </span>
+                                    {{ boking.type === 0 ? 'Lịch ngày' : boking.type === 1 ? 'Lịch tuần' : boking.type
+                                        === 2
+                                    ? 'Lịch tháng' : 'Lịch năm' }}
+                                </span>
 
                                 <!-- Status Label -->
                                 <span class="text-white pl-2 pr-7 py-1 text-sm relative" :class="{
@@ -69,23 +66,23 @@
                                 }">
                                     {{
                                         boking.status === 1 ? 'Chưa thanh toán' :
-                                        boking.status === 2 ? 'Đã thanh toán' :
-                                        boking.status === 3 ? 'Đã hủy' :
-                                        boking.status === 4 ? 'Hủy thành công' :
-                                        'Không xác định'
+                                            boking.status === 2 ? 'Đã thanh toán' :
+                                                boking.status === 3 ? 'Đã hủy' :
+                                                    boking.status === 4 ? 'Hủy thành công' :
+                                                        'Không xác định'
                                     }}
                                     <div class="absolute left-[-14px] top-1/2 transform -translate-y-1/2 w-0 h-0 border-t-[15px] border-t-transparent border-b-[15px] border-b-transparent"
-                                         :class="{
-                                             'border-r-blue-500': boking.status === 2,
-                                             'border-r-slate-500': boking.status === 3,
-                                             'border-r-red-500': boking.status === 4,
-                                             'border-r-yellow-500': boking.status === 1
-                                         }"></div>
+                                        :class="{
+                                            'border-r-blue-500': boking.status === 2,
+                                            'border-r-slate-500': boking.status === 3,
+                                            'border-r-red-500': boking.status === 4,
+                                            'border-r-yellow-500': boking.status === 1
+                                        }"></div>
                                 </span>
                             </div>
                             <!-- Refund Button -->
                             <button v-if="boking.status === 3" @click="openModal(boking)"
-                                    class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
+                                class="px-4 flex text-sm items-center gap-1 font-medium py-2 rounded-lg text-white bg-red-500">
                                 Hoàn tiền
                                 <DocumentCurrencyDollarIcon class="w-4 h-4 text-white"></DocumentCurrencyDollarIcon>
                             </button>
@@ -99,12 +96,13 @@
                             <p>Chi tiết:</p>
                             <p class="font-medium">{{ boking.childCourtName }}:</p>
                             <p class="font-medium border-r border-white pr-2">{{ formatDate(boking.startTime) }}</p>
-                            <p class="font-medium">{{ formatTime(boking.startTime) }} - {{ formatTime(boking.endTime) }}</p>
+                            <p class="font-medium">{{ formatTime(boking.startTime) }} - {{ formatTime(boking.endTime) }}
+                            </p>
                         </div>
                         <div class="flex gap-1 items-center">
                             <p>Số lượng:</p>
                             <p class="font-medium">{{ boking.quantity }}:</p>
-                           
+
                         </div>
                         <div class="flex gap-1 items-center">
                             <p>Thông tin người đặt:</p>
@@ -117,8 +115,10 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <p class="flex-shrink-0">Địa chỉ:</p>
-                            <p class="font-medium">{{ boking.courtStreet }}, {{ boking.courtWard }}, {{ boking.courtDistrict }}, Hà Nội</p>
+                            <p class="font-medium">{{ boking.courtStreet }}, {{ boking.courtWard }}, {{
+                                boking.courtDistrict }}, Hà Nội</p>
                         </div>
+                       
                     </div>
                 </div>
             </div>
@@ -129,7 +129,7 @@
             <template #content>
                 <div v-if="is_modal" class="w-[300px] h-[300px]">
                     <VueDatePicker class="w-full h-full" v-model="store.date" :inline="true" auto-apply locale="vi"
-                                   :day-names="customDayNames">
+                        :day-names="customDayNames">
                     </VueDatePicker>
                 </div>
                 <div v-else class="w-[500px] flex flex-col px-3">
@@ -137,6 +137,7 @@
                         <p class="text-red-500 text-xl font-semibold">Thông tin hoàn tiền</p>
                         <XMarkIcon @click="showModal" class="h-5 w-5 hover:bg-slate-300 rounded-lg"></XMarkIcon>
                     </header>
+
                     <body class="w-full grid py-2 gap-4 grid-cols-1">
                         <div class="flex-col col-span-1 gap-2 flex text-sm font-medium text-green-700">
                             <div class="flex gap-3 text-sm text-green-800">
@@ -145,30 +146,50 @@
                             </div>
                             <div class="flex gap-3 text-sm text-green-800">
                                 <p>Thông tin người đặt:</p>
-                                <p class="font-bold">{{ cancel_bokings?.userFullName }}, {{ cancel_bokings?.userPhoneNumber }}</p>
+                                <p class="font-bold">{{ cancel_bokings?.userFullName }}, {{
+                                    cancel_bokings?.userPhoneNumber }}</p>
                             </div>
                             <div class="flex gap-3 text-sm text-green-800">
                                 <p>Tiền đã thanh toán:</p>
-                                <p class="font-bold">{{  formatCurrency(cancel_bokings?.price ?? 0) }}</p>
+                                <p class="font-bold">{{ formatCurrency(cancel_bokings?.price ?? 0) }}</p>
                             </div>
                             <div class="flex gap-3 text-sm text-green-800">
                                 <ExclamationCircleIcon class="w-5 h-5 text-red-500"></ExclamationCircleIcon>
                                 <p>Số tiền bạn cần hoàn lại là 75% số tiền gốc:</p>
                                 <p class="font-bold">{{ calculate75PercentFormatted(cancel_bokings?.price) }}</p>
                             </div>
+                            <!-- Thông tin tài khoản ngân hàng -->
                             <div class="flex gap-3 text-sm text-green-800">
+                                <p>Thanh toán tới tài khoản:</p>
+                                <div>
+                                    <p v-if="userBankInfo.bankName" class="font-bold">
+                                        Ngân hàng: {{ userBankInfo.bankName }}
+                                    </p>
+                                    <p v-if="userBankInfo.bankAccount" class="font-bold">
+                                        Tên tài khoản: {{ userBankInfo.bankAccount }}
+                                    </p>
+                                    <p v-if="userBankInfo.bankNumber" class="font-bold">
+                                        Số tài khoản: {{ userBankInfo.bankNumber }}
+                                    </p>
+                                    <p v-if="!userBankInfo.bankName && !userBankInfo.bankAccount && !userBankInfo.bankNumber"
+                                        class="font-bold text-red-500">
+                                        Không có thông tin tài khoản ngân hàng
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- <div class="flex gap-3 text-sm text-green-800">
                                 <ExclamationCircleIcon class="w-5 h-5 text-red-500"></ExclamationCircleIcon>
                                 <p>Hãy liên lạc với người đặt để hoàn tiền!</p>
-                            </div>
+                            </div> -->
                         </div>
                     </body>
                     <footer class="w-full flex justify-between py-2 px-3 border-t border-slate-300">
                         <button @click="showModal"
-                                class="px-3 py-2 bg-slate-500 text-sm font-semibold text-white rounded-lg w-fit">
+                            class="px-3 py-2 bg-slate-500 text-sm font-semibold text-white rounded-lg w-fit">
                             Đóng
                         </button>
                         <button @click="refundBokings"
-                                class="px-3 py-2 bg-green-600 text-sm font-semibold text-white rounded-lg w-fit">
+                            class="px-3 py-2 bg-green-600 text-sm font-semibold text-white rounded-lg w-fit">
                             Hoàn Tiền
                         </button>
                     </footer>
@@ -237,8 +258,8 @@ const validatePhoneNumber = (event: Event) => {
 const filteredBookings = computed(() => {
     const filtered = list_bokings.value.filter((booking) => {
         // Ensure courtName exists and is a string
-        const courtName = booking.courtName && typeof booking.courtName === 'string' 
-            ? booking.courtName.toLowerCase() 
+        const courtName = booking.courtName && typeof booking.courtName === 'string'
+            ? booking.courtName.toLowerCase()
             : '';
 
         // Filter by court name (case-insensitive, partial match)
@@ -246,12 +267,12 @@ const filteredBookings = computed(() => {
             ? courtName.includes(searchCourtName.value.toLowerCase())
             : true;
 
-            // Filter by phone number if phoneNumber is not empty
-    const matchesPhoneNumber =
-      phoneNumber.value === '' ||
-      booking.userPhoneNumber.includes(phoneNumber.value);
+        // Filter by phone number if phoneNumber is not empty
+        const matchesPhoneNumber =
+            phoneNumber.value === '' ||
+            booking.userPhoneNumber.includes(phoneNumber.value);
 
-    if (!matchesPhoneNumber) return false;
+        if (!matchesPhoneNumber) return false;
 
         // Log each booking's courtName and match result
         console.log(`Booking ID: ${booking.id}, courtName: ${courtName}, matches: ${matchesCourtName}`);
@@ -335,7 +356,35 @@ function formatCurrency(amount: number): string {
 }
 
 // Open refund modal
+// Reactive variable để lưu thông tin ngân hàng
+const userBankInfo = ref<{
+    bankNumber: string | null;
+    bankName: string | null;
+    bankAccount: string | null;
+}>({ bankNumber: null, bankName: null, bankAccount: null });
+
+// Open refund modal
 function openModal(boking: CourtEvent) {
+    console.log('list_user', store.list_user);
+
+    // Tìm người dùng trong store.list_user dựa trên boking.userId
+    const user = store.list_user.find((u: any) => u.id === boking.userId);
+
+    // Cập nhật thông tin ngân hàng
+    if (user) {
+        userBankInfo.value = {
+            bankNumber: user.bankNumber || null,
+            bankName: user.bankName || null,
+            bankAccount: user.bankAccount || null,
+        };
+    } else {
+        userBankInfo.value = {
+            bankNumber: null,
+            bankName: null,
+            bankAccount: null,
+        };
+    }
+
     is_modal.value = false;
     show_modals.value = true;
     cancel_bokings.value = boking;

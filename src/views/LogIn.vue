@@ -45,8 +45,8 @@
                   <span>Đăng ký </span>
                 </p>
                 <!--  -->
-                <p @click="goToForget" class="line-clamp-1 cursor-pointer hover:underline text-primary">
-                  <span>Quên mật khẩu </span>
+                <p @click="goToForgets" class="line-clamp-1 cursor-pointer hover:underline text-primary">
+                  <span>Quên mật khẩu1 </span>
                 </p>
               </div>
             </div>
@@ -181,14 +181,16 @@ async function loginUse() {
 }
 
 // 
+function goToForgets() {
+  router.push('/forget');
+}
+
+// 
 function goToForgot() {
   router.push('/forgot');
 }
 
-// 
-function goToForget() {
-  router.push('/forget');
-}
+
 
 
 </script>

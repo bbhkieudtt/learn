@@ -55,11 +55,7 @@
                 <li class="hover:cursor-pointer hover:underline">
                   <a class="flex items-center gap-2" href="https://home.merchant.vn" target="_blank">Giới thiệu</a>
                 </li>
-                <li v-for="item in list_menu" class="hover:cursor-pointer hover:underline">
-                  <a :href="item.link_menu" target="_blank">{{
-                    item.name_menu
-                  }}</a>
-                </li>
+              
               </ul>
   
             </div>
@@ -71,10 +67,7 @@
   <script setup lang="ts">
   import {  ref } from "vue";
   import { useRouter } from 'vue-router'
-  
-  /**thư viện hiển thị icon*/
-  import { DotLottieVue } from "@lottiefiles/dotlottie-vue";
-  import { tr } from "date-fns/locale";
+
   
   /**api*/
   import { forgotPasswword } from "@/service/api/api";
@@ -88,26 +81,6 @@
   const router = useRouter()
  
   const status_login = ref(false);
-  
-  /***Biến danh sách*/
-  const list_menu = ref([
-    {
-      name_menu: "Miễn phí",
-      link_menu: "https://home.merchant.vn/pricing",
-    },
-    {
-      name_menu: "Tính năng",
-      link_menu: "https://home.merchant.vn/feature",
-    },
-    {
-      name_menu: "Chính sách",
-      link_menu: "https://home.merchant.vn/privacy",
-    },
-    {
-      name_menu: "Liên hệ",
-      link_menu: "https://home.merchant.vn/contact",
-    },
-  ]);
   
 
   const account_login = ref<{ email: string }>({
@@ -139,7 +112,7 @@
           toast("Lấy lại mật khẩu thất bại, vui lòng thử lại!", { autoClose: 3000 });
         }
       } catch (error) {
-        console.error("API Error:", error);
+        toast(error, { autoClose: 3000 });
       }
     }
   }

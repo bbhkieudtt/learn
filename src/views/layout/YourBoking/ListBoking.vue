@@ -40,7 +40,7 @@
                             <p class="font-semibold text-yellow-300 text-lg">{{ boking.courtName }}</p>
                             <div class="flex gap-2">
                                 <!-- Cancel button -->
-                                <button @click="openModel(boking)"
+                                <button @click.stop="openModel(boking)"
                                     v-if="isMoreThanOneDayAway(boking.startTime) && boking.status === 2"
                                     class="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-full flex items-center gap-2 hover:bg-red-700 transition-colors">
                                     Hủy lịch
@@ -48,7 +48,7 @@
                                 </button>
                                 <!-- Comment/Report button -->
                                 <button v-if="boking.status === 2 && getStatusText(boking) === 'Đã hoàn thành'"
-                                    @click="commentReportCourt(boking)"
+                                    @click.stop="commentReportCourt(boking)"
                                     class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-full flex items-center gap-2 hover:bg-indigo-700 transition-colors">
                                     Bình luận/Báo cáo
                                     <ChatBubbleLeftIcon class="w-4 h-4"></ChatBubbleLeftIcon>
@@ -70,6 +70,7 @@
                                 <p class="text-gray-300">Địa chỉ:</p>
                                 <p class="font-medium">{{ boking.courtStreet }}, {{ boking.courtWard }}, {{ boking.courtDistrict }}, Hà Nội</p>
                             </div>
+                            <p v-if="boking.status === 4">Nếu sau 3 ngày bạn chưa được hoàn tiền hay liện hệ với chúng tôi qua Email :kieu.dtt.2002@gmail.com</p>
                         </div>
                     </div>
                 </div>
@@ -106,10 +107,10 @@
                         <p>Nếu bạn hủy lịch bạn chỉ được hoàn 75% số tiền</p>
                         <p v-if="cancel_bokings?.price" class="font-semibold">{{ calculate75PercentFormatted(cancel_bokings.price) }}</p>
                     </div>
-                    <div class="flex gap-3 items-center">
+                    <!-- <div class="flex gap-3 items-center">
                         <ExclamationCircleIcon class="w-5 h-5 text-red-500"></ExclamationCircleIcon>
                         <p>Chủ sân sẽ liên lạc với bạn để hoàn lại tiền!</p>
-                    </div>
+                    </div> -->
                 </div>
                 <footer class="flex justify-between pt-4 mt-4 border-t border-gray-200">
                     <button @click="showModal" class="px-4 py-2 bg-gray-500 text-white text-sm font-medium rounded-full hover:bg-gray-600 transition-colors">Đóng</button>
@@ -294,15 +295,67 @@ function calculate75PercentFormatted(number: number) {
 }
 
 /**Hàm hủy lịch*/
+import { ElMessageBox } from 'element-plus';
+
 async function cancelBokings() {
+    const data = localStorage.getItem('userInfo');
+    console.log('data', data);
+
+    if (data) {
+        const userInfo = JSON.parse(data);
+        console.log('userInfo', userInfo);
+        if (!userInfo.bankNumber || !userInfo.bankName || !userInfo.bankAccount) {
+            try {
+                await ElMessageBox.confirm(
+                    'Vui lòng điền đầy đủ thông tin tài khoản để được hoàn tiền!',
+                    'Thông báo',
+                    {
+                        confirmButtonText: 'Điền thông tin',
+                        cancelButtonText: 'Hủy',
+                        type: 'warning',
+                    }
+                );
+                // Nếu người dùng bấm "Điền thông tin"
+                console.log('Redirecting to /inforUse');
+                router.push('/inforUse');
+            } catch (error) {
+                // Nếu người dùng bấm "Hủy" hoặc đóng hộp thoại
+                console.log('Modal cancelled');
+                return;
+            }
+            return;
+        }
+    } else {
+        try {
+            await ElMessageBox.confirm(
+                'Vui lòng điền đầy đủ thông tin tài khoản để được hoàn tiền!',
+                'Thông báo',
+                {
+                    confirmButtonText: 'Điền thông tin',
+                    cancelButtonText: 'Hủy',
+                    type: 'warning',
+                }
+            );
+            // Nếu người dùng bấm "Điền thông tin"
+            console.log('Redirecting to /inforUse');
+            router.push('/inforUse');
+        } catch (error) {
+            // Nếu người dùng bấm "Hủy" hoặc đóng hộp thoại
+            console.log('Modal cancelled');
+            return;
+        }
+        return;
+    }
+
+    // Tiếp tục logic hủy lịch nếu thông tin đầy đủ
     if (cancel_bokings.value) {
-        cancel_bokings.value.status = 3
+        cancel_bokings.value.status = 3;
         try {
             const response = await apiUpdateBoking(cancel_bokings.value);
             if (response && response.status === 200) {
                 toast("Hủy lịch thành công!", { autoClose: 3000 });
-                getListBoking()
-                showModal()
+                getListBoking();
+                showModal();
             } else {
                 toast("Hủy lịch thất bại, vui lòng thử lại!", { autoClose: 5000 });
             }

@@ -495,13 +495,24 @@ const uploadImage = async (event: any) => {
 async function createCourt() {
     // Khôi phục và sử dụng thông tin từ localStorage
     infor_yard.value.userId = JSON.parse(localStorage.getItem("userInfo") ?? '{}')?.id || 0;
+    infor_yard.value.maxPrice = 999999999999999;
+    infor_yard.value.minPrice = 10000;
 
-    infor_yard.value.maxPrice = 999999999999999
-    infor_yard.value.minPrice = 10000
+    // Kiểm tra nếu district và ward trùng lặp với dữ liệu có sẵn trong list_court
+    const isDuplicate = store_court.list_court.some(court => 
+        court.district === infor_yard.value.district && court.ward === infor_yard.value.ward
+    );
 
+    if (isDuplicate) {
+        toast("Sân này đã tồn tại với cùng địa chỉ quận và phường!", { autoClose: 5000 });
+        return; // Dừng lại nếu có sân trùng lặp
+    }
+
+    // Kiểm tra dữ liệu trước khi tạo sân
     if (!validateCourtData()) {
         return;
     }
+
     try {
         const response = await apiCreateCourt(infor_yard.value);
         // Kiểm tra nếu API trả về thành công
@@ -516,8 +527,7 @@ async function createCourt() {
             );
             toast("Tạo sân thành công!", { autoClose: 5000 });
 
-            showModal()
-
+            showModal();
         } else {
             toast("Đăng ký thất bại, vui lòng thử lại!", { autoClose: 5000 });
         }
@@ -525,6 +535,7 @@ async function createCourt() {
         console.error("API Error:", error);
     }
 }
+
 
 // Validation function
 function validateCourtData() {

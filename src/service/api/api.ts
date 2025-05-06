@@ -53,7 +53,40 @@ async function apiRequests({ end_point, body, method }: InputRequestApi) {
   }
 }
 
+// async function apiRequestss({ end_point, body, method }: InputRequestApi) {
+//   try {
+//     // Xử lý endpoint forgot-password với multipart/form-data
+//     if (end_point === 'User/forgot-password') {
+//       const formData = new FormData();
+//       for (const [key, value] of Object.entries(body)) {
+//         formData.append(key, value);
+//       }
 
+//       let response = await requestAxios({
+//         uri: `${HOST["pickleyard"]}/${end_point}`,
+//         method: method || 'POST',
+//         headers: {
+//           Accept: '*/*', // Giữ giống Postman
+//           // Không set Content-Type, browser tự động thêm multipart/form-data
+//         },
+//         body: formData,
+//       });
+//       return response;
+//     }
+
+//     // Các endpoint khác dùng application/json
+//     let response = await requestAxios({
+//       uri: `${HOST["pickleyard"]}/${end_point}`,
+//       method: method || 'GET',
+//       headers: { 'Content-Type': 'application/json' },
+//       body,
+//     });
+//     return response;
+//   } catch (e) {
+//     console.log('Error in apiRequest:', e.response?.status, e.response?.data);
+//     throw e;
+//   }
+// }
 /**api tạo tài khoản*/
 export const apiCreateUser = async (payload: any) => {
    try {
