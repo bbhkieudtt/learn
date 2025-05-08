@@ -56,6 +56,13 @@
                         </svg>
                     </button>
                 </div>
+                <!-- Thông tin tài khoản chủ sân -->
+                <div class="mb-6 p-4 bg-green-50 rounded-lg">
+                    <h4 class="text-lg font-semibold text-green-800 mb-2">Thông tin tài khoản chủ sân</h4>
+                    <p class="text-sm text-gray-800"><strong>Số tài khoản:</strong> {{ ownerBankInfo.bankNumber || 'Chưa cung cấp' }}</p>
+                    <p class="text-sm text-gray-800"><strong>Ngân hàng:</strong> {{ ownerBankInfo.bankName || 'Chưa cung cấp' }}</p>
+                    <p class="text-sm text-gray-800"><strong>Chủ tài khoản:</strong> {{ ownerBankInfo.bankAccount || 'Chưa cung cấp' }}</p>
+                </div>
                 <table class="w-full border-separate border-spacing-0">
                     <thead class="bg-green-100">
                         <tr>
@@ -75,6 +82,7 @@
                         </tr>
                     </tbody>
                 </table>
+                
                 <div class="mt-4 flex justify-end">
                     <button 
                         class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-300"
@@ -91,6 +99,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useAppStoreCourt } from '@/stores/appStoreCourt';
+import { useAppStore } from '@/stores/appStore';
 import { apiGetListBooking, apiUpdateBoking } from '@/service/api/apiBoking';
 import { apiGetCourt } from "@/service/api/apiCourt";
 import { useRouter } from 'vue-router';
@@ -98,6 +107,8 @@ import type { CourtEvent, Court } from '@/interface';
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
+// Stores
+const store = useAppStore();
 const router = useRouter();
 const store_court = useAppStoreCourt();
 const list_bookings = ref<CourtEvent[]>([]);
@@ -105,6 +116,17 @@ const showModal = ref(false);
 const selectedBookings = ref<CourtEvent[]>([]);
 const selectedCourtId = ref<number | null>(null);
 const selectedCourtName = ref<string>('');
+
+// Define ownerBankInfo with explicit types
+const ownerBankInfo = ref<{
+  bankNumber: string | null;
+  bankName: string | null;
+  bankAccount: string | null;
+}>({
+  bankNumber: null,
+  bankName: null,
+  bankAccount: null,
+});
 
 onMounted(async () => {
     await getListBooking();
@@ -119,6 +141,8 @@ async function getListBooking() {
             console.log('Dữ liệu API:', response.data);
             list_bookings.value = response.data;
         } else {
+
+
             toast('Lấy danh sách lịch đặt thất bại!', { autoClose: 5000 });
         }
     } catch (error) {
@@ -148,7 +172,7 @@ async function getListCourt() {
 // Tính toán danh sách sân với dữ liệu doanh thu
 const filteredCourts = computed(() => {
     const now = new Date();
-    // Lọc lịch đặt: status=2 (chưa thanh toán) và status=5 (đã thanh toán), thời gian kết thúc đã qua
+    // Lọc lịch đặt: status=2 (chưa thanh toán) và status=5 (đã thanh toán), thời gian kết thúc đã557 qua
     const completedBookings = list_bookings.value.filter(booking => 
         (booking.status === 2 || booking.status === 5) && new Date(booking.endTime) < now
     );
@@ -213,6 +237,16 @@ const showBookingDetails = (courtId: number) => {
                    booking.status === 2 && 
                    new Date(booking.endTime) < now
     );
+    
+    // Tìm thông tin chủ sân
+    const courtOwner = store_court.list_court.find(c => c.id === courtId)?.userId;
+    const owner = store.list_user.find(user => user.id === courtOwner);
+    ownerBankInfo.value = {
+        bankNumber: owner?.bankNumber || null,
+        bankName: owner?.bankName || null,
+        bankAccount: owner?.bankAccount || null,
+    };
+    
     showModal.value = true;
 };
 
@@ -222,6 +256,7 @@ const closeModal = () => {
     selectedBookings.value = [];
     selectedCourtId.value = null;
     selectedCourtName.value = '';
+    ownerBankInfo.value = { bankNumber: null, bankName: null, bankAccount: null };
 };
 
 // Xử lý hành động thanh toán

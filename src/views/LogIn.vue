@@ -46,7 +46,7 @@
                 </p>
                 <!--  -->
                 <p @click="goToForgets" class="line-clamp-1 cursor-pointer hover:underline text-primary">
-                  <span>Quên mật khẩu1 </span>
+                  <span>Quên mật khẩu</span>
                 </p>
               </div>
             </div>
