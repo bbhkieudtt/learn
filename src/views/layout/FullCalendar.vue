@@ -199,11 +199,15 @@ function transformToFullCalendar(eventsData: Booking[]): event_booking[] {
       ? `${event.userFullName} sđt: ${event.userPhoneNumber || 'N/A'} giá: ${event.price || 0}`
       : 'No User';
 
-    const classNames =
-      event.status === 2 ||  event.status === 5
+   const classNames =
+      event.type === 0
         ? ['bg-green-500', 'text-white']
-        : event.status === 1
+        : event.type === 1
+        ? ['bg-blue-400', 'text-white']
+        : event.type === 2
         ? ['bg-yellow-400', 'text-white']
+        : event.type === 3
+        ? ['bg-purple-400', 'text-white']
         : ['bg-slate-400', 'text-yellow-400'];
 
     if (event.type === 0) {

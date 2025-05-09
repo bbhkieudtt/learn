@@ -1,110 +1,140 @@
 <template>
-    <div class="h-dvh w-dvw flex flex-col gap-3 px-3 py-2 bg-green">
-        <header class="flex justify-between items-center py-2">
-            <ChevronLeftIcon @click="goToDetail" class="w-6 h-6 text-white"></ChevronLeftIcon>
-            <p class="text-2xl font-semibold text-white">Đặt lịch ngay</p>
-            <p></p>
-        </header>
-        <main class="h-full flex flex-col gap-5 overflow-auto">
-            <!-- Tên khách hàng -->
-            <div class="flex flex-col gap-2 py-1">
-                <label for="" class="text-xl font-semibold text-white">Tên khách hàng</label>
-                <div class="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-slate-500 shadow-sm">
-                    <input type="text" v-if="user_court" v-model="user_court.fullname" class="text-lg w-full outline-none" placeholder="Nhập tên khách hàng">
-                </div>
+  <div class="h-dvh w-dvw flex flex-col gap-3 px-3 py-2 bg-green">
+    <header class="flex justify-between items-center py-2">
+      <ChevronLeftIcon @click="goToDetail" class="w-6 h-6 text-white"></ChevronLeftIcon>
+      <p class="text-2xl font-semibold text-white">Đặt lịch ngay</p>
+      <p></p>
+    </header>
+    <main class="h-full flex flex-col gap-5 overflow-auto">
+      <!-- Tên khách hàng -->
+      <div class="flex flex-col gap-2 py-1">
+        <label for="" class="text-xl font-semibold text-white">Tên khách hàng</label>
+        <div class="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-slate-500 shadow-sm">
+          <input type="text" v-if="user_court" v-model="user_court.fullname" class="text-lg w-full outline-none"
+            placeholder="Nhập tên khách hàng">
+        </div>
+      </div>
+      <!-- Số điện thoại -->
+      <div class="flex flex-col gap-2 py-1">
+        <label for="" class="text-xl font-semibold text-white">Số điện thoại</label>
+        <div class="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-slate-500 shadow-sm">
+          <div class="flex gap-2 w-full">
+            <div class="flex gap-2 flex-shrink-0 items-center">
+              <div class="p-1.5 rounded-full bg-red-600">
+                <StarIcon class="w-4 h-4 text-yellow-300"></StarIcon>
+              </div>
             </div>
-            <!-- Số điện thoại -->
-            <div class="flex flex-col gap-2 py-1">
-                <label for="" class="text-xl font-semibold text-white">Số điện thoại</label>
-                <div class="flex justify-between items-center py-2 px-3 bg-white rounded-md border border-slate-500 shadow-sm">
-                    <div class="flex gap-2 w-full">
-                        <div class="flex gap-2 flex-shrink-0 items-center">
-                            <div class="p-1.5 rounded-full bg-red-600">
-                                <StarIcon class="w-4 h-4 text-yellow-300"></StarIcon>
-                            </div>
-                        </div>
-                        <input v-if="user_court" type="tel" v-model="user_court.phoneNumber" @input="filterSuggestions" @keypress="onlyNumber" class="text-lg w-full outline-none" placeholder="Nhập số điện thoại">
-                    </div>
-                    <PlusCircleIcon @click="openModal" v-tooltip="'Chú thích khi hover vào đây'" class="w-6 h-6 text-yellow-600 shrink-0"></PlusCircleIcon>
-                </div>
-                <!-- Danh sách gợi ý -->
-                <ul v-if="suggestions.length > 0" class="absolute top-[0px] bg-white border w-full mt-1 max-h-48 overflow-y-auto rounded shadow z-10">
-                    <li v-for="(user, index) in suggestions" :key="index" @click="selectUser(user)" class="p-2 hover:bg-gray-100 cursor-pointer">
-                        {{ user.username }} - {{ user.phoneNumber }}
-                    </li>
-                </ul>
+            <input v-if="user_court" type="tel" v-model="user_court.phoneNumber" @input="filterSuggestions"
+              @keypress="onlyNumber" class="text-lg w-full outline-none" placeholder="Nhập số điện thoại">
+          </div>
+          <PlusCircleIcon @click="openModal" v-tooltip="'Chú thích khi hover vào đây'"
+            class="w-6 h-6 text-yellow-600 shrink-0"></PlusCircleIcon>
+        </div>
+        <!-- Danh sách gợi ý -->
+        <ul v-if="suggestions.length > 0"
+          class="absolute top-[0px] bg-white border w-full mt-1 max-h-48 overflow-y-auto rounded shadow z-10">
+          <li v-for="(user, index) in suggestions" :key="index" @click="selectUser(user)"
+            class="p-2 hover:bg-gray-100 cursor-pointer">
+            {{ user.username }} - {{ user.phoneNumber }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Thông tin đặt lịch -->
+      <div class="flex flex-col mt-10 bg-green-900 rounded-md opacity-95 gap-3 px-5 py-5">
+        <div class="flex gap-3 items-center">
+          <ClipboardDocumentListIcon class="w-10 h-10 text-yellow-200"></ClipboardDocumentListIcon>
+          <p class="text-xl font-semibold text-yellow-300">Thông tin đặt lịch</p>
+        </div>
+        <div class="flex gap-2 flex-col">
+          <div class="flex text-lg text-white items-center gap-3">
+            <p class="text-xl">Tên sân:</p>
+            <p class="font-semibold">{{ store_court.court_detail?.courtName }}</p>
+          </div>
+          <div class="flex text-lg text-white gap-3">
+            <p class="text-lg">Sân con:</p>
+            <p class="font-semibold text-lg text-white">{{ store_court.chill_detail?.childCourtName }}</p>
+          </div>
+          <div class="flex text-lg text-white items-center gap-3">
+            <p class="text-lg">Địa chỉ:</p>
+            <p class="font-semibold">{{ address }}</p>
+          </div>
+          <!-- Thông tin đặt lịch từ store.bookings -->
+          <div class="flex flex-col gap-3">
+            <p class="text-lg text-white font-semibold">Chi tiết đặt lịch:</p>
+            <div v-for="booking in store.bookings" :key="booking.id"
+              class="flex flex-col bg-green-800 p-3 rounded-md gap-2">
+              <p class="text-lg text-white">Ngày: {{ formatStartDate(booking.startTime) }}</p>
+              <p class="text-lg text-white">Thời gian: Từ {{ formatTime(booking.startTime) }} - {{
+                formatTime(booking.endTime) }}</p>
+              <p class="text-lg text-white">Loại: {{ getTypeText(booking.type) }}</p>
+              <p class="text-lg text-white">Số lượng: {{ booking.quantity }}</p>
+              <p class="text-lg text-white">Giá: {{ formatCurrency(booking.price) }}</p>
             </div>
-            <!-- Thông tin đặt lịch -->
-            <div class="flex flex-col mt-10 bg-green-900 rounded-md opacity-95 gap-3 px-5 py-5">
+            <div class="flex flex-col gap-2 pt-3 border-t border-green-700">
+              <div class="flex text-lg text-white items-center gap-3">
+                <p class="text-lg">Tổng tiền phải thanh toán:</p>
+                <p class="font-semibold">{{ totalBookingCost }}</p>
+              </div>
+              <!-- Thêm thông tin chuyển khoản với ghi chú -->
+              <div class="flex flex-col gap-2 mt-3">
                 <div class="flex gap-3 items-center">
-                    <ClipboardDocumentListIcon class="w-10 h-10 text-yellow-200"></ClipboardDocumentListIcon>
-                    <p class="text-xl font-semibold text-yellow-300">Thông tin đặt lịch</p>
+                  <CreditCardIcon class="w-5 h-5 text-yellow-300"></CreditCardIcon>
+                <p class="text-lg text-yellow-300 font-semibold">Thanh toán tiền đặt sân tới tài khoản để hoàn thành:</p>
                 </div>
-                <div class="flex gap-2 flex-col">
-                    <div class="flex text-lg text-white items-center gap-3">
-                        <p class="text-xl">Tên sân:</p>
-                        <p class="font-semibold">{{ store_court.court_detail?.courtName }}</p>
-                    </div>
-                    <div class="flex text-lg text-white gap-3">
-                        <p class="text-lg">Sân con:</p>
-                        <p class="font-semibold text-lg text-white">{{ store_court.chill_detail?.childCourtName }}</p>
-                    </div>
-                    <div class="flex text-lg text-white items-center gap-3">
-                        <p class="text-lg">Địa chỉ:</p>
-                        <p class="font-semibold">{{ address }}</p>
-                    </div>
-                    <!-- Thông tin đặt lịch từ store.bookings -->
-                    <div class="flex flex-col gap-3">
-                        <p class="text-lg text-white font-semibold">Chi tiết đặt lịch:</p>
-                        <div v-for="booking in store.bookings" :key="booking.id" class="flex flex-col bg-green-800 p-3 rounded-md gap-2">
-                            <p class="text-lg text-white">Ngày: {{ formatStartDate(booking.startTime) }}</p>
-                            <p class="text-lg text-white">Thời gian: Từ {{ formatTime(booking.startTime) }} - {{ formatTime(booking.endTime) }}</p>
-                            <p class="text-lg text-white">Loại: {{ getTypeText(booking.type) }}</p>
-                            <p class="text-lg text-white">Số lượng: {{ booking.quantity }}</p>
-                            <p class="text-lg text-white">Giá: {{ formatCurrency(booking.price) }}</p>
-                        </div>
-                        <div class="flex flex-col gap-2 pt-3 border-t border-green-700">
-                            <div class="flex text-lg text-white items-center gap-3">
-                                <p class="text-lg">Tổng tiền phải thanh toán:</p>
-                                <p class="font-semibold">{{ totalBookingCost }}</p>
-                            </div>
-                            <div v-if="is_key" class="flex text-xl text-white items-center gap-5">
-                                <input v-model="key" type="checkbox" class="w-6 h-6">
-                                <p class="font-semibold">Đặt sân cho khách</p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="flex flex-col bg-green-800 p-3 rounded-md gap-2">
+                  <p class="text-lg text-white">Ngân hàng: NCB</p>
+                  <p class="text-lg text-white">Số thẻ: 9704198526191432198</p>
+                  <p class="text-lg text-white">Tên chủ thẻ: NGUYEN VAN A</p>
                 </div>
+              </div>
+              <!-- Kết thúc phần thêm thông tin chuyển khoản -->
+              <div v-if="is_key" class="flex text-xl text-white items-center gap-5">
+                <input v-model="key" type="checkbox" class="w-6 h-6">
+                <p class="font-semibold">Đặt sân cho khách</p>
+              </div>
             </div>
-        </main>
-        <button @click="addBoking" class="text-center text-xl font-semibold text-white bg-yellow-500 rounded-lg py-3">Xác nhận</button>
-    </div>
-    <!-- Modal -->
-    <Modal v-if="show_modal" :close="showModal">
-        <template #content>
-            <div class="w-[700px] flex flex-col px-3">
-                <header class="flex items-center border-b border-slate-300 py-2 justify-between">
-                    <p class="text-green-800 text-xl font-semibold">Thông tin người đặt</p>
-                    <XMarkIcon @click="showModal" class="h-5 w-5 hover:bg-slate-300 rounded-lg"></XMarkIcon>
-                </header>
-                <body class="w-full grid py-2 gap-4 grid-cols-1">
-                    <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
-                        <div class="flex flex-col gap-2 pb-5" :class="{ 'opacity-50': activeInput !== 'addresss' && !info_clien.fullname }">
-                            <label class="font-semibold text-green-900" for="">Tên người dùng</label>
-                            <input v-model="info_clien.fullname" placeholder="Nhập tên người thuê" class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text" @focus="setActive('addresss')" @blur="removeActive" />
-                        </div>
-                        <div class="flex flex-col gap-2 pb-5" :class="{ 'opacity-50': activeInput !== 'address' && !info_clien.phoneNumber }">
-                            <label class="font-semibold text-green-900" for="">Nhập số điện thoại</label>
-                            <input v-model="info_clien.phoneNumber" placeholder="Nhập số điện thoại" class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text" @focus="setActive('address')" @blur="removeActive" />
-                        </div>
-                    </div>
-                </body>
-                <footer class="w-full flex justify-end py-2 px-3 border-t border-slate-300">
-                    <button @click="createClien" class="px-3 py-2 bg-yellow-500 text-sm font-semibold text-white rounded-lg w-fit">Tạo thông tin</button>
-                </footer>
+          </div>
+        </div>
+      </div>
+    </main>
+    <button @click="addBoking" class="text-center text-xl font-semibold text-white bg-yellow-500 rounded-lg py-3">Xác
+      nhận</button>
+  </div>
+  <!-- Modal -->
+  <Modal v-if="show_modal" :close="showModal">
+    <template #content>
+      <div class="w-[700px] flex flex-col px-3">
+        <header class="flex items-center border-b border-slate-300 py-2 justify-between">
+          <p class="text-green-800 text-xl font-semibold">Thông tin người đặt</p>
+          <XMarkIcon @click="showModal" class="h-5 w-5 hover:bg-slate-300 rounded-lg"></XMarkIcon>
+        </header>
+
+        <body class="w-full grid py-2 gap-4 grid-cols-1">
+          <div class="flex-col col-span-1 flex text-sm font-medium text-green-700">
+            <div class="flex flex-col gap-2 pb-5"
+              :class="{ 'opacity-50': activeInput !== 'addresss' && !info_clien.fullname }">
+              <label class="font-semibold text-green-900" for="">Tên người dùng</label>
+              <input v-model="info_clien.fullname" placeholder="Nhập tên người thuê"
+                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
+                @focus="setActive('addresss')" @blur="removeActive" />
             </div>
-        </template>
-    </Modal>
+            <div class="flex flex-col gap-2 pb-5"
+              :class="{ 'opacity-50': activeInput !== 'address' && !info_clien.phoneNumber }">
+              <label class="font-semibold text-green-900" for="">Nhập số điện thoại</label>
+              <input v-model="info_clien.phoneNumber" placeholder="Nhập số điện thoại"
+                class="w-full px-3 py-2 outline-none rounded-md border border-green-600" type="text"
+                @focus="setActive('address')" @blur="removeActive" />
+            </div>
+          </div>
+        </body>
+        <footer class="w-full flex justify-end py-2 px-3 border-t border-slate-300">
+          <button @click="createClien"
+            class="px-3 py-2 bg-yellow-500 text-sm font-semibold text-white rounded-lg w-fit">Tạo thông tin</button>
+        </footer>
+      </div>
+    </template>
+  </Modal>
 </template>
 
 <script setup lang="ts">
@@ -118,7 +148,7 @@ import { useAppStoreCourt } from '@/stores/appStoreCourt'
 import { apiCreateBoking, apiUpdateBoking } from "@/service/api/apiBoking";
 import { apiCreatePayment, apiCreatePaymentVNpay } from "@/service/api/apiPayment";
 import { apiCreateUser, getListUser } from "@/service/api/api";
-import { ChevronLeftIcon, PlusCircleIcon, StarIcon, ClipboardDocumentListIcon, XMarkIcon } from "@heroicons/vue/24/solid";
+import { ChevronLeftIcon, PlusCircleIcon, StarIcon, ClipboardDocumentListIcon, XMarkIcon, CreditCardIcon } from "@heroicons/vue/24/solid";
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
@@ -249,20 +279,20 @@ async function addBoking() {
   try {
     // Lặp qua store.bookings để gọi apiCreateBoking lần lượt
     for (const booking of store.bookings) {
-      console.log('store_court.court_detail?.id',store_court.court_detail?.id);
-      
+      console.log('store_court.court_detail?.id', store_court.court_detail?.id);
+
       // Tạo object booking mới cho mỗi lần gọi API
       const bookingData = {
         ...booking, // Copy các thuộc tính từ booking
 
-        
+
         userId: user_court.value?.id ?? 0, // Gán userId
         childCourtId: store_court.chill_detail?.id ?? 0, // Gán childCourtId
         status: 0, // Mặc định status là 0 (chờ xác nhận)
         price: booking.price || 0, // Giá của booking hiện tại
-        courtId: store_court.court_detail?.id 
+        courtId: store_court.court_detail?.id
       };
-      console.log('store_court.court_detail?.id111',bookingData);
+      console.log('store_court.court_detail?.id111', bookingData);
       // Gọi API tạo booking
       const bookingResponse = await apiCreateBoking(bookingData);
       console.log("API Response for booking:", bookingResponse);
@@ -309,8 +339,8 @@ async function addBoking() {
 
     // Nếu key = false, gọi payVNpay với danh sách paymentIds
     if (!key.value && paymentIds.length > 0) {
- 
-      
+
+
       await payVNpay(paymentIds);
     } else if (!key.value && paymentIds.length === 0) {
       toast("Không có thanh toán nào được tạo thành công!", { autoClose: 5000 });
@@ -333,7 +363,7 @@ async function payBooking() {
   }
 }
 
-async function payVNpay(paymentIds :any) {
+async function payVNpay(paymentIds: any) {
   console.log('paymentIds', paymentIds);
   try {
     const response = await apiCreatePaymentVNpay(paymentIds); // Chỉ truyền danh sách paymentIds
@@ -446,7 +476,7 @@ function removeVietnameseTones(str: any) {
 
 async function UpdateBoking(repon: Booking) {
   if (repon) {
-    repon.status = 2;
+    repon.status = 5;
   }
   try {
     const response = await apiUpdateBoking(repon);

@@ -1,7 +1,7 @@
 <template>
   <body class="bg-green-900 min-h-screen text-white font-sans">
     <div class="bg-green-900 min-h-screen text-white font-sans">
-      <header class="flex items-center justify-between px-6 py-4 bg-green-800 shadow-md">
+      <header class="flex items-center justify-between px-6 py-3 bg-green-800 shadow-md">
         <div class="flex items-center space-x-3">
           <img @click="goHome" :src="logoPick" alt="Logo" class="w-10 h-10 rounded-full">
           <h1 class="text-2xl font-bold">Thông tin tài khoản</h1>
@@ -11,7 +11,7 @@
         </div>
       </header>
 
-      <main class="max-w-3xl mx-auto mt-10 bg-white text-green-900 rounded-2xl shadow-lg p-8">
+      <main class="max-w-3xl mx-auto mt-10 bg-white text-green-900 rounded-2xl shadow-lg px-8 py-7">
         <h2 class="text-2xl font-semibold mb-6 text-center">Chi tiết tài khoản</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
